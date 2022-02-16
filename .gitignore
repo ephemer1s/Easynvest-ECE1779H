@@ -1,2 +1,2 @@
-./app/_pycache_/
-./_pycache_/
+app/__pycache__/
+__pycache__/
