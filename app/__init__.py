@@ -32,7 +32,6 @@ class Stats:
 
     public:
         self.list stores Stat objects, which includes timestamp and action (hit/miss)
-        self.numOfItems: Number of files stored by the memcache
         self.totalSize: (in KB maybe) Size of files memcache currently stores
         self.numOfRequestsServed: Number of Requests Served
 
@@ -40,7 +39,6 @@ class Stats:
 
     def __init__(self):
         self.list = []
-        self.numOfItems = 0
         self.totalSize = 0
         self.numOfRequestsServed = 0
 

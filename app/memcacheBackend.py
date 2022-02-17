@@ -44,7 +44,6 @@ def _updateStatsHit():
 
     # (TBD)
     memcacheStatistics.totalSize = updateSize()
-    memcacheStatistics.numOfItems = updateNumberOfItems()
     pass
 
 
@@ -54,7 +53,6 @@ def _updateStatsMiss():
 
     # (TBD)
     memcacheStatistics.totalSize = updateSize()
-    memcacheStatistics.numOfItems = updateNumberOfItems()
     pass
 
 
@@ -115,7 +113,6 @@ def clrCache():
     """
     memcache.clear()
     memcacheStatistics.totalSize = updateSize()
-    memcacheStatistics.numOfItems = 0
 
     # update stats
     pass
@@ -129,7 +126,6 @@ def delCache(key):
         memcache.pop(key)
         # update stats
         memcacheStatistics.totalSize = updateSize()
-        memcacheStatistics.numOfItems = memcacheStatistics.numOfItems - 1
     pass
 
 
@@ -139,8 +135,4 @@ def getFromDB():
 
 
 def updateSize():
-    return 0
-
-
-def updateNumberOfItems():
     return 0
