@@ -9,10 +9,36 @@ from flask import json, render_template, url_for, request
 from app import webapp, memcache
 
 
-
+#===================================Under Construction=============================================
 @webapp.route('/')
 def main():
     return render_template("index.html")
+
+
+@webapp.route('/upload')
+def upload():
+    return render_template("main-old.html")  # TODO: need to adjust this html and corresponding get codes
+
+
+@webapp.route('/browse')
+def browse():
+    pass
+
+
+@webapp.route('/keylist')
+def keylist():
+    pass
+
+
+@webapp.route('/config')
+def config():
+    pass
+
+
+@webapp.route('/status')
+def status():
+    pass
+#===================================Under Construction=============================================
 
 @webapp.route('/get',methods=['POST'])
 def get():
