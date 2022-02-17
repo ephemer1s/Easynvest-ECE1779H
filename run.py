@@ -1,5 +1,8 @@
 #!../venv/bin/python
 from app import webapp
-webapp.run('0.0.0.0',5001,debug=False)
+from app.main import main
+
+if __name__ == "__main__":
+    webapp.run('0.0.0.0',5001,debug=True)
 
 
