@@ -1,22 +1,24 @@
-from app import main
 from flask import Flask
-import os
 import datetime
 
-global d_memcache
-global l_memcacheStatistics
-global d_memcacheConfig
+global memcache
+global memcacheStatistics
+global memcacheConfig
 
 webapp = Flask(__name__)
 
 # Memcache storage
-d_memcache = {}
-d_memcacheConfig = {}
+memcache = {}
+memcacheConfig = {}
 
 # initilize memcache statistics
 
 
 class Stat:
+    """A Stat object has 2 members: 
+        self.timestamp = Time when action is performed
+        self.action = cache miss or cache hit
+    """
 
     def __init__(self, _timestamp, _action):
         self.timestamp = _timestamp
@@ -26,15 +28,38 @@ class Stat:
 
 
 class Stats:
+    """The Stats class stores all the members and member function of the memcache statistics 
+
+    public:
+        self.list stores Stat objects, which includes timestamp and action (hit/miss)
+        self.numOfItems: Number of files stored by the memcache
+        self.totalSize: (in KB maybe) Size of files memcache currently stores
+        self.numOfRequestsServed: Number of Requests Served
+
+    """
 
     def __init__(self):
         self.list = []
+        self.numOfItems = 0
+        self.totalSize = 0
+        self.numOfRequestsServed = 0
 
     def addStat(self, _stat):
+        """Add a Stat object to self.list.
+
+        Args:
+            _stat (Stat): The Stat object being appended to the self.list
+        """
         self.list.append(_stat)
 
     def getTenMinStats(self):
+        """Get stats info within the previous 10 minutes. 
+        Takes all the stats and filter the ones within 10 minutes,
+        Calculate hitRate and missrate.
 
+        Returns:
+            tuple: (hitRate, missRate)
+        """
         total = 0
         miss = 0
         hit = 0
@@ -56,5 +81,11 @@ class Stats:
 
         return (hitRate, missRate)
 
+
 # Memcache stats
-l_memcacheStatistics = Stats()
+memcacheStatistics = Stats()
+
+try:
+    from app import main
+except:
+    pass
