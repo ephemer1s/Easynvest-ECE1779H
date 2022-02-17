@@ -109,6 +109,30 @@ def cacheAdd(key, name):
     pass
 
 
+def clrCache():
+    """Drop all key pairs in memcache
+    Note that the file delete should be done in front end
+    """
+    memcache.clear()
+    memcacheStatistics.totalSize = updateSize()
+    memcacheStatistics.numOfItems = 0
+
+    # update stats
+    pass
+
+
+def delCache(key):
+    """Delete a key pair in memcache
+    Note that the file delete should be done in front end
+    """
+    if key and key in memcache.keys():
+        memcache.pop(key)
+        # update stats
+        memcacheStatistics.totalSize = updateSize()
+        memcacheStatistics.numOfItems = memcacheStatistics.numOfItems - 1
+    pass
+
+
 def getFromDB():
 
     pass
