@@ -1,12 +1,18 @@
+from re import TEMPLATE
 
-from flask import render_template, url_for, request
+
+import os
+TEMPLATE_DIR = os.path.abspath("./templates")
+STATIC_DIR = os.path.abspath("./static")
+
+from flask import json, render_template, url_for, request
 from app import webapp, memcache
-from flask import json
+
 
 
 @webapp.route('/')
 def main():
-    return render_template("main.html")
+    return render_template("index.html")
 
 @webapp.route('/get',methods=['POST'])
 def get():
