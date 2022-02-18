@@ -5,9 +5,31 @@ import os
 TEMPLATE_DIR = os.path.abspath("./templates")
 STATIC_DIR = os.path.abspath("./static")
 
-from flask import json, render_template, url_for, request
+from flask import json, render_template, url_for, request, g
 from app import webapp, memcache
 
+
+
+import mysql.connector
+from app.config import db_config
+
+def connect_to_database():
+    return mysql.connector.connect(user=db_config['user'],
+                                   password=db_config['password'],
+                                   host=db_config['host'],
+                                   database=db_config['database'])
+
+def get_db():
+    db = getattr(g, '_database', None)
+    if db is None:
+        db = g._database = connect_to_database()
+    return db
+
+@webapp.teardown_appcontext
+def teardown_db(exception):
+    db = getattr(g, '_database', None)
+    if db is not None:
+        db.close()
 
 #===================================Under Construction=============================================
 @webapp.route('/')
@@ -26,8 +48,20 @@ def browse():
 
 
 @webapp.route('/keylist')
+# Display all keys in the database
 def keylist():
-    pass
+
+    cnx = mysql.connector.connect(user=db_config['user'],
+                                   password=db_config['password'],
+                                   host=db_config['host'],
+                                   database=db_config['database'])
+
+    cursor = cnx.cursor()
+    query = "SELECT * FROM keylist"
+    cursor.execute(query)
+    view = render_template("keylist.html",title="Keylist", cursor=cursor)
+    cnx.close()
+    return view 
 
 
 @webapp.route('/config')
@@ -73,4 +107,3 @@ def put():
     )
 
     return response
-
