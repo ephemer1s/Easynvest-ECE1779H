@@ -57,9 +57,9 @@ def keylist():
                                    database=db_config['database'])
 
     cursor = cnx.cursor()
-    query = "SELECT * FROM keylist"
+    query = "SELECT keyID, path FROM keylist"
     cursor.execute(query)
-    view = render_template("keylist.html",title="Keylist", cursor=cursor)
+    view = render_template("keylist.html",title="Key List", cursor=cursor)
     cnx.close()
     return view 
 
