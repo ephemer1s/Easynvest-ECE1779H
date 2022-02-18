@@ -2,3 +2,6 @@ app/__pycache__/
 __pycache__/
 .venv/
 .idea/
+Paxheader/
+*.DS_Store
+images/
