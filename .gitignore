@@ -1,2 +1,5 @@
 ./app/_pycache_/
 ./_pycache_/
+.idea/
+Paxheader/
+*.DS_Store
