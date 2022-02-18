@@ -1,35 +1,13 @@
 from re import TEMPLATE
 
-import base64
+
 import os
 TEMPLATE_DIR = os.path.abspath("./templates")
 STATIC_DIR = os.path.abspath("./static")
 
-from flask import json, render_template, url_for, request, g
-from app import webapp, memcache, memcacheStatistics, memcacheConfig
+from flask import json, render_template, url_for, request
+from app import webapp, memcache
 
-
-
-import mysql.connector
-from app.config import db_config
-
-def connect_to_database():
-    return mysql.connector.connect(user=db_config['user'],
-                                   password=db_config['password'],
-                                   host=db_config['host'],
-                                   database=db_config['database'])
-
-def get_db():
-    db = getattr(g, '_database', None)
-    if db is None:
-        db = g._database = connect_to_database()
-    return db
-
-@webapp.teardown_appcontext
-def teardown_db(exception):
-    db = getattr(g, '_database', None)
-    if db is not None:
-        db.close()
 
 #===================================Under Construction=============================================
 @webapp.route('/')
@@ -48,20 +26,8 @@ def browse():
 
 
 @webapp.route('/keylist')
-# Display all keys in the database
 def keylist():
-
-    cnx = mysql.connector.connect(user=db_config['user'],
-                                   password=db_config['password'],
-                                   host=db_config['host'],
-                                   database=db_config['database'])
-
-    cursor = cnx.cursor()
-    query = "SELECT * FROM keylist"
-    cursor.execute(query)
-    view = render_template("keylist.html",title="Keylist", cursor=cursor)
-    cnx.close()
-    return view 
+    pass
 
 
 @webapp.route('/config')
@@ -73,15 +39,6 @@ def config():
 def status():
     pass
 #===================================Under Construction=============================================
-@webapp.errorhandler(404)
-def page_not_found(e):
-    return render_template('404.html'), 404
-
-
-@webapp.errorhandler(500)
-def internal_server_error(e):
-    return render_template('500.html'), 500
-
 
 @webapp.route('/get',methods=['POST'])
 def get():
@@ -103,7 +60,7 @@ def get():
 
     return response
 
-@webapp.route('/put', methods=['POST'])
+@webapp.route('/put',methods=['POST'])
 def put():
     key = request.form.get('key')
     value = request.form.get('value')
@@ -116,3 +73,4 @@ def put():
     )
 
     return response
+
