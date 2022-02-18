@@ -6,6 +6,7 @@ global memcacheStatistics
 global memcacheConfig
 
 webapp = Flask(__name__)
+memcache = {}
 
 # Memcache storage
 memcache = {}
@@ -65,19 +66,8 @@ class Stats:
         currentTime = datetime.datetime.now()
         tenMinAgo = currentTime - datetime.timedelta(minutes=10)
 
-        for stat in self.list:
-            if currentTime >= stat.timestamp and tenMinAgo <= stat.timestamp:
-                if stat.action == "miss":
-                    miss = miss+1
-                    total = total + 1
-                if stat.action == "hit":
-                    hit = hit+1
-                    total = total + 1
 
-        hitRate = hit/total
-        missRate = miss/total
 
-        return (hitRate, missRate)
 
 
 # Memcache stats

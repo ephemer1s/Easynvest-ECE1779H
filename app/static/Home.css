@@ -1,0 +1,134 @@
+ .u-section-1 {
+  background-image: url("images/Konachan.com-304986hatsune_mikukieedlong_hairtwintailsvocaloid.jpg");
+}
+
+.u-section-1 .u-sheet-1 {
+  min-height: 566px;
+}
+
+.u-section-1 .u-list-1 {
+  width: 1062px;
+  margin: 499px auto 12px;
+}
+
+.u-section-1 .u-repeater-1 {
+  min-height: 55px;
+  grid-auto-columns: calc(20% - 64.8px);
+  grid-template-columns: calc(20% - 64.8px) calc(20% - 64.8px) calc(20% - 64.8px) calc(20% - 64.8px) calc(20% - 64.8px);
+  grid-gap: 81px 81px;
+}
+
+.u-section-1 .u-container-layout-1 {
+  padding: 10px 5px 0;
+}
+
+.u-section-1 .u-btn-1 {
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  background-image: none;
+  border-style: none;
+  margin: 0 0 0 auto;
+}
+
+.u-section-1 .u-container-layout-2 {
+  padding: 10px 5px 0;
+}
+
+.u-section-1 .u-btn-2 {
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  background-image: none;
+  border-style: none;
+  margin: 0 0 0 auto;
+}
+
+.u-section-1 .u-container-layout-3 {
+  padding: 10px 5px 0;
+}
+
+.u-section-1 .u-btn-3 {
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  background-image: none;
+  border-style: none;
+  margin: 0 0 0 auto;
+}
+
+.u-section-1 .u-container-layout-4 {
+  padding: 10px 5px 0;
+}
+
+.u-section-1 .u-btn-4 {
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  background-image: none;
+  border-style: none;
+  margin: 0 0 0 auto;
+}
+
+.u-section-1 .u-container-layout-5 {
+  padding: 10px 5px 0;
+}
+
+.u-section-1 .u-btn-5 {
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  background-image: none;
+  border-style: none;
+  margin: 0 0 0 auto;
+}
+
+@media (max-width: 1199px) {
+  .u-section-1 .u-sheet-1 {
+    min-height: 496px;
+  }
+
+  .u-section-1 .u-list-1 {
+    width: 940px;
+  }
+
+  .u-section-1 .u-repeater-1 {
+    grid-template-columns: repeat(5, calc(20% - 64.8px));
+    min-height: 49px;
+  }
+}
+
+@media (max-width: 991px) {
+  .u-section-1 .u-list-1 {
+    width: 720px;
+  }
+
+  .u-section-1 .u-repeater-1 {
+    grid-auto-columns: calc(33.333333333333336% - 54px);
+    grid-template-columns: repeat(3, calc(33.333333333333336% - 54px));
+    min-height: 125px;
+  }
+}
+
+@media (max-width: 767px) {
+  .u-section-1 .u-list-1 {
+    width: 540px;
+  }
+
+  .u-section-1 .u-repeater-1 {
+    grid-auto-columns: calc(50% - 40.5px);
+    grid-template-columns: repeat(2, calc(50% - 40.5px));
+    min-height: 211px;
+  }
+}
+
+@media (max-width: 575px) {
+  .u-section-1 .u-list-1 {
+    width: 340px;
+  }
+
+  .u-section-1 .u-repeater-1 {
+    grid-auto-columns: calc(100% - 0px);
+    grid-template-columns: 100%;
+  }
+}
