@@ -66,7 +66,19 @@ def updater():
 
     # Code to upload to database @ HaoZhe
 
-    # ...
+    cnx = mysql.connector.connect(user=Config.db_config['user'],
+                                  password=Config.db_config['password'],
+                                  host=Config.db_config['host'],
+                                  database=Config.db_config['database'])
+
+    cursor = cnx.cursor()
+
+    sql = "UPDATE statistics SET itemNum = %s, itemTotalSize = %s, requestNum = %s, missRate = %s, hitRate = %s  WHERE id = 0"
+    val = (statsList[0], statsList[1],
+           statsList[2], statsList[3], statsList[4], )
+    cursor.execute(sql, val)
+    cnx.commit()
+    cnx.close()
 
     pass
 
