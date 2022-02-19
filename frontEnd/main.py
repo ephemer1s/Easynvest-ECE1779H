@@ -3,8 +3,11 @@ import frontEnd
 from frontEnd.config import Config
 import mysql.connector
 from frontEnd import webapp, old_memcache
-from flask import json, render_template, url_for, request, g, flash
+from flask import json, render_template, url_for, request, g, flash, redirect
 from re import TEMPLATE
+import http.client
+import requests
+import time
 
 import os
 TEMPLATE_DIR = os.path.abspath("./templates")
@@ -114,20 +117,54 @@ def put():
     key = request.form.get('key')
     file = request.files['file']
     print(key, file)
-    if file.filename == '':
+
+    if file.filename == '':  # Not working for some reason
         flash('No selected file')
-        # return redirect(request.url)
+        # return redirect("upload.html")
+
+    uploadedFile = False
     if file:
         print(type(file))
         upload_folder = webapp.config['UPLOAD_FOLDER']
         if not os.path.isdir(upload_folder):
             os.mkdir(upload_folder)
         filename = os.path.join(upload_folder, file.filename)
+
+        # Check if filename already exists in folder
+        fileExists = True
+        currentFileName = file.filename
+        while (fileExists):
+            if not os.path.isfile(filename):
+                fileExists = False
+            else:
+                split_tup = os.path.splitext(currentFileName)
+                currentFileName = split_tup[0] + "(copy)" + split_tup[1]
+                filename = os.path.join(
+                    upload_folder, currentFileName)
+
         file.save(filename)
         # return redirect(url_for('download_file', name=file.filename))
+        uploadedFile = True
     old_memcache[key] = file
     if file is not None:
-        base64_data = base64.b64encode(file)
+        # base64_data = base64.b64encode(file)
+        pass
+    if uploadedFile:
+        # Call backEnd to invalidateKey
+
+        headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.76 Safari/537.36', "Upgrade-Insecure-Requests": "1",
+                   "DNT": "1", "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8", "Accept-Language": "en-US,en;q=0.5", "Accept-Encoding": "gzip, deflate"}
+
+        api_url = "http://127.0.0.1:5000/backEnd/invalidateKey/" + key
+
+        r = ""
+        r = requests.get(api_url, timeout=5, headers=headers)
+
+        json_acceptable_string = r.json()
+
+        print("Here is response: ", json_acceptable_string)
+        # memcacheResponse = json.loads(json_acceptable_string)
+
     response = webapp.response_class(
         response=json.dumps("OK"),
         status=200,

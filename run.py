@@ -7,10 +7,14 @@ from werkzeug.serving import run_simple  # werkzeug development server
 from werkzeug.middleware.dispatcher import DispatcherMiddleware
 from backEnd import webapp as backEnd
 from frontEnd import webapp as frontEnd
+
+backEnd.secret_key = "Secreeeeeeeeeeet"
+frontEnd.secret_key = "UltraSecreeeeeeeeeeet"
+
 applications = DispatcherMiddleware(frontEnd, {
     '/backEnd': backEnd
 })
 
 if __name__ == "__main__":
     run_simple('localhost', 5000, applications, use_reloader=True,
-               use_debugger=False, use_evalex=True)
+               use_debugger=False, use_evalex=True, threaded=True)

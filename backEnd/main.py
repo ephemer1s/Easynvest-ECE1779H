@@ -5,6 +5,7 @@ import random
 from backEnd.config import Config
 from flask import request, jsonify, session
 import shutil
+import json
 from markupsafe import escape
 
 
@@ -294,14 +295,23 @@ def invalidateKey(key):
     returnValue = _delCache(key, folderPath=Config.MEMCACHE_FOLDER)
 
     if returnValue == "Did not delete":
-        message = "Failed to delete"
-        return jsonify({"statusCode": 400,
-                        "message": message})
+        response = webapp.response_class(
+            response=json.dumps("Failed to delete"),
+            status=200,
+            mimetype='application/json'
+        )
+        print(response)
+        return response
+
     elif returnValue == "Deleted":
 
-        message = "OK"
-        return jsonify({"statusCode": 200,
-                        "message": message})
+        response = webapp.response_class(
+            response=json.dumps("OK"),
+            status=200,
+            mimetype='application/json'
+        )
+        print(response)
+        return response
 
 
 @ webapp.route('/refreshConfiguration')
