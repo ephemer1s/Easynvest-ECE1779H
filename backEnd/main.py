@@ -386,6 +386,12 @@ def PUTkey(key, name):
 def init():
     """Please call this when booting up the frontend
     """
+
+    if not os.path.isdir(Config.MEMCACHE_FOLDER):
+        try:
+            os.mkdir(Config.MEMCACHE_FOLDER)
+        except OSError as error:
+            print(error)    
     _clrCache(folderPath=Config.MEMCACHE_FOLDER)
 
     message = "Cache cleared and ready to roll"
