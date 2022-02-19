@@ -42,6 +42,30 @@ def teardown_db(exception):
 def _run_on_start():
     json_acceptable_string = makeAPI_Call(
         "http://127.0.0.1:5000/backEnd/init", "get", 5)
+    x = threading.Thread(target=backEndUpdater)
+    x.start()
+
+
+def backEndUpdater():
+    while True:
+        updater()
+        time.sleep(5)
+
+
+def updater():
+    json_dict = makeAPI_Call(
+        "http://127.0.0.1:5000/backEnd/statistic", "get", 3)
+
+    # statsDict = json.loads(json_acceptable_string)
+    statsList = [-1, -1, -1, 0.0, 0.0]
+    if (json_dict['success'] == 'true'):
+        statsList = json_dict['message']
+    print(statsList)
+    # Code to upload to database @ HaoZhe
+
+    # ...
+
+    pass
 
 
 @webapp.route('/')
@@ -171,7 +195,7 @@ def put():
     return response
 
 
-def makeAPI_Call(api_url: str, method: str, _timeout: int) -> str:
+def makeAPI_Call(api_url: str, method: str, _timeout: int):
     headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.76 Safari/537.36', "Upgrade-Insecure-Requests": "1",
                "DNT": "1", "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8", "Accept-Language": "en-US,en;q=0.5", "Accept-Encoding": "gzip, deflate"}
     method = method.lower()
