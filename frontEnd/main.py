@@ -104,9 +104,37 @@ def keylist():
     return view
 
 
-@webapp.route('/config')
-def config():
-    pass
+@webapp.route('/configs', methods=['GET'])
+#  Configure the memcache parameters (capacity & policy)
+def configs():
+
+    return render_template("configs.html")
+
+
+@webapp.route('/configsUpdate', methods=['POST'])
+#  Update memcache parameters in database when confirmed
+def configsUpdate():
+
+    capacityMB = request.form.get('capacityMB',"")
+    replacepolicy = request.form.get('replacepolicy',"")
+    # TODO: try to modify replacepolicy to char form and make it works in databbase
+
+    capacityB = int(capacityMB) * 10248576   # convert MB form capacity into B form
+
+    #
+    # TODO: raise error if capacityMB were null
+    #
+
+    cnx = mysql.connector.connect(user=db_config['user'],
+                                  password=db_config['password'],
+                                  host=db_config['host'],
+                                  database=db_config['database'])
+
+    cursor = cnx.cursor()
+    cursor.execute("UPDATE configuration SET capacityB = %s, replacepolicy = %s WHERE id = 0",(capacityB, replacepolicy,))
+    cnx.commit()
+
+    return render_template("configs.html")
 
 
 @webapp.route('/status')
