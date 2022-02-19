@@ -1,4 +1,8 @@
-from flask import Flask
+
+try:
+    from flask import Flask
+except:
+    pass
 import datetime
 
 global memcache
@@ -6,11 +10,13 @@ global memcacheStatistics
 global memcacheConfig
 
 webapp = Flask(__name__)
-memcache = {}
 
 # Memcache storage
 memcache = {}
-memcacheConfig = {}
+
+# memcache configurations: capacity in Bytes, policy 'LRU' or 'Random'
+memcacheConfig = {'capacity': 10000000,  # 10 MB
+                  'policy': 'LRU'}
 
 # initilize memcache statistics
 
@@ -33,7 +39,7 @@ class Stats:
 
     public:
         self.list stores Stat objects, which includes timestamp and action (hit/miss)
-        self.totalSize: (in KB maybe) Size of files memcache currently stores
+        self.totalSize: (in Bytes) Size of files memcache currently stores
         self.numOfRequestsServed: Number of Requests Served
 
     """
@@ -66,14 +72,25 @@ class Stats:
         currentTime = datetime.datetime.now()
         tenMinAgo = currentTime - datetime.timedelta(minutes=10)
 
+        for stat in self.list:
+            if currentTime >= stat.timestamp and tenMinAgo <= stat.timestamp:
+                if stat.action == "miss":
+                    miss = miss+1
+                    total = total + 1
+                if stat.action == "hit":
+                    hit = hit+1
+                    total = total + 1
+
+        hitRate = hit/total
+        missRate = miss/total
+
+        return (hitRate, missRate)
 
 
-
-
-# Memcache stats
+# initialize Memcache stats
 memcacheStatistics = Stats()
 
 try:
-    from app import main
+    from backEnd import memcacheBackend
 except:
     pass
