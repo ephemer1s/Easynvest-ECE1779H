@@ -1,8 +1,5 @@
+from flask import Flask
 
-try:
-    from flask import Flask
-except:
-    pass
 import datetime
 
 global memcache
@@ -15,7 +12,7 @@ webapp = Flask(__name__)
 memcache = {}
 
 # memcache configurations: capacity in Bytes, policy 'LRU' or 'Random'
-memcacheConfig = {'capacity': 10000000,  # 10 MB
+memcacheConfig = {'capacity': 400000,  # 10 MB
                   'policy': 'LRU'}
 
 # initilize memcache statistics
@@ -90,7 +87,8 @@ class Stats:
 # initialize Memcache stats
 memcacheStatistics = Stats()
 
+
 try:
-    from backEnd import memcacheBackend
-except:
-    pass
+    from backEnd import main
+except ImportError:
+    print("wtf no Back End?")

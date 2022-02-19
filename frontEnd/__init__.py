@@ -6,8 +6,7 @@ webapp = Flask(__name__)
 global old_memcache
 
 old_memcache = {}
-
 try:
     from frontEnd import main
-except:
-    pass
+except ImportError:
+    print("wtf no Front End?")

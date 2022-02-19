@@ -12,6 +12,5 @@ applications = DispatcherMiddleware(frontEnd, {
 })
 
 if __name__ == "__main__":
-    # applications.run('0.0.0.0', 5000, debug=True)
     run_simple('localhost', 5000, applications, use_reloader=True,
                use_debugger=False, use_evalex=True)

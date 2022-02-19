@@ -1,4 +1,4 @@
 class Config():
 
-    MEMCACHE_FOLDER = './cacheImageFolder'
+    MEMCACHE_FOLDER = './backEnd/cacheImageFolder'
     IMAGE_FORMAT = ['.jpg', '.jpeg', '.png', '.tiff']
