@@ -12,7 +12,7 @@ webapp = Flask(__name__)
 memcache = {}
 
 # memcache configurations: capacity in Bytes, policy 'LRU' or 'Random'
-memcacheConfig = {'capacity': 400000,  # 10 MB
+memcacheConfig = {'capacity': 400000,  # 0.4 MB
                   'policy': 'LRU'}
 
 # initilize memcache statistics
