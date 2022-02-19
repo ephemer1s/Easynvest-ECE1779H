@@ -115,24 +115,30 @@ def configs():
 #  Update memcache parameters in database when confirmed
 def configsUpdate():
 
-    capacityMB = request.form.get('capacityMB',"")
-    replacepolicy = request.form.get('replacepolicy',"")
+    capacityMB = request.form.get('capacityMB', "")
+    replacepolicy = request.form.get('replacepolicy', "")
     # TODO: try to modify replacepolicy to char form and make it works in databbase
 
-    capacityB = int(capacityMB) * 10248576   # convert MB form capacity into B form
+    # convert MB form capacity into B form
+    capacityB = int(capacityMB) * 1048576
 
     #
     # TODO: raise error if capacityMB were null
     #
 
-    cnx = mysql.connector.connect(user=db_config['user'],
-                                  password=db_config['password'],
-                                  host=db_config['host'],
-                                  database=db_config['database'])
+    cnx = mysql.connector.connect(user=Config.db_config['user'],
+                                  password=Config.db_config['password'],
+                                  host=Config.db_config['host'],
+                                  database=Config.db_config['database'])
 
     cursor = cnx.cursor()
-    cursor.execute("UPDATE configuration SET capacityB = %s, replacepolicy = %s WHERE id = 0",(capacityB, replacepolicy,))
+    cursor.execute("UPDATE configuration SET capacityB = %s, replacepolicy = %s WHERE id = 0",
+                   (capacityB, replacepolicy,))
     cnx.commit()
+    cnx.close()
+
+    makeAPI_Call(
+        "http://127.0.0.1:5000/backEnd/refreshConfiguration", "get", 5)
 
     return render_template("configs.html")
 
