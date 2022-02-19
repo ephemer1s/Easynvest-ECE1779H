@@ -156,6 +156,8 @@ def put():
         flash('No selected file')
         # return redirect("upload.html")
 
+    # Go on database to find if key exist already. If it does, find path, drop
+
     uploadedFile = False
     if file:
         print(type(file))
