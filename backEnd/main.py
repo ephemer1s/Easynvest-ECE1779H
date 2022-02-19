@@ -13,9 +13,11 @@ def _clrCache(folderPath=Config.MEMCACHE_FOLDER):
     Will have to delete all images from cacheImageFolder
     """
 
-    for image in (folderPath):
+    for image in os.listdir(folderPath):
+        print("Trying to delete ", image)
         for filetype in Config.IMAGE_FORMAT:
             if image.endswith(filetype):
+                print("Deleting ", image)
                 os.remove(os.path.join(folderPath, image))
 
     memcache.clear()
@@ -38,7 +40,9 @@ def _delCache(key, folderPath=Config.MEMCACHE_FOLDER):
         memcache.pop(key)
         # update stats
         memcacheStatistics.totalSize = _updateSize()
-    pass
+        return "Deleted"
+    memcacheStatistics.totalSize = _updateSize()
+    return "Did not delete"
 
 
 def _getFromDB():
@@ -54,8 +58,7 @@ def _updateSize(folderPath=Config.MEMCACHE_FOLDER):
     for ele in os.scandir(folderPath):
         size += os.stat(ele).st_size  # In Bytes
 
-    print(size)
-    print(memcacheConfig['capacity'])
+    print("Capacity: ", size, "/", memcacheConfig['capacity'])
     return size
 
 
@@ -135,6 +138,17 @@ def PUT(key, name, path):
                         "message": message
                         })
 
+    memcacheStatistics.totalSize = _updateSize()
+
+    keyAlreadyExist = False
+
+    if key in memcache.keys():
+        # Should not happen, since frontEnd should invalidate first
+
+        # Replace
+        _delCache(key, folderPath=Config.MEMCACHE_FOLDER)
+        keyAlreadyExist = True
+
     if key not in memcache.keys():
         # Check if size is sufficient
         checkSize = True
@@ -148,15 +162,20 @@ def PUT(key, name, path):
                             "message": message
                             })
 
-        print(memcacheStatistics.totalSize)
-        print(_getSize(path))
-        print(memcacheConfig['capacity'])
-
         if memcacheStatistics.totalSize + _getSize(path) > memcacheConfig['capacity']:
-            checkSize = False
+
+            if(not memcache):
+                # memcache is empty but folder is not. Calling _clrcache()
+                _clrCache(folderPath=Config.MEMCACHE_FOLDER)
+            else:
+                checkSize = False
 
         while (checkSize == False):
             # Check Replacement policy, LRU or Random Replacement
+
+            if(not memcache):
+                # memcache is empty but folder is not. Calling _clrcache()
+                _clrCache(folderPath=Config.MEMCACHE_FOLDER)
 
             if memcacheConfig['policy'] == "LRU":
                 # delete the oldest
@@ -164,16 +183,21 @@ def PUT(key, name, path):
                 # loop through memcache and check datetime, pop the oldest one
                 oldestTimeStamp = min([d['timestamp']
                                        for d in memcache.values()])
-                oldestKey = memcache.keys(
-                )[memcache.values().index(oldestTimeStamp)]
 
+                oldestKey = ""
+                for keys in memcache.keys():
+                    if memcache[keys]['timestamp'] == oldestTimeStamp:
+                        oldestKey = keys
                 # delete the file in cacheImageFolder as well
-                _delCache(oldestKey, folderPath=Config.MEMCACHE_FOLDER)
+                if(oldestKey):
+                    _delCache(oldestKey, folderPath=Config.MEMCACHE_FOLDER)
+                else:
+                    print("how can this happen to me?")
 
             elif memcacheConfig['policy'] == "Random":
 
                 # delete a random one
-                _delCache(random.choice([memcache.keys()]),
+                _delCache(random.choice(list(memcache)),
                           folderPath=Config.MEMCACHE_FOLDER)
 
             # Check if size is now sufficient
@@ -189,78 +213,20 @@ def PUT(key, name, path):
 
         shutil.copy2(path, os.path.join(
             Config.MEMCACHE_FOLDER, memcache[key]['name']))
+        memcacheStatistics.totalSize = _updateSize()
 
-        message = "key " + escape(key) + " is now in memcache"
-        return jsonify({"success": "true",
-                        "statusCode": 200,
-                        "message": message
-                        })
-
-    elif key in memcache.keys():
-        # Should not happen, since frontEnd should invalidate first
-
-        # Replace
-        _delCache(key, folderPath=Config.MEMCACHE_FOLDER)
-
-        # Check if size is sufficient
-        checkSize = True
-
-        if _getSize(path) > memcacheConfig['capacity']:
-            # Someone is crazy enough to upload an image that is larger than the capacity allowed. We cant save it!
-            print("Error: File size larger than capacity allowed!")
-            message = "Error: File size larger than capacity allowed!"
-            return jsonify({"success": "false",
-                            "statusCode": 400,
+        if keyAlreadyExist:
+            message = "key " + escape(key) + " is now REPLACED."
+            return jsonify({"success": "true",
+                            "statusCode": 200,
                             "message": message
                             })
-
-        print(memcacheStatistics.totalSize)
-        print(_getSize(path))
-        print(memcacheConfig['capacity'])
-
-        if memcacheStatistics.totalSize + _getSize(path) > memcacheConfig['capacity']:
-            checkSize = False
-
-        while (checkSize == False):
-            # Check Replacement policy, LRU or Random Replacement
-
-            if memcacheConfig['policy'] == "LRU":
-                # delete the oldest
-
-                # loop through memcache and check datetime, pop the oldest one
-                oldestTimeStamp = min([d['timestamp']
-                                       for d in memcache.values()])
-                oldestKey = memcache.keys(
-                )[memcache.values().index(oldestTimeStamp)]
-
-                # delete the file in cacheImageFolder as well
-                _delCache(oldestKey, folderPath=Config.MEMCACHE_FOLDER)
-
-            elif memcacheConfig['policy'] == "Random":
-
-                # delete a random one
-                _delCache(random.choice([memcache.keys()]),
-                          folderPath=Config.MEMCACHE_FOLDER)
-
-            # Check if size is now sufficient
-
-            if memcacheStatistics.totalSize + _getSize(path) > memcacheConfig['capacity']:
-                checkSize = False
-            else:
-                checkSize = True
-
-        memcache[key] = {'name': name, 'timestamp': datetime.datetime.now()}
-
-        # Copy file from path
-
-        shutil.copy2(path, os.path.join(
-            Config.MEMCACHE_FOLDER, memcache[key]['name']))
-
-        message = "key " + key + " is now replaced"
-        return jsonify({"success": "true",
-                        "statusCode": 200,
-                        "message": message
-                        })
+        else:
+            message = "key " + escape(key) + " is now in memcache."
+            return jsonify({"success": "true",
+                            "statusCode": 200,
+                            "message": message
+                            })
 
     message = "YOU SHOULD NOT BE HERE"
     return jsonify({"success": "false",
@@ -327,10 +293,17 @@ def invalidateKey(key):
     Args:
         key (string): key to the dropped key
     """
-    _delCache(key, folderPath=Config.MEMCACHE_FOLDER)
-    message = "OK"
-    return jsonify({"statusCode": 200,
-                    "message": message})
+    returnValue = _delCache(key, folderPath=Config.MEMCACHE_FOLDER)
+
+    if returnValue == "Did not delete":
+        message = "Failed to delete"
+        return jsonify({"statusCode": 400,
+                        "message": message})
+    elif returnValue == "Deleted":
+
+        message = "OK"
+        return jsonify({"statusCode": 200,
+                        "message": message})
 
 
 @ webapp.route('/refreshConfiguration')
