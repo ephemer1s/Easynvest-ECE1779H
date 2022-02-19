@@ -1,7 +1,9 @@
-from frontEnd.config import db_config
+import base64
+import frontEnd
+from frontEnd.config import Config
 import mysql.connector
 from frontEnd import webapp, old_memcache
-from flask import json, render_template, url_for, request, g
+from flask import json, render_template, url_for, request, g, flash
 from re import TEMPLATE
 
 import os
@@ -10,10 +12,10 @@ STATIC_DIR = os.path.abspath("./static")
 
 
 def connect_to_database():
-    return mysql.connector.connect(user=db_config['user'],
-                                   password=db_config['password'],
-                                   host=db_config['host'],
-                                   database=db_config['database'])
+    return mysql.connector.connect(user=Config.db_config['user'],
+                                   password=Config.db_config['password'],
+                                   host=Config.db_config['host'],
+                                   database=Config.db_config['database'])
 
 
 def get_db():
@@ -40,22 +42,22 @@ def main():
 @webapp.route('/upload')
 def upload():
     # TODO: need to adjust this html and corresponding get codes
-    return render_template("main-old.html")
+    return render_template("upload.html")
 
 
 @webapp.route('/browse')
 def browse():
-    pass
+    return render_template("browse.html")
 
 
 @webapp.route('/keylist')
 # Display all keys in the database
 def keylist():
 
-    cnx = mysql.connector.connect(user=db_config['user'],
-                                  password=db_config['password'],
-                                  host=db_config['host'],
-                                  database=db_config['database'])
+    cnx = mysql.connector.connect(user=Config.db_config['user'],
+                                  password=Config.db_config['password'],
+                                  host=Config.db_config['host'],
+                                  database=Config.db_config['database'])
 
     cursor = cnx.cursor()
     query = "SELECT keyID, path FROM keylist"
@@ -110,13 +112,26 @@ def get():
 @webapp.route('/put', methods=['POST'])
 def put():
     key = request.form.get('key')
-    value = request.form.get('value')
-    old_memcache[key] = value
-
+    file = request.files['file']
+    print(key, file)
+    if file.filename == '':
+        flash('No selected file')
+        # return redirect(request.url)
+    if file:
+        print(type(file))
+        upload_folder = webapp.config['UPLOAD_FOLDER']
+        if not os.path.isdir(upload_folder):
+            os.mkdir(upload_folder)
+        filename = os.path.join(upload_folder, file.filename)
+        file.save(filename)
+        # return redirect(url_for('download_file', name=file.filename))
+    old_memcache[key] = file
+    if file is not None:
+        base64_data = base64.b64encode(file)
     response = webapp.response_class(
         response=json.dumps("OK"),
         status=200,
         mimetype='application/json'
     )
-
+    print(response)
     return response
