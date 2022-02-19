@@ -425,7 +425,7 @@ def listKeys():
 
 @webapp.route('/statistic')
 def statistic():
-    """debug: Give statistics to frontEnd to store in database every 10mins
+    """debug: Give statistics to frontEnd to store in database every 5s
     """
     missrate, hitrate = memcacheStatistics.getTenMinStats()
 

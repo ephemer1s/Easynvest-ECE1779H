@@ -8,6 +8,7 @@ from re import TEMPLATE
 import http.client
 import requests
 import time
+import threading
 
 import os
 TEMPLATE_DIR = os.path.abspath("./templates")
@@ -35,6 +36,12 @@ def teardown_db(exception):
         db.close()
 
 # ===================================Under Construction=============================================
+
+
+@webapp.before_first_request
+def _run_on_start():
+    json_acceptable_string = makeAPI_Call(
+        "http://127.0.0.1:5000/backEnd/init", "get", 5)
 
 
 @webapp.route('/')
@@ -151,19 +158,9 @@ def put():
         pass
     if uploadedFile:
         # Call backEnd to invalidateKey
-
-        headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.76 Safari/537.36', "Upgrade-Insecure-Requests": "1",
-                   "DNT": "1", "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8", "Accept-Language": "en-US,en;q=0.5", "Accept-Encoding": "gzip, deflate"}
-
         api_url = "http://127.0.0.1:5000/backEnd/invalidateKey/" + key
 
-        r = ""
-        r = requests.get(api_url, timeout=5, headers=headers)
-
-        json_acceptable_string = r.json()
-
-        print("Here is response: ", json_acceptable_string)
-        # memcacheResponse = json.loads(json_acceptable_string)
+        json_acceptable_string = makeAPI_Call(api_url, "get", 5)
 
     response = webapp.response_class(
         response=json.dumps("OK"),
@@ -172,3 +169,22 @@ def put():
     )
     print(response)
     return response
+
+
+def makeAPI_Call(api_url: str, method: str, _timeout: int) -> str:
+    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.76 Safari/537.36', "Upgrade-Insecure-Requests": "1",
+               "DNT": "1", "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8", "Accept-Language": "en-US,en;q=0.5", "Accept-Encoding": "gzip, deflate"}
+    method = method.lower()
+    if method == "get":
+        r = requests.get(api_url, timeout=_timeout, headers=headers)
+    if method == "post":
+        r = requests.post(api_url, timeout=_timeout, headers=headers)
+    if method == "delete":
+        r = requests.delete(api_url, timeout=_timeout, headers=headers)
+    if method == "put":
+        r = requests.put(api_url, timeout=_timeout, headers=headers)
+
+    json_acceptable_string = r.json()
+
+    print("Here is response: ", json_acceptable_string)
+    return json_acceptable_string
