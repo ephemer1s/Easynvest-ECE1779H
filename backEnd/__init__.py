@@ -67,7 +67,7 @@ class Stats:
         hit = 0
 
         currentTime = datetime.datetime.now()
-        tenMinAgo = currentTime - datetime.timedelta(minutes=10)
+        tenMinAgo = currentTime - datetime.timedelta(minutes=10) # 10 minutes
 
         for stat in self.list:
             if currentTime >= stat.timestamp and tenMinAgo <= stat.timestamp:
@@ -77,6 +77,9 @@ class Stats:
                 if stat.action == "hit":
                     hit = hit+1
                     total = total + 1
+
+        if total == 0:
+            return(0.0, 0.0)
 
         hitRate = hit/total
         missRate = miss/total

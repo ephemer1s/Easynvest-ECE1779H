@@ -84,7 +84,6 @@ def _updateStatsHit():
     memcacheStatistics.addStat(Stat(datetime.datetime.now(), 'hit'))
     memcacheStatistics.numOfRequestsServed += 1
 
-    # (TBD)
     memcacheStatistics.totalSize = _updateSize()
     pass
 
@@ -93,7 +92,6 @@ def _updateStatsMiss():
     memcacheStatistics.addStat(Stat(datetime.datetime.now(), 'miss'))
     memcacheStatistics.numOfRequestsServed += 1
 
-    # (TBD)
     memcacheStatistics.totalSize = _updateSize()
     pass
 
@@ -333,7 +331,7 @@ def main():
 
 @webapp.route('/putkey/<key>/<name>')
 def PUTkey(key, name):
-    """API function to set the key and value (No Path)
+    """debug function to set the key and value (No Path)
 
     Args:
         key (string): key
@@ -391,7 +389,7 @@ def init():
         try:
             os.mkdir(Config.MEMCACHE_FOLDER)
         except OSError as error:
-            print(error)    
+            print(error)
     _clrCache(folderPath=Config.MEMCACHE_FOLDER)
 
     message = "Cache cleared and ready to roll"
@@ -413,3 +411,17 @@ def listKeys():
     return jsonify({"success": "true",
                     "statusCode": 200,
                     "message": message})
+
+
+@webapp.route('/statistic')
+def statistic():
+    """debug: Give statistics to frontEnd to store in database every 10mins
+    """
+    missrate, hitrate = memcacheStatistics.getTenMinStats()
+
+    returnArray = [len(memcache), memcacheStatistics.totalSize,
+                   memcacheStatistics.numOfRequestsServed, missrate, hitrate]
+
+    return jsonify({"success": "true",
+                    "statusCode": 200,
+                    "message": returnArray})
