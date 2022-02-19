@@ -7,6 +7,7 @@ from flask import request, jsonify, session
 import shutil
 import json
 from markupsafe import escape
+import mysql.connector
 
 
 def _clrCache(folderPath=Config.MEMCACHE_FOLDER):
@@ -321,6 +322,25 @@ def refreshConfiguration():
 
     (TBD)
     """
+
+    cnx = mysql.connector.connect(user=Config.db_config['user'],
+                                  password=Config.db_config['password'],
+                                  host=Config.db_config['host'],
+                                  database=Config.db_config['database'])
+
+    cursor = cnx.cursor()
+    query = "SELECT capacityB, replacepolicy FROM configuration"
+    cursor.execute(query)
+    cnx.close()
+
+    configuration = cursor.fetchall()
+
+    print(configuration, configuration[0][0], configuration[0][1])
+
+    memcacheConfig['capacity'] = configuration[0][0]
+
+    memcacheConfig['policy'] = "LRU" if configuration[0][1] == 1 else "Random"
+
     message = "Refreshed"
     return jsonify({"success": "true",
                     "statusCode": 200,
