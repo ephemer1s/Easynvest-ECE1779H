@@ -181,7 +181,6 @@ def PUT(key, name, path):
                 # delete the oldest
 
                 # loop through memcache and check datetime, pop the oldest one
-
                 oldestTimeStamp = min([d['timestamp']
                                        for d in memcache.values()])
 
@@ -214,7 +213,6 @@ def PUT(key, name, path):
 
         shutil.copy2(path, os.path.join(
             Config.MEMCACHE_FOLDER, memcache[key]['name']))
-
         memcacheStatistics.totalSize = _updateSize()
 
         if keyAlreadyExist:
