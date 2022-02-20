@@ -146,14 +146,9 @@ def configsUpdate():
 
     capacityMB = request.form.get('capacityMB', "")
     replacepolicy = request.form.get('replacepolicy', "")
-    # TODO: try to modify replacepolicy to char form and make it works in databbase
 
     # convert MB form capacity into B form
     capacityB = int(capacityMB) * 1048576
-
-    #
-    # TODO: raise error if capacityMB were null
-    #
 
     cnx = mysql.connector.connect(user=Config.db_config['user'],
                                   password=Config.db_config['password'],
@@ -169,12 +164,39 @@ def configsUpdate():
     makeAPI_Call(
         "http://127.0.0.1:5000/backEnd/refreshConfiguration", "get", 5)
 
-    return render_template("configs.html")
+
+    response = webapp.response_class(
+        response=json.dumps("Cache Configs Update Successfully."),
+        status=200,
+        mimetype='application/json'
+    )
+    print(response)
+
+    return response
+
 
 
 @webapp.route('/status')
 def status():
-    pass
+
+    cnx = mysql.connector.connect(user=Config.db_config['user'],
+                                  password=Config.db_config['password'],
+                                  host=Config.db_config['host'],
+                                  database=Config.db_config['database'])
+
+    cursor = cnx.cursor()
+    query = "SELECT itemNum, itemTotalSize, requestNum, missRate, hitRate FROM statistics WHERE id = 0"
+    cursor.execute(query)
+    view = render_template("statistics.html", cursor=cursor)
+    cnx.close()
+    return view
+
+
+@webapp.route('/home')
+def backHome():
+    return render_template("index.html")
+
+
 # ===================================Under Construction=============================================
 
 
