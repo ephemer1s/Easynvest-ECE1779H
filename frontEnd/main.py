@@ -248,6 +248,12 @@ def internal_server_error(e):
     return render_template('500.html'), 500
 
 
+@app.route('/display/<filename>')
+def display_image(filename):
+	print('display_image filename: ' + filename)
+	return redirect(url_for('static', filename='uploads/' + filename), code=301)  # path is ./frontEnd/static/uploads
+
+
 @webapp.route('/get', methods=['GET', 'POST'])
 def get():
     """Get the path of the image given a key. Will first try to get from cache, then try to get from database if cache miss.
@@ -307,14 +313,18 @@ def get():
             returnDict = makeAPI_Call(api_url, "get", 5)
 
             pathToImage = filepath
+            print(pathToImage)
 
-    response = webapp.response_class(
-        response=json.dumps(pathToImage),
-        status=200,
-        mimetype='application/json'
-    )
+    # response = webapp.response_class(
+    #     response=json.dumps(pathToImage),
+    #     status=200,
+    #     mimetype='application/json'
+    # )
 
-    return response
+    # return response
+    # return response for browse request
+    return render_template("browse.html", filename=pathToImage)
+    
 
 
 @webapp.route('/put', methods=['POST'])
