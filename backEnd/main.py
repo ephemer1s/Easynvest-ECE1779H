@@ -5,7 +5,9 @@ import random
 from backEnd.config import Config
 from flask import request, jsonify, session
 import shutil
+import json
 from markupsafe import escape
+import mysql.connector
 
 
 def _clrCache(folderPath=Config.MEMCACHE_FOLDER):
@@ -260,9 +262,12 @@ def GET(key):
             # cache hit, update statistics
             _updateStatsHit()
             message = "cache hit!"
+            filepath = os.path.join(
+                Config.MEMCACHE_FOLDER, memcache[key]['name'])
+            filepath = filepath.replace('\\', '/')
             return jsonify({"cache": "hit",
                             "filename": memcache[key]['name'],
-                            "filePath": os.path.join(Config.MEMCACHE_FOLDER, memcache[key]['name']),
+                            "filePath": filepath,
                             "message": message
                             })
 
@@ -294,23 +299,98 @@ def invalidateKey(key):
     returnValue = _delCache(key, folderPath=Config.MEMCACHE_FOLDER)
 
     if returnValue == "Did not delete":
-        message = "Failed to delete"
-        return jsonify({"statusCode": 400,
-                        "message": message})
+        response = webapp.response_class(
+            response=json.dumps("Failed to delete"),
+            status=200,
+            mimetype='application/json'
+        )
+        print(response)
+        return response
+
     elif returnValue == "Deleted":
 
-        message = "OK"
-        return jsonify({"statusCode": 200,
-                        "message": message})
+        response = webapp.response_class(
+            response=json.dumps("OK"),
+            status=200,
+            mimetype='application/json'
+        )
+        print(response)
+        return response
 
 
 @ webapp.route('/refreshConfiguration')
 def refreshConfiguration():
     """API Function call to read mem-cache related details from the database
     and reconfigure it with default values
-
-    (TBD)
     """
+
+    cnx = mysql.connector.connect(user=Config.db_config['user'],
+                                  password=Config.db_config['password'],
+                                  host=Config.db_config['host'],
+                                  database=Config.db_config['database'])
+
+    cursor = cnx.cursor()
+    query = "SELECT capacityB, replacepolicy FROM configuration"
+    cursor.execute(query)
+    cnx.close()
+
+    configuration = cursor.fetchall()
+
+    print(configuration, configuration[0][0], configuration[0][1])
+
+    memcacheConfig['capacity'] = configuration[0][0]
+
+    memcacheConfig['policy'] = "LRU" if configuration[0][1] == 1 else "Random"
+
+    # Need to check if current Capacity is still enough
+
+    checkSize = True
+
+    if memcacheStatistics.totalSize > memcacheConfig['capacity']:
+
+        if(not memcache):
+            # memcache is empty but folder is not. Calling _clrcache()
+            _clrCache(folderPath=Config.MEMCACHE_FOLDER)
+        else:
+            checkSize = False
+
+    while (checkSize == False):
+        # Check Replacement policy, LRU or Random Replacement
+
+        if(not memcache):
+            # memcache is empty but folder is not. Calling _clrcache()
+            _clrCache(folderPath=Config.MEMCACHE_FOLDER)
+
+        if memcacheConfig['policy'] == "LRU":
+            # delete the oldest
+
+            # loop through memcache and check datetime, pop the oldest one
+            oldestTimeStamp = min([d['timestamp']
+                                   for d in memcache.values()])
+
+            oldestKey = ""
+            for keys in memcache.keys():
+                if memcache[keys]['timestamp'] == oldestTimeStamp:
+                    oldestKey = keys
+            # delete the file in cacheImageFolder as well
+            if(oldestKey):
+                _delCache(oldestKey, folderPath=Config.MEMCACHE_FOLDER)
+            else:
+                print("how can this happen to me?")
+
+        elif memcacheConfig['policy'] == "Random":
+
+            # delete a random one
+            _delCache(random.choice(list(memcache)),
+                      folderPath=Config.MEMCACHE_FOLDER)
+
+        # Check if size is now sufficient
+
+        if memcacheStatistics.totalSize > memcacheConfig['capacity']:
+            checkSize = False
+        else:
+            checkSize = True
+
     message = "Refreshed"
     return jsonify({"success": "true",
                     "statusCode": 200,
@@ -415,7 +495,7 @@ def listKeys():
 
 @webapp.route('/statistic')
 def statistic():
-    """debug: Give statistics to frontEnd to store in database every 10mins
+    """debug: Give statistics to frontEnd to store in database every 5s
     """
     missrate, hitrate = memcacheStatistics.getTenMinStats()
 
