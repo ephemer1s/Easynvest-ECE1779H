@@ -2,9 +2,13 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Browse Image by key</title>
 </head>
 <body>
-    
+    <form action="{{ url_for('get')}}" method="post">
+        <label>key:</label>
+        <input type="text" name="key" />
+        <input type="submit" value="get" />
+    </form>
 </body>
 </html>
