@@ -40,8 +40,10 @@ def teardown_db(exception):
 
 @webapp.before_first_request
 def _run_on_start():
-    json_acceptable_string = makeAPI_Call(
+    makeAPI_Call(
         "http://127.0.0.1:5000/backEnd/init", "get", 5)
+    makeAPI_Call(
+        "http://127.0.0.1:5000/backEnd/refreshConfiguration", "get", 5)
     x = threading.Thread(target=backEndUpdater)
     x.start()
 
@@ -60,7 +62,8 @@ def updater():
     statsList = [-1, -1, -1, 0.0, 0.0]
     if (json_dict['success'] == 'true'):
         statsList = json_dict['message']
-    print(statsList)
+    print("Stats List: ", statsList)
+
     # Code to upload to database @ HaoZhe
 
     # ...
@@ -153,6 +156,8 @@ def put():
         flash('No selected file')
         # return redirect("upload.html")
 
+    # Go on database to find if key exist already. If it does, find path, drop
+
     uploadedFile = False
     if file:
         print(type(file))
@@ -176,7 +181,9 @@ def put():
         file.save(filename)
         # return redirect(url_for('download_file', name=file.filename))
         uploadedFile = True
+
     old_memcache[key] = file
+
     if file is not None:
         # base64_data = base64.b64encode(file)
         pass

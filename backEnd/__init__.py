@@ -67,7 +67,7 @@ class Stats:
         hit = 0
 
         currentTime = datetime.datetime.now()
-        tenMinAgo = currentTime - datetime.timedelta(minutes=10) # 10 minutes
+        tenMinAgo = currentTime - datetime.timedelta(minutes=10)  # 10 minutes
 
         for stat in self.list:
             if currentTime >= stat.timestamp and tenMinAgo <= stat.timestamp:
