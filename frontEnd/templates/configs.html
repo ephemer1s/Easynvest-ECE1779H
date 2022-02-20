@@ -9,14 +9,18 @@
 
         <form action="{{ url_for('configsUpdate')}}" method="post">
             <label>Memcache Capacity (4096 max):</label><br>
-            <input type="number" name="capacityMB" min="1" max="4096"/> <label>MB</label><br><br>
+            <input type="number" name="capacityMB" min="1" max="4096" value="1" required/>
+            <label>MB</label><br><br>
                 
             <label>Memcache Replacement Policy:</label><br>
             <input type="radio" name="replacepolicy" value="0"> Random Replacement<br>
             <input type="radio" name="replacepolicy" value="1" checked="checked"/> Least Recently Used<br><br>
 
             <input type="submit" value="Confirm">
+        </form><br>
 
+        <form action="{{url_for('backHome')}}" method="get">
+            <input type='submit' value='Back' />
         </form>
 
     </body>    

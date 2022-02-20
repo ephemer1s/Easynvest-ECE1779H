@@ -170,7 +170,7 @@ def configsUpdate():
     """API function to update the changes from the user to database, and call memcache to refreshConfigurations
 
     Returns:
-        html of the config Page
+        Response message if updating successfully
     """
 
     capacityMB = request.form.get('capacityMB', "")
@@ -193,12 +193,46 @@ def configsUpdate():
     makeAPI_Call(
         "http://127.0.0.1:5000/backEnd/refreshConfiguration", "get", 5)
 
-    return render_template("configs.html")
+    response = webapp.response_class(
+        response=json.dumps("Cache Configs Update Successfully."),
+        status=200,
+        mimetype='application/json'
+    )
+    print(response)
+
+    return response
 
 
 @webapp.route('/status')
 def status():
-    pass
+    """Statistics Page: Display current statistics of  the memcache
+
+    Returns:
+        Html of the statistics page
+    """
+
+    cnx = mysql.connector.connect(user=Config.db_config['user'],
+                                  password=Config.db_config['password'],
+                                  host=Config.db_config['host'],
+                                  database=Config.db_config['database'])
+
+    cursor = cnx.cursor()
+    query = "SELECT itemNum, itemTotalSize, requestNum, missRate, hitRate FROM statistics WHERE id = 0"
+    cursor.execute(query)
+    view = render_template("statistics.html", cursor=cursor)
+    cnx.close()
+    return view
+
+
+@webapp.route('/home')
+def backHome():
+    """Home Page: Call to go back to main page "/"
+
+    Returns:
+        html of Main Page
+    """
+    return render_template("index.html")
+
 # ===================================Under Construction=============================================
 
 
