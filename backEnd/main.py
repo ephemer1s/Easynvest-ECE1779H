@@ -262,9 +262,12 @@ def GET(key):
             # cache hit, update statistics
             _updateStatsHit()
             message = "cache hit!"
+            filepath = os.path.join(
+                Config.MEMCACHE_FOLDER, memcache[key]['name'])
+            filepath = filepath.replace('\\', '/')
             return jsonify({"cache": "hit",
                             "filename": memcache[key]['name'],
-                            "filePath": os.path.join(Config.MEMCACHE_FOLDER, memcache[key]['name']),
+                            "filePath": filepath,
                             "message": message
                             })
 
@@ -319,8 +322,6 @@ def invalidateKey(key):
 def refreshConfiguration():
     """API Function call to read mem-cache related details from the database
     and reconfigure it with default values
-
-    (TBD)
     """
 
     cnx = mysql.connector.connect(user=Config.db_config['user'],
@@ -340,6 +341,55 @@ def refreshConfiguration():
     memcacheConfig['capacity'] = configuration[0][0]
 
     memcacheConfig['policy'] = "LRU" if configuration[0][1] == 1 else "Random"
+
+    # Need to check if current Capacity is still enough
+
+    checkSize = True
+
+    if memcacheStatistics.totalSize > memcacheConfig['capacity']:
+
+        if(not memcache):
+            # memcache is empty but folder is not. Calling _clrcache()
+            _clrCache(folderPath=Config.MEMCACHE_FOLDER)
+        else:
+            checkSize = False
+
+    while (checkSize == False):
+        # Check Replacement policy, LRU or Random Replacement
+
+        if(not memcache):
+            # memcache is empty but folder is not. Calling _clrcache()
+            _clrCache(folderPath=Config.MEMCACHE_FOLDER)
+
+        if memcacheConfig['policy'] == "LRU":
+            # delete the oldest
+
+            # loop through memcache and check datetime, pop the oldest one
+            oldestTimeStamp = min([d['timestamp']
+                                   for d in memcache.values()])
+
+            oldestKey = ""
+            for keys in memcache.keys():
+                if memcache[keys]['timestamp'] == oldestTimeStamp:
+                    oldestKey = keys
+            # delete the file in cacheImageFolder as well
+            if(oldestKey):
+                _delCache(oldestKey, folderPath=Config.MEMCACHE_FOLDER)
+            else:
+                print("how can this happen to me?")
+
+        elif memcacheConfig['policy'] == "Random":
+
+            # delete a random one
+            _delCache(random.choice(list(memcache)),
+                      folderPath=Config.MEMCACHE_FOLDER)
+
+        # Check if size is now sufficient
+
+        if memcacheStatistics.totalSize > memcacheConfig['capacity']:
+            checkSize = False
+        else:
+            checkSize = True
 
     message = "Refreshed"
     return jsonify({"success": "true",

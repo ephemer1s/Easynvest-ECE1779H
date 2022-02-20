@@ -40,21 +40,45 @@ def teardown_db(exception):
 
 @webapp.before_first_request
 def _run_on_start():
+    """Initialization when the flask app first startup. 
+    Includes memcache init, memcache getting configuration from database, and starting to update statistics every 5s.
+    """
+
+    # initialize backend memcache
     makeAPI_Call(
         "http://127.0.0.1:5000/backEnd/init", "get", 5)
+
+    # let backend read config data from database
     makeAPI_Call(
         "http://127.0.0.1:5000/backEnd/refreshConfiguration", "get", 5)
+
+    # clear database table
+    # cnx = mysql.connector.connect(user=Config.db_config['user'],
+    #                               password=Config.db_config['password'],
+    #                               host=Config.db_config['host'],
+    #                               database=Config.db_config['database'])
+
+    # cursor = cnx.cursor()
+    # sql = "DELETE FROM keylist"
+    # cursor.execute(sql)
+    # cnx.commit()
+    # cnx.close()
+
     x = threading.Thread(target=backEndUpdater)
     x.start()
 
 
 def backEndUpdater():
+    """Loops every 5s, caller to updater()
+    """
     while True:
         updater()
         time.sleep(5)
 
 
 def updater():
+    """Update the memcache stats from the memcache to the database. Called every 5s.
+    """
     json_dict = makeAPI_Call(
         "http://127.0.0.1:5000/backEnd/statistic", "get", 3)
 
@@ -66,19 +90,40 @@ def updater():
 
     # Code to upload to database @ HaoZhe
 
-    # ...
+    cnx = mysql.connector.connect(user=Config.db_config['user'],
+                                  password=Config.db_config['password'],
+                                  host=Config.db_config['host'],
+                                  database=Config.db_config['database'])
+
+    cursor = cnx.cursor()
+
+    sql = "UPDATE statistics SET itemNum = %s, itemTotalSize = %s, requestNum = %s, missRate = %s, hitRate = %s  WHERE id = 0"
+    val = (statsList[0], statsList[1],
+           statsList[2], statsList[3], statsList[4], )
+    cursor.execute(sql, val)
+    cnx.commit()
+    cnx.close()
 
     pass
 
 
 @webapp.route('/')
 def main():
+    """Main Page
+
+    Returns:
+        html of Main Page
+    """
     return render_template("index.html")
 
 
 @webapp.route('/upload')
 def upload():
-    # TODO: need to adjust this html and corresponding get codes
+    """Upload Page
+
+    Returns:
+        html of the uploading Page
+    """
     return render_template("upload.html")
 
 
@@ -88,8 +133,12 @@ def browse():
 
 
 @webapp.route('/keylist')
-# Display all keys in the database
 def keylist():
+    """Keylist Page: Display all keys in the database
+
+    Returns:
+        html of the keylist Page
+    """
 
     cnx = mysql.connector.connect(user=Config.db_config['user'],
                                   password=Config.db_config['password'],
@@ -104,14 +153,88 @@ def keylist():
     return view
 
 
-@webapp.route('/config')
-def config():
-    pass
+@webapp.route('/configs', methods=['GET'])
+def configs():
+    """Configure the memcache parameters (capacity & policy)
+
+    Returns:
+        html of the config Page
+    """
+
+    return render_template("configs.html")
+
+
+@webapp.route('/configsUpdate', methods=['POST'])
+#  Update memcache parameters in database when confirmed
+def configsUpdate():
+    """API function to update the changes from the user to database, and call memcache to refreshConfigurations
+
+    Returns:
+        Response message if updating successfully
+    """
+
+    capacityMB = request.form.get('capacityMB', "")
+    replacepolicy = request.form.get('replacepolicy', "")
+
+    # convert MB form capacity into B form
+    capacityB = int(capacityMB) * 1048576
+
+    cnx = mysql.connector.connect(user=Config.db_config['user'],
+                                  password=Config.db_config['password'],
+                                  host=Config.db_config['host'],
+                                  database=Config.db_config['database'])
+
+    cursor = cnx.cursor()
+    cursor.execute("UPDATE configuration SET capacityB = %s, replacepolicy = %s WHERE id = 0",
+                   (capacityB, replacepolicy,))
+    cnx.commit()
+    cnx.close()
+
+    makeAPI_Call(
+        "http://127.0.0.1:5000/backEnd/refreshConfiguration", "get", 5)
+
+    response = webapp.response_class(
+        response=json.dumps("Cache Configs Update Successfully."),
+        status=200,
+        mimetype='application/json'
+    )
+    print(response)
+
+    return response
 
 
 @webapp.route('/status')
 def status():
-    pass
+    """Statistics Page: Display current statistics of  the memcache
+
+    Returns:
+        Html of the statistics page
+    """
+
+    cnx = mysql.connector.connect(user=Config.db_config['user'],
+                                  password=Config.db_config['password'],
+                                  host=Config.db_config['host'],
+                                  database=Config.db_config['database'])
+
+    cursor = cnx.cursor()
+    query = "SELECT itemNum, itemTotalSize, requestNum, missRate, hitRate FROM statistics WHERE id = 0"
+    cursor.execute(query)
+    memCacheStatistics = cursor.fetchall()
+
+    view = render_template("statistics.html", cursor=memCacheStatistics)
+    cnx.close()
+    return view
+
+
+@webapp.route('/home')
+def backHome():
+    """Home Page: Call to go back to main page "/"
+
+    Returns:
+        html of Main Page
+    """
+    return render_template("index.html")
+
 # ===================================Under Construction=============================================
 
 
@@ -125,7 +248,6 @@ def internal_server_error(e):
     return render_template('500.html'), 500
 
 
-@webapp.route('/get', methods=['POST'])
 @webapp.route('/get', methods=['GET', 'POST'])
 def get():
     """Get the path of the image given a key. Will first try to get from cache, then try to get from database if cache miss.
@@ -197,23 +319,53 @@ def get():
 
 @webapp.route('/put', methods=['POST'])
 def put():
+    """Upload key image pair. image is stored in local filesystem, and its path is sent to database for storage. 
+    invalidateKey() is called on memcache. Has logic that deals with missing or repeated filename.
+
+    Returns:
+        json response
+    """
     key = request.form.get('key')
     file = request.files['file']
     print(key, file)
 
-    if file.filename == '':  # Not working for some reason
-        flash('No selected file')
+    if file.filename == '':  # If file not given, quit
+        # flash('No selected file')
         # return redirect("upload.html")
+        response = webapp.response_class(
+            response=json.dumps("File not selected"),
+            status=400,
+            mimetype='application/json'
+        )
+        print(response)
+        return response
 
     # Go on database to find if key exist already. If it does, find path, drop
+    cnx = mysql.connector.connect(user=Config.db_config['user'],
+                                  password=Config.db_config['password'],
+                                  host=Config.db_config['host'],
+                                  database=Config.db_config['database'])
+
+    cursor = cnx.cursor()
+    cursor.execute("SELECT path FROM keylist WHERE keyID = %s",
+                   (key,))
+    RDBMS_Data = cursor.fetchall()
 
     uploadedFile = False
+
     if file:
         print(type(file))
         upload_folder = webapp.config['UPLOAD_FOLDER']
         if not os.path.isdir(upload_folder):
             os.mkdir(upload_folder)
         filename = os.path.join(upload_folder, file.filename)
+        print("filename : ", filename)
+        filename = filename.replace('\\', '/')
+        print("filename : ", filename)
+        if RDBMS_Data:
+            # use path to delete from local filesystem
+            if os.path.isfile(RDBMS_Data[0][0]):
+                os.remove(RDBMS_Data[0][0])
 
         # Check if filename already exists in folder
         fileExists = True
@@ -231,11 +383,29 @@ def put():
         # return redirect(url_for('download_file', name=file.filename))
         uploadedFile = True
 
+        if not RDBMS_Data:
+            print("Database does not have this key.")
+            # push to db
+            cursor.execute("INSERT INTO keylist (keyID, path) VALUES (%s, %s)",
+                           (key, filename,))
+            cnx.commit()
+
+        elif RDBMS_Data:
+            print("Database has this key.")
+
+            # drop from db
+            cursor.execute("UPDATE keylist SET path = %s WHERE keyID = %s",
+                           (filename, key,))
+            cnx.commit()
+
+    cnx.close()
+
     old_memcache[key] = file
 
     if file is not None:
         # base64_data = base64.b64encode(file)
         pass
+
     if uploadedFile:
         # Call backEnd to invalidateKey
         api_url = "http://127.0.0.1:5000/backEnd/invalidateKey/" + key
@@ -252,6 +422,16 @@ def put():
 
 
 def makeAPI_Call(api_url: str, method: str, _timeout: int):
+    """Helper function to call an API.
+
+    Args:
+        api_url (str): URL to the API function
+        method (str): get, post, delete, or put
+        _timeout (int): (in seconds) how long should the front end wait for a response
+
+    Returns:
+        <?>: response
+    """
     headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.76 Safari/537.36', "Upgrade-Insecure-Requests": "1",
                "DNT": "1", "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8", "Accept-Language": "en-US,en;q=0.5", "Accept-Encoding": "gzip, deflate"}
     method = method.lower()
