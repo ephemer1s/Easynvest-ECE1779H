@@ -40,6 +40,9 @@ def teardown_db(exception):
 
 @webapp.before_first_request
 def _run_on_start():
+    """Initialization when the flask app first startup. 
+    Includes memcache init, memcache getting configuration from database, and starting to update statistics every 5s.
+    """
 
     # initialize backend memcache
     makeAPI_Call(
@@ -66,12 +69,16 @@ def _run_on_start():
 
 
 def backEndUpdater():
+    """Loops every 5s, caller to updater()
+    """
     while True:
         updater()
         time.sleep(5)
 
 
 def updater():
+    """Update the memcache stats from the memcache to the database. Called every 5s.
+    """
     json_dict = makeAPI_Call(
         "http://127.0.0.1:5000/backEnd/statistic", "get", 3)
 
@@ -102,12 +109,21 @@ def updater():
 
 @webapp.route('/')
 def main():
+    """Main Page
+
+    Returns:
+        html of Main Page
+    """
     return render_template("index.html")
 
 
 @webapp.route('/upload')
 def upload():
-    # TODO: need to adjust this html and corresponding get codes
+    """Upload Page
+
+    Returns:
+        html of the uploading Page
+    """
     return render_template("upload.html")
 
 
@@ -117,8 +133,12 @@ def browse():
 
 
 @webapp.route('/keylist')
-# Display all keys in the database
 def keylist():
+    """Keylist Page: Display all keys in the database
+
+    Returns:
+        html of the keylist Page
+    """
 
     cnx = mysql.connector.connect(user=Config.db_config['user'],
                                   password=Config.db_config['password'],
@@ -134,8 +154,12 @@ def keylist():
 
 
 @webapp.route('/configs', methods=['GET'])
-#  Configure the memcache parameters (capacity & policy)
 def configs():
+    """Configure the memcache parameters (capacity & policy)
+
+    Returns:
+        html of the config Page
+    """
 
     return render_template("configs.html")
 
@@ -143,17 +167,17 @@ def configs():
 @webapp.route('/configsUpdate', methods=['POST'])
 #  Update memcache parameters in database when confirmed
 def configsUpdate():
+    """API function to update the changes from the user to database, and call memcache to refreshConfigurations
+
+    Returns:
+        html of the config Page
+    """
 
     capacityMB = request.form.get('capacityMB', "")
     replacepolicy = request.form.get('replacepolicy', "")
-    # TODO: try to modify replacepolicy to char form and make it works in databbase
 
     # convert MB form capacity into B form
     capacityB = int(capacityMB) * 1048576
-
-    #
-    # TODO: raise error if capacityMB were null
-    #
 
     cnx = mysql.connector.connect(user=Config.db_config['user'],
                                   password=Config.db_config['password'],
@@ -190,11 +214,16 @@ def internal_server_error(e):
 
 @webapp.route('/get', methods=['GET', 'POST'])
 def get():
+    """Get the path of the image given a key. Will first try to get from cache, then try to get from database if cache miss.
+
+    Returns:
+        the path to the image for the browse page to use
+    """
     key = request.form.get('key')
 
     pathToImage = ""
 
-    # Step 1: call cache and see if cache has the path
+    # Call cache and see if cache has the path
 
     api_url = "http://127.0.0.1:5000/backEnd/get/" + key
 
@@ -254,6 +283,12 @@ def get():
 
 @webapp.route('/put', methods=['POST'])
 def put():
+    """Upload key image pair. image is stored in local filesystem, and its path is sent to database for storage. 
+    invalidateKey() is called on memcache. Has logic that deals with missing or repeated filename.
+
+    Returns:
+        json response
+    """
     key = request.form.get('key')
     file = request.files['file']
     print(key, file)
@@ -351,6 +386,16 @@ def put():
 
 
 def makeAPI_Call(api_url: str, method: str, _timeout: int):
+    """Helper function to call an API.
+
+    Args:
+        api_url (str): URL to the API function
+        method (str): get, post, delete, or put
+        _timeout (int): (in seconds) how long should the front end wait for a response
+
+    Returns:
+        <?>: response
+    """
     headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.76 Safari/537.36', "Upgrade-Insecure-Requests": "1",
                "DNT": "1", "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8", "Accept-Language": "en-US,en;q=0.5", "Accept-Encoding": "gzip, deflate"}
     method = method.lower()
