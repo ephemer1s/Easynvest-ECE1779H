@@ -3,7 +3,7 @@ import frontEnd
 from frontEnd.config import Config
 import mysql.connector
 from frontEnd import webapp, old_memcache
-from flask import json, render_template, url_for, request, g, flash, redirect
+from flask import json, render_template, url_for, request, g, flash, redirect, jsonify
 from re import TEMPLATE
 import http.client
 import requests
@@ -52,7 +52,7 @@ def _run_on_start():
     makeAPI_Call(
         "http://127.0.0.1:5000/backEnd/refreshConfiguration", "get", 5)
 
-    # clear database table
+    # # clear database table
     # cnx = mysql.connector.connect(user=Config.db_config['user'],
     #                               password=Config.db_config['password'],
     #                               host=Config.db_config['host'],
@@ -130,6 +130,35 @@ def upload():
 @webapp.route('/browse')
 def browse():
     return render_template("browse.html")
+
+
+@webapp.route('/api/list_keys', method=['POST'])
+def api_List_Keys():
+    """Keylist Page: Display all keys in the database
+
+    Returns:
+        html of the keylist Page
+    """
+
+    cnx = mysql.connector.connect(user=Config.db_config['user'],
+                                  password=Config.db_config['password'],
+                                  host=Config.db_config['host'],
+                                  database=Config.db_config['database'])
+
+    cursor = cnx.cursor()
+    query = "SELECT keyID FROM keylist"
+    cursor.execute(query)
+    RDBMS_Data = cursor.fetchall()
+
+    returnList = []
+
+    if RDBMS_Data:
+        for i in RDBMS_Data[0]:
+            returnList.append(i)
+
+    cnx.close()
+    return jsonify({"success": "true",
+                    "keys": returnList})
 
 
 @webapp.route('/keylist')
@@ -315,6 +344,102 @@ def get():
     )
 
     return response
+
+
+@webapp.route('/api/upload', methods=['POST'])
+def apiUpload():
+    """Upload key image pair. image is stored in local filesystem, and its path is sent to database for storage. 
+    invalidateKey() is called on memcache. Has logic that deals with missing or repeated filename.
+
+    Alternative route to put()
+
+    Returns:
+        json response
+    """
+    key = request.form.get('key')
+    file = request.form.get('file')
+
+    if file.filename == '':  # If file not given, quit
+        return ({"success": "false",
+                 "error": {
+                     "code": 400,
+                     "message": "No file given"
+                 }
+                 })
+
+    # Go on database to find if key exist already. If it does, find path, drop
+    cnx = mysql.connector.connect(user=Config.db_config['user'],
+                                  password=Config.db_config['password'],
+                                  host=Config.db_config['host'],
+                                  database=Config.db_config['database'])
+
+    cursor = cnx.cursor()
+    cursor.execute("SELECT path FROM keylist WHERE keyID = %s",
+                   (key,))
+    RDBMS_Data = cursor.fetchall()
+
+    uploadedFile = False
+
+    if file:
+        print(type(file))
+        upload_folder = webapp.config['UPLOAD_FOLDER']
+        if not os.path.isdir(upload_folder):
+            os.mkdir(upload_folder)
+        filename = os.path.join(upload_folder, file.filename)
+        print("filename : ", filename)
+        filename = filename.replace('\\', '/')
+        print("filename : ", filename)
+        if RDBMS_Data:
+            # use path to delete from local filesystem
+            if os.path.isfile(RDBMS_Data[0][0]):
+                os.remove(RDBMS_Data[0][0])
+
+        # Check if filename already exists in folder
+        fileExists = True
+        currentFileName = file.filename
+        while (fileExists):
+            if not os.path.isfile(filename):
+                fileExists = False
+            else:
+                split_tup = os.path.splitext(currentFileName)
+                currentFileName = split_tup[0] + "(copy)" + split_tup[1]
+                filename = os.path.join(
+                    upload_folder, currentFileName)
+
+        file.save(filename)
+        # return redirect(url_for('download_file', name=file.filename))
+        uploadedFile = True
+
+        if not RDBMS_Data:
+            print("Database does not have this key.")
+            # push to db
+            cursor.execute("INSERT INTO keylist (keyID, path) VALUES (%s, %s)",
+                           (key, filename,))
+            cnx.commit()
+
+        elif RDBMS_Data:
+            print("Database has this key.")
+
+            # drop from db
+            cursor.execute("UPDATE keylist SET path = %s WHERE keyID = %s",
+                           (filename, key,))
+            cnx.commit()
+
+    cnx.close()
+
+    old_memcache[key] = file
+
+    if file is not None:
+        # base64_data = base64.b64encode(file)
+        pass
+
+    if uploadedFile:
+        # Call backEnd to invalidateKey
+        api_url = "http://127.0.0.1:5000/backEnd/invalidateKey/" + key
+
+        json_acceptable_string = makeAPI_Call(api_url, "get", 5)
+
+    return jsonify({"success": "true"})
 
 
 @webapp.route('/put', methods=['POST'])
