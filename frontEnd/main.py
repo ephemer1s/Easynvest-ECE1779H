@@ -153,8 +153,8 @@ def api_List_Keys():
     returnList = []
 
     if RDBMS_Data:
-        for i in RDBMS_Data[0]:
-            returnList.append(i)
+        for i in RDBMS_Data:
+            returnList.append(i[0])
 
     cnx.close()
     return jsonify({"success": "true",
