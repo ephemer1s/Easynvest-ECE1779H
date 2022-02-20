@@ -235,8 +235,6 @@ def backHome():
     """
     return render_template("index.html")
 
-# ===================================Under Construction=============================================
-
 
 @webapp.errorhandler(404)
 def page_not_found(e):
@@ -248,10 +246,10 @@ def internal_server_error(e):
     return render_template('500.html'), 500
 
 
-@app.route('/display/<filename>')
-def display_image(filename):
-	print('display_image filename: ' + filename)
-	return redirect(url_for('static', filename='uploads/' + filename), code=301)  # path is ./frontEnd/static/uploads
+# @app.route('/display/<filename>')
+# def display_image(filename):
+# 	print('display_image filename: ' + filename)
+# 	return redirect(url_for('static', filename='uploads/' + filename), code=301)  # path is ./frontEnd/static/uploads
 
 
 @webapp.route('/get', methods=['GET', 'POST'])
