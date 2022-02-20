@@ -235,8 +235,6 @@ def backHome():
     """
     return render_template("index.html")
 
-# ===================================Under Construction=============================================
-
 
 @webapp.errorhandler(404)
 def page_not_found(e):
@@ -246,6 +244,12 @@ def page_not_found(e):
 @webapp.errorhandler(500)
 def internal_server_error(e):
     return render_template('500.html'), 500
+
+
+# @app.route('/display/<filename>')
+# def display_image(filename):
+# 	print('display_image filename: ' + filename)
+# 	return redirect(url_for('static', filename='uploads/' + filename), code=301)  # path is ./frontEnd/static/uploads
 
 
 @webapp.route('/get', methods=['GET', 'POST'])
@@ -307,14 +311,18 @@ def get():
             returnDict = makeAPI_Call(api_url, "get", 5)
 
             pathToImage = filepath
+            print(pathToImage)
 
-    response = webapp.response_class(
-        response=json.dumps(pathToImage),
-        status=200,
-        mimetype='application/json'
-    )
+    # response = webapp.response_class(
+    #     response=json.dumps(pathToImage),
+    #     status=200,
+    #     mimetype='application/json'
+    # )
 
-    return response
+    # return response
+    # return response for browse request
+    return render_template("browse.html", filename=pathToImage)
+    
 
 
 @webapp.route('/put', methods=['POST'])

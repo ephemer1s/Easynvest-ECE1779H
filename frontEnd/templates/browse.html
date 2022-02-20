@@ -9,6 +9,12 @@
         <label>key:</label>
         <input type="text" name="key" />
         <input type="submit" value="get" />
+        <input type="bool" >
     </form>
+{% if filename %}
+	<div>
+		<img src="{{ url_for('static', filename=filename) }}">
+	</div>
+{% endif %}
 </body>
 </html>
