@@ -40,10 +40,27 @@ def teardown_db(exception):
 
 @webapp.before_first_request
 def _run_on_start():
+
+    # initialize backend memcache
     makeAPI_Call(
         "http://127.0.0.1:5000/backEnd/init", "get", 5)
+
+    # let backend read config data from database
     makeAPI_Call(
         "http://127.0.0.1:5000/backEnd/refreshConfiguration", "get", 5)
+
+    # clear database table
+    # cnx = mysql.connector.connect(user=Config.db_config['user'],
+    #                               password=Config.db_config['password'],
+    #                               host=Config.db_config['host'],
+    #                               database=Config.db_config['database'])
+
+    # cursor = cnx.cursor()
+    # sql = "DELETE FROM keylist"
+    # cursor.execute(sql)
+    # cnx.commit()
+    # cnx.close()
+
     x = threading.Thread(target=backEndUpdater)
     x.start()
 
@@ -198,19 +215,41 @@ def put():
     file = request.files['file']
     print(key, file)
 
-    if file.filename == '':  # Not working for some reason
-        flash('No selected file')
+    if file.filename == '':  # If file not given, quit
+        # flash('No selected file')
         # return redirect("upload.html")
+        response = webapp.response_class(
+            response=json.dumps("File not selected"),
+            status=400,
+            mimetype='application/json'
+        )
+        print(response)
+        return response
 
     # Go on database to find if key exist already. If it does, find path, drop
+    cnx = mysql.connector.connect(user=Config.db_config['user'],
+                                  password=Config.db_config['password'],
+                                  host=Config.db_config['host'],
+                                  database=Config.db_config['database'])
+
+    cursor = cnx.cursor()
+    cursor.execute("SELECT path FROM keylist WHERE keyID = %s",
+                   (key,))
+    path = cursor.fetchall()
 
     uploadedFile = False
+
     if file:
         print(type(file))
         upload_folder = webapp.config['UPLOAD_FOLDER']
         if not os.path.isdir(upload_folder):
             os.mkdir(upload_folder)
         filename = os.path.join(upload_folder, file.filename)
+
+        if path:
+            # use path to delete from local filesystem
+            if os.path.isfile(path[0][0]):
+                os.remove(path[0][0])
 
         # Check if filename already exists in folder
         fileExists = True
@@ -228,11 +267,29 @@ def put():
         # return redirect(url_for('download_file', name=file.filename))
         uploadedFile = True
 
+        if not path:
+            print("Database does not have this key.")
+            # push to db
+            cursor.execute("INSERT INTO keylist (keyID, path) VALUES (%s, %s)",
+                           (key, filename,))
+            cnx.commit()
+
+        elif path:
+            print("Database has this key.")
+
+            # drop from db
+            cursor.execute("UPDATE keylist SET path = %s WHERE keyID = %s",
+                           (filename, key,))
+            cnx.commit()
+
+    cnx.close()
+
     old_memcache[key] = file
 
     if file is not None:
         # base64_data = base64.b64encode(file)
         pass
+
     if uploadedFile:
         # Call backEnd to invalidateKey
         api_url = "http://127.0.0.1:5000/backEnd/invalidateKey/" + key
