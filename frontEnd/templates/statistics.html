@@ -23,27 +23,28 @@
     </style>
 
     <body>
-        <h1>Cache Statistics</h2><br>
+        <h1>Cache Statistics</h2>
 
         <table>
             <tr>
                 <th>Number of Items </th>
-                <th>Total Size of Items </th>
+                <th>Total Size of Items (KB)</th>
                 <th>Number of Requests Served </th>
-                <th>Miss Rate </th>
-                <th>Hit Rate </th>
+                <th>Miss Rate (%) </th>
+                <th>Hit Rate (%) </th>
             <tr>
 
         {% for row in cursor %}
             <tr>
                 <td>{{ row[0]}}</td>
-                <td>{{ row[1]}}</td>
+                <td>{{ row[1] / 1024}}</td>
                 <td>{{ row[2]}}</td>
-                <td>{{ row[3]}}</td>
-                <td>{{ row[4]}}</td>
+                <td>{{ row[3] * 100}}</td>
+                <td>{{ row[4] * 100}}</td>
             </tr>
         {% endfor %}
-        </table><br>
+        </table>
+        <p>* Miss Rate & Hit Rate data collected for the past 10 minutes.</p><br>
 
         <form action="{{url_for('backHome')}}" method="get">
             <input type='submit' value='Back' />

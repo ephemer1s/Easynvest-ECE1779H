@@ -219,7 +219,9 @@ def status():
     cursor = cnx.cursor()
     query = "SELECT itemNum, itemTotalSize, requestNum, missRate, hitRate FROM statistics WHERE id = 0"
     cursor.execute(query)
-    view = render_template("statistics.html", cursor=cursor)
+    memCacheStatistics = cursor.fetchall()
+
+    view = render_template("statistics.html", cursor=memCacheStatistics)
     cnx.close()
     return view
 
