@@ -262,9 +262,12 @@ def GET(key):
             # cache hit, update statistics
             _updateStatsHit()
             message = "cache hit!"
+            filepath = os.path.join(
+                Config.MEMCACHE_FOLDER, memcache[key]['name'])
+            filepath = filepath.replace('\\', '/')
             return jsonify({"cache": "hit",
                             "filename": memcache[key]['name'],
-                            "filePath": os.path.join(Config.MEMCACHE_FOLDER, memcache[key]['name']),
+                            "filePath": filepath,
                             "message": message
                             })
 
