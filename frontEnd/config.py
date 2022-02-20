@@ -3,4 +3,4 @@ class Config():
                 'password': '19410524',
                 'host': 'database-1.clriqywhb6pw.us-east-1.rds.amazonaws.com',
                 'database': 'database-a1'}
-    UPLOAD_FOLDER = './uploads'
+    UPLOAD_FOLDER = './frontEnd/static/uploads/'
