@@ -126,22 +126,71 @@ def internal_server_error(e):
 
 
 @webapp.route('/get', methods=['POST'])
+@webapp.route('/get', methods=['GET', 'POST'])
 def get():
+    """Get the path of the image given a key. Will first try to get from cache, then try to get from database if cache miss.
+
+    Returns:
+        the path to the image for the browse page to use
+    """
     key = request.form.get('key')
 
-    if key in old_memcache:
-        value = old_memcache[key]
-        response = webapp.response_class(
-            response=json.dumps(value),
-            status=200,
-            mimetype='application/json'
-        )
-    else:
-        response = webapp.response_class(
-            response=json.dumps("Unknown key"),
-            status=400,
-            mimetype='application/json'
-        )
+    pathToImage = ""
+
+    # Call cache and see if cache has the path
+
+    api_url = "http://127.0.0.1:5000/backEnd/get/" + key
+
+    returnDict = makeAPI_Call(api_url, "get", 5)
+
+    if returnDict['cache'] == "hit":
+        pathToImage = returnDict['filePath']
+    elif returnDict['cache'] == "miss":
+        cnx = mysql.connector.connect(user=Config.db_config['user'],
+                                      password=Config.db_config['password'],
+                                      host=Config.db_config['host'],
+                                      database=Config.db_config['database'])
+
+        cursor = cnx.cursor()
+        cursor.execute("SELECT path FROM keylist WHERE keyID = %s",
+                       (key,))
+        RDBMS_Data = cursor.fetchall()
+        cnx.close()
+        if(not RDBMS_Data):
+            # Even the RDBMS does not have it
+            response = webapp.response_class(
+                response=json.dumps("Unknown key"),
+                status=400,
+                mimetype='application/json'
+            )
+
+            return response
+
+        elif(RDBMS_Data):
+            # RDBMS has path; Need to save file to memcache
+
+            # Seperate filepath into name and extension
+
+            # OS independence
+            filepath = RDBMS_Data[0][0]
+            filepath = filepath.replace('\\', '/')
+
+            filenameWithExtension = os.path.basename(filepath)
+
+            print("filenameWithExtension: ", filenameWithExtension)
+
+            api_url = "http://127.0.0.1:5000/backEnd/put/" + \
+                key + "/" + filenameWithExtension + "/" + filepath
+
+            returnDict = makeAPI_Call(api_url, "get", 5)
+
+            pathToImage = filepath
+
+    response = webapp.response_class(
+        response=json.dumps(pathToImage),
+        status=200,
+        mimetype='application/json'
+    )
 
     return response
 
