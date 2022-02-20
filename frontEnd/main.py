@@ -536,11 +536,19 @@ def put():
     """
     key = request.form.get('key')
     file = request.files['file']
+
+    if not key:  # If key not given, quit
+        response = webapp.response_class(
+            response=json.dumps("Key not given."),
+            status=400,
+            mimetype='application/json'
+        )
+        print(response)
+        return response
+
     print(key, file)
 
     if file.filename == '':  # If file not given, quit
-        # flash('No selected file')
-        # return redirect("upload.html")
         response = webapp.response_class(
             response=json.dumps("File not selected"),
             status=400,
