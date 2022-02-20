@@ -3,7 +3,7 @@ import frontEnd
 from frontEnd.config import Config
 import mysql.connector
 from frontEnd import webapp, old_memcache
-from flask import json, render_template, url_for, request, g, flash, redirect, jsonify
+from flask import json, render_template, url_for, request, g, flash, redirect, send_file, jsonify
 from re import TEMPLATE
 import http.client
 import requests
@@ -132,7 +132,7 @@ def browse():
     return render_template("browse.html")
 
 
-@webapp.route('/api/list_keys', method=['POST'])
+@webapp.route('/api/list_keys', methods=['POST'])
 def api_List_Keys():
     """Keylist Page: Display all keys in the database
 
@@ -281,6 +281,83 @@ def internal_server_error(e):
 # 	return redirect(url_for('static', filename='uploads/' + filename), code=301)  # path is ./frontEnd/static/uploads
 
 
+@webapp.route('/api/key/<key_value>', methods=['POST'])
+def api_Retreive_Image(key_value):
+    """Get the path of the image given a key. Will first try to get from cache, then try to get from database if cache miss.
+
+    Returns:
+        the file contents
+    """
+    # key = request.form.get('key')
+
+    pathToImage = ""
+
+    # Call cache and see if cache has the path
+
+    api_url = "http://127.0.0.1:5000/backEnd/get/" + key_value
+
+    returnDict = makeAPI_Call(api_url, "get", 5)
+
+    if returnDict['cache'] == "hit":
+        pathToImage = returnDict['filePath']
+    elif returnDict['cache'] == "miss":
+        cnx = mysql.connector.connect(user=Config.db_config['user'],
+                                      password=Config.db_config['password'],
+                                      host=Config.db_config['host'],
+                                      database=Config.db_config['database'])
+
+        cursor = cnx.cursor()
+        cursor.execute("SELECT path FROM keylist WHERE keyID = %s",
+                       (key_value,))
+        RDBMS_Data = cursor.fetchall()
+        cnx.close()
+        if(not RDBMS_Data):
+            # Even the RDBMS does not have it
+            return jsonify({"success": "false",
+                            "error": {
+                                "code": 400,
+                                "message": "Unknown Key."
+                            }})
+
+        elif(RDBMS_Data):
+            # RDBMS has path; Need to save file to memcache
+
+            # Seperate filepath into name and extension
+
+            # OS independence
+            filepath = RDBMS_Data[0][0]
+            filepath = filepath.replace('\\', '/')
+
+            filenameWithExtension = os.path.basename(filepath)
+
+            print("filenameWithExtension: ", filenameWithExtension)
+
+            api_url = "http://127.0.0.1:5000/backEnd/put/" + \
+                key_value + "/" + filenameWithExtension + "/" + filepath
+
+            returnDict = makeAPI_Call(api_url, "get", 5)
+
+            pathToImage = filepath
+            print(pathToImage)
+
+    # response = webapp.response_class(
+    #     response=json.dumps(pathToImage),
+    #     status=200,
+    #     mimetype='application/json'
+    # )
+
+    # return response
+    filepath = pathToImage.replace('\\', '/')
+
+    filenameWithExtension = os.path.basename(filepath)
+
+    image = open(filepath, 'rb')
+    image_Binary = image.read()
+    imageBase64Encode = base64.b64encode(image_Binary)
+    return jsonify({"success": "true",
+                    "content": imageBase64Encode.decode()})
+
+
 @webapp.route('/get', methods=['GET', 'POST'])
 def get():
     """Get the path of the image given a key. Will first try to get from cache, then try to get from database if cache miss.
@@ -351,7 +428,6 @@ def get():
     # return response
     # return response for browse request
     return render_template("browse.html", filename=pathToImage)
-    
 
 
 @webapp.route('/api/upload', methods=['POST'])
@@ -410,7 +486,7 @@ def apiUpload():
                 fileExists = False
             else:
                 split_tup = os.path.splitext(currentFileName)
-                currentFileName = split_tup[0] + "(copy)" + split_tup[1]
+                currentFileName = split_tup[0] + "_copy_" + split_tup[1]
                 filename = os.path.join(
                     upload_folder, currentFileName)
 
@@ -508,7 +584,7 @@ def put():
                 fileExists = False
             else:
                 split_tup = os.path.splitext(currentFileName)
-                currentFileName = split_tup[0] + "(copy)" + split_tup[1]
+                currentFileName = split_tup[0] + "_copy_" + split_tup[1]
                 filename = os.path.join(
                     upload_folder, currentFileName)
 
