@@ -348,8 +348,8 @@ def api_Retreive_Image(key_value):
             #     status=200,
             #     mimetype='application/json'
             # )
-
             # return response
+            
             filepath = pathToImage.replace('\\', '/')
 
             filenameWithExtension = os.path.basename(filepath)
