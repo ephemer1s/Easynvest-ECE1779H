@@ -520,8 +520,8 @@ def statistic():
     """
     missrate, hitrate = memcacheStatistics.getTenMinStats()
 
-    returnArray = [len(memcache), memcacheStatistics.totalSize,
-                   memcacheStatistics.numOfRequestsServed, missrate, hitrate]
+    returnArray = [len(memcache), format((float(memcacheStatistics.totalSize)/1048576), '.3f'),
+                   memcacheStatistics.numOfRequestsServed, format(missrate*100, '.3f'), format(hitrate*100, '.3f')]
 
     return jsonify({"success": "true",
                     "statusCode": 200,
