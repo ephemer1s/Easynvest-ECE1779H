@@ -1,20 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <title>Browse Image by key</title>
-</head>
-<body>
+  </head>
+  <body>
     <form action="{{ url_for('get')}}" method="post">
-        <label>key:</label>
-        <input type="text" name="key" />
-        <input type="submit" value="get" />
-        <input type="bool" >
+      <label>key:</label>
+      <input type="text" name="key" />
+      <input type="submit" value="get" />
     </form>
-{% if filename %}
-	<div>
-		<img src="{{ url_for('static', filename=filename) }}">
-	</div>
-{% endif %}
-</body>
+    {% if content and extension %}
+    <div>
+      <img
+        id="imgContent"
+        src="data:image/{{extension}};base64,{{ content }}"
+      />
+    </div>
+    {% endif %}
+
+    <br>
+    <form action="{{url_for('backHome')}}" method="get">
+      <input type='submit' value='Back' />
+    </form>
+
+  </body>
 </html>

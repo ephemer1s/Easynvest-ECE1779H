@@ -8,6 +8,7 @@ import shutil
 import json
 from markupsafe import escape
 import mysql.connector
+import base64
 
 
 def _clrCache(folderPath=Config.MEMCACHE_FOLDER):
@@ -244,7 +245,9 @@ def GET(key):
     Returns:
         json:   "cache": "hit" or "miss" or "",
                 "filename",
-                "filePath"
+                "filePath",
+                "message",
+                "content" (Base 64)
     """
 
     if key:
@@ -256,7 +259,8 @@ def GET(key):
             return jsonify({"cache": "miss",
                             "filename": "",
                             "filePath": "",
-                            "message": message
+                            "message": message,
+                            "content": ""
                             })
         else:
             # cache hit, update statistics
@@ -265,17 +269,24 @@ def GET(key):
             filepath = os.path.join(
                 Config.MEMCACHE_FOLDER, memcache[key]['name'])
             filepath = filepath.replace('\\', '/')
+
+            image = open(filepath, 'rb')
+            image_Binary = image.read()
+            imageBase64Encode = base64.b64encode(image_Binary)
+
             return jsonify({"cache": "hit",
                             "filename": memcache[key]['name'],
                             "filePath": filepath,
-                            "message": message
+                            "message": message,
+                            "content": imageBase64Encode.decode()
                             })
 
     message = "Usage: /get/<key>"
     return jsonify({"cache": "",
                     "filename": "",
                     "filePath": "",
-                    "message": message
+                    "message": message,
+                    "content": ""
                     })
 
 
@@ -509,8 +520,8 @@ def statistic():
     """
     missrate, hitrate = memcacheStatistics.getTenMinStats()
 
-    returnArray = [len(memcache), memcacheStatistics.totalSize,
-                   memcacheStatistics.numOfRequestsServed, missrate, hitrate]
+    returnArray = [len(memcache), format((float(memcacheStatistics.totalSize)/1048576), '.3f'),
+                   memcacheStatistics.numOfRequestsServed, format(missrate*100, '.3f'), format(hitrate*100, '.3f')]
 
     return jsonify({"success": "true",
                     "statusCode": 200,

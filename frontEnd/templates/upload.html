@@ -6,11 +6,17 @@
 </head>
 <body>
     <h1>Image Uploader</h1>
+
     <form action="{{ url_for('put')}}" enctype='multipart/form-data' method="post">
         <label>key:</label>
         <input type="text" name="key" />
         <input type="file" name="file" id="file" accept="image/*"/>
         <input type="submit" value="Submit" />
+    </form>
+
+    <br>
+    <form action="{{url_for('backHome')}}" method="get">
+        <input type='submit' value='Back' />
     </form>
 </body>
 </html>
