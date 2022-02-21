@@ -281,7 +281,7 @@ def internal_server_error(e):
 # 	return redirect(url_for('static', filename='uploads/' + filename), code=301)  # path is ./frontEnd/static/uploads
 
 
-@webapp.route('/api/key/<key_value>', methods=['POST'])
+@webapp.route('/api/key/<key_value>', methods=['POST', 'GET'])
 def api_Retreive_Image(key_value):
     """Get the path of the image given a key. Will first try to get from cache, then try to get from database if cache miss.
 
@@ -297,9 +297,10 @@ def api_Retreive_Image(key_value):
     api_url = "http://127.0.0.1:5000/backEnd/get/" + key_value
 
     returnDict = makeAPI_Call(api_url, "get", 5)
-
+    content = ""
     if returnDict['cache'] == "hit":
         pathToImage = returnDict['filePath']
+        content = returnDict['content']
     elif returnDict['cache'] == "miss":
         cnx = mysql.connector.connect(user=Config.db_config['user'],
                                       password=Config.db_config['password'],
@@ -340,22 +341,22 @@ def api_Retreive_Image(key_value):
             pathToImage = filepath
             print(pathToImage)
 
-    # response = webapp.response_class(
-    #     response=json.dumps(pathToImage),
-    #     status=200,
-    #     mimetype='application/json'
-    # )
+            # response = webapp.response_class(
+            #     response=json.dumps(pathToImage),
+            #     status=200,
+            #     mimetype='application/json'
+            # )
 
-    # return response
-    filepath = pathToImage.replace('\\', '/')
+            # return response
+            filepath = pathToImage.replace('\\', '/')
 
-    filenameWithExtension = os.path.basename(filepath)
+            filenameWithExtension = os.path.basename(filepath)
 
-    image = open(filepath, 'rb')
-    image_Binary = image.read()
-    imageBase64Encode = base64.b64encode(image_Binary)
+            image = open(filepath, 'rb')
+            image_Binary = image.read()
+            content = base64.b64encode(image_Binary).decode()
     return jsonify({"success": "true",
-                    "content": imageBase64Encode.decode()})
+                    "content": content})
 
 
 @webapp.route('/get', methods=['GET', 'POST'])
@@ -363,20 +364,27 @@ def get():
     """Get the path of the image given a key. Will first try to get from cache, then try to get from database if cache miss.
 
     Returns:
-        the path to the image for the browse page to use
+        the file contents
     """
-    key = request.form.get('key')
+    key_value = request.form.get('key')
 
     pathToImage = ""
-
+    extension = ""
     # Call cache and see if cache has the path
 
-    api_url = "http://127.0.0.1:5000/backEnd/get/" + key
+    api_url = "http://127.0.0.1:5000/backEnd/get/" + key_value
 
     returnDict = makeAPI_Call(api_url, "get", 5)
-
+    content = ""
     if returnDict['cache'] == "hit":
         pathToImage = returnDict['filePath']
+        content = returnDict['content']
+
+        filepath = pathToImage.replace('\\', '/')
+
+        filenameWithExtension = os.path.basename(filepath)
+        extension = os.path.splitext(filenameWithExtension)[1]
+
     elif returnDict['cache'] == "miss":
         cnx = mysql.connector.connect(user=Config.db_config['user'],
                                       password=Config.db_config['password'],
@@ -385,18 +393,16 @@ def get():
 
         cursor = cnx.cursor()
         cursor.execute("SELECT path FROM keylist WHERE keyID = %s",
-                       (key,))
+                       (key_value,))
         RDBMS_Data = cursor.fetchall()
         cnx.close()
         if(not RDBMS_Data):
             # Even the RDBMS does not have it
-            response = webapp.response_class(
-                response=json.dumps("Unknown key"),
-                status=400,
-                mimetype='application/json'
-            )
-
-            return response
+            return jsonify({"success": "false",
+                            "error": {
+                                "code": 400,
+                                "message": "Unknown Key."
+                            }})
 
         elif(RDBMS_Data):
             # RDBMS has path; Need to save file to memcache
@@ -412,22 +418,30 @@ def get():
             print("filenameWithExtension: ", filenameWithExtension)
 
             api_url = "http://127.0.0.1:5000/backEnd/put/" + \
-                key + "/" + filenameWithExtension + "/" + filepath
+                key_value + "/" + filenameWithExtension + "/" + filepath
 
             returnDict = makeAPI_Call(api_url, "get", 5)
 
             pathToImage = filepath
             print(pathToImage)
 
-    # response = webapp.response_class(
-    #     response=json.dumps(pathToImage),
-    #     status=200,
-    #     mimetype='application/json'
-    # )
+            # response = webapp.response_class(
+            #     response=json.dumps(pathToImage),
+            #     status=200,
+            #     mimetype='application/json'
+            # )
 
-    # return response
-    # return response for browse request
-    return render_template("browse.html", filename=pathToImage)
+            # return response
+            filepath = pathToImage.replace('\\', '/')
+
+            filenameWithExtension = os.path.basename(filepath)
+
+            image = open(filepath, 'rb')
+            image_Binary = image.read()
+            content = base64.b64encode(image_Binary).decode()
+            extension = os.path.splitext(filenameWithExtension)[1]
+
+    return render_template("browse.html", content=content, extension=extension)
 
 
 @webapp.route('/api/upload', methods=['POST'])
@@ -663,5 +677,5 @@ def makeAPI_Call(api_url: str, method: str, _timeout: int):
 
     json_acceptable_string = r.json()
 
-    print("Here is response: ", json_acceptable_string)
+    # print("Here is response: ", json_acceptable_string)
     return json_acceptable_string
