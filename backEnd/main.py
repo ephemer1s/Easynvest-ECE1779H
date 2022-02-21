@@ -353,7 +353,7 @@ def refreshConfiguration(capacity, policy):
     if not configuration:
         print("Failed to update config; SQL failed. Using values passed from frontEnd instead.")
 
-        memcacheConfig['capacity'] = capacity
+        memcacheConfig['capacity'] = int(capacity)
 
         memcacheConfig['policy'] = "LRU" if policy == 1 else "Random"
 
