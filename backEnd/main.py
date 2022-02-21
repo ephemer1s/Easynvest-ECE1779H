@@ -350,6 +350,7 @@ def refreshConfiguration():
     # Sql may fail. In that case abandon the change.
 
     if not configuration:
+        print("Failed to update config; SQL failed")
         message = "Failed to update config; SQL failed"
         return jsonify({"success": "false",
                         "statusCode": 400,
