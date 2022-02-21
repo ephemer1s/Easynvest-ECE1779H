@@ -329,8 +329,8 @@ def invalidateKey(key):
         return response
 
 
-@ webapp.route('/refreshConfiguration')
-def refreshConfiguration():
+@ webapp.route('/refreshConfiguration/<capacity>/<policy>')
+def refreshConfiguration(capacity, policy):
     """API Function call to read mem-cache related details from the database
     and reconfigure it with default values
     """
@@ -347,78 +347,84 @@ def refreshConfiguration():
 
     configuration = cursor.fetchall()
 
+    returnjson = jsonify({})
     # Sql may fail. In that case abandon the change.
-
+    configSource = ""
     if not configuration:
-        print("Failed to update config; SQL failed")
-        message = "Failed to update config; SQL failed"
-        return jsonify({"success": "false",
-                        "statusCode": 400,
-                        "message": message})
+        print("Failed to update config; SQL failed. Using values passed from frontEnd instead.")
+
+        memcacheConfig['capacity'] = capacity
+
+        memcacheConfig['policy'] = "LRU" if policy == 1 else "Random"
+
+        configSource = "Failed to update config; SQL failed. Using values passed from frontEnd instead."
 
     else:
-
+        print("Using Sql config data.")
+        configSource = "Using Sql config data."
         print(configuration, configuration[0][0], configuration[0][1])
 
         memcacheConfig['capacity'] = configuration[0][0]
 
         memcacheConfig['policy'] = "LRU" if configuration[0][1] == 1 else "Random"
 
-        # Need to check if current Capacity is still enough
+    # Need to check if current Capacity is still enough
 
-        checkSize = True
+    checkSize = True
+
+    if memcacheStatistics.totalSize > memcacheConfig['capacity']:
+
+        if(not memcache):
+            # memcache is empty but folder is not. Calling _clrcache()
+            _clrCache(folderPath=Config.MEMCACHE_FOLDER)
+        else:
+            checkSize = False
+
+    while (checkSize == False):
+        # Check Replacement policy, LRU or Random Replacement
+
+        if(not memcache):
+            # memcache is empty but folder is not. Calling _clrcache()
+            _clrCache(folderPath=Config.MEMCACHE_FOLDER)
+
+        if memcacheConfig['policy'] == "LRU":
+            # delete the oldest
+
+            # loop through memcache and check datetime, pop the oldest one
+            oldestTimeStamp = min([d['timestamp']
+                                   for d in memcache.values()])
+
+            oldestKey = ""
+            for keys in memcache.keys():
+                if memcache[keys]['timestamp'] == oldestTimeStamp:
+                    oldestKey = keys
+            # delete the file in cacheImageFolder as well
+            if(oldestKey):
+                _delCache(oldestKey, folderPath=Config.MEMCACHE_FOLDER)
+            else:
+                print("how can this happen to me?")
+
+        elif memcacheConfig['policy'] == "Random":
+
+            # delete a random one
+            _delCache(random.choice(list(memcache)),
+                      folderPath=Config.MEMCACHE_FOLDER)
+
+        # Check if size is now sufficient
 
         if memcacheStatistics.totalSize > memcacheConfig['capacity']:
+            checkSize = False
+        else:
+            checkSize = True
 
-            if(not memcache):
-                # memcache is empty but folder is not. Calling _clrcache()
-                _clrCache(folderPath=Config.MEMCACHE_FOLDER)
-            else:
-                checkSize = False
-
-        while (checkSize == False):
-            # Check Replacement policy, LRU or Random Replacement
-
-            if(not memcache):
-                # memcache is empty but folder is not. Calling _clrcache()
-                _clrCache(folderPath=Config.MEMCACHE_FOLDER)
-
-            if memcacheConfig['policy'] == "LRU":
-                # delete the oldest
-
-                # loop through memcache and check datetime, pop the oldest one
-                oldestTimeStamp = min([d['timestamp']
-                                       for d in memcache.values()])
-
-                oldestKey = ""
-                for keys in memcache.keys():
-                    if memcache[keys]['timestamp'] == oldestTimeStamp:
-                        oldestKey = keys
-                # delete the file in cacheImageFolder as well
-                if(oldestKey):
-                    _delCache(oldestKey, folderPath=Config.MEMCACHE_FOLDER)
-                else:
-                    print("how can this happen to me?")
-
-            elif memcacheConfig['policy'] == "Random":
-
-                # delete a random one
-                _delCache(random.choice(list(memcache)),
-                          folderPath=Config.MEMCACHE_FOLDER)
-
-            # Check if size is now sufficient
-
-            if memcacheStatistics.totalSize > memcacheConfig['capacity']:
-                checkSize = False
-            else:
-                checkSize = True
-
-        message = "Updated: " + \
-            str(memcacheConfig['capacity']) + \
-            ", " + str(memcacheConfig["policy"])
-        return jsonify({"success": "true",
-                        "statusCode": 200,
-                        "message": message})
+    message = "Updated: " + \
+        str(memcacheConfig['capacity']) + \
+        ", " + str(memcacheConfig["policy"])
+    returnjson = jsonify({"success": "true",
+                          "statusCode": 200,
+                          "configSource": configSource,
+                          "message": message})
+    return returnjson
 
 
 @webapp.route('/')

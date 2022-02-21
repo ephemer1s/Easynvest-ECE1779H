@@ -50,7 +50,7 @@ def _run_on_start():
 
     # let backend read config data from database
     makeAPI_Call(
-        "http://127.0.0.1:5000/backEnd/refreshConfiguration", "get", 5)
+        "http://127.0.0.1:5000/backEnd/refreshConfiguration/131417728/1", "get", 5)
 
     # # clear database table
     # cnx = mysql.connector.connect(user=Config.db_config['user'],
@@ -220,7 +220,7 @@ def configsUpdate():
     cnx.close()
 
     status = makeAPI_Call(
-        "http://127.0.0.1:5000/backEnd/refreshConfiguration", "get", 5)
+        "http://127.0.0.1:5000/backEnd/refreshConfiguration" + "/" + str(capacityB) + "/" + str(replacepolicy), "get", 5)
 
     print(status)
 
