@@ -80,7 +80,7 @@ def updater():
     """Update the memcache stats from the memcache to the database. Called every 5s.
     """
     json_dict = makeAPI_Call(
-        "http://127.0.0.1:5000/backEnd/statistic", "get", 3)
+        "http://127.0.0.1:5000/backEnd/statistic", "get", 10)
 
     # statsDict = json.loads(json_acceptable_string)
     statsList = [-1, -1, -1, 0.0, 0.0]
@@ -352,6 +352,13 @@ def api_Retreive_Image(key_value):
 
             filenameWithExtension = os.path.basename(filepath)
 
+            if not os.path.isfile(filepath):
+                return jsonify({"success": "false",
+                                "error": {
+                                    "code": 400,
+                                    "message": "File not found."
+                                }})
+
             image = open(filepath, 'rb')
             image_Binary = image.read()
             content = base64.b64encode(image_Binary).decode()
@@ -435,6 +442,15 @@ def get():
             filepath = pathToImage.replace('\\', '/')
 
             filenameWithExtension = os.path.basename(filepath)
+
+            # check if file exist
+
+            if not os.path.isfile(filepath):
+                return jsonify({"success": "false",
+                                "error": {
+                                    "code": 400,
+                                    "message": "File not found."
+                                }})
 
             image = open(filepath, 'rb')
             image_Binary = image.read()
