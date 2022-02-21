@@ -413,7 +413,9 @@ def refreshConfiguration():
             else:
                 checkSize = True
 
-        message = "Refreshed"
+        message = "Updated: " + \
+            str(memcacheConfig['capacity']) + \
+            ", " + str(memcacheConfig["policy"])
         return jsonify({"success": "true",
                         "statusCode": 200,
                         "message": message})

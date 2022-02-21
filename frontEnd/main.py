@@ -219,8 +219,10 @@ def configsUpdate():
     cnx.commit()
     cnx.close()
 
-    makeAPI_Call(
+    status = makeAPI_Call(
         "http://127.0.0.1:5000/backEnd/refreshConfiguration", "get", 5)
+
+    print(status)
 
     response = webapp.response_class(
         response=json.dumps("Cache Configs Update Successfully."),
