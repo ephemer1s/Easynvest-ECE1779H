@@ -5,3 +5,4 @@ Paxheader/
 *.DS_Store
 ./images/
 ./uploads/
+./backEnd/cacheImageFolder/
