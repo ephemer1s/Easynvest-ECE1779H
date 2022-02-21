@@ -475,14 +475,6 @@ def apiUpload():
     key = request.form.get('key')
     file = request.form.get('file')
 
-    if file.filename == '':  # If file not given, quit
-        return ({"success": "false",
-                 "error": {
-                     "code": 400,
-                     "message": "No file given"
-                 }
-                 })
-
     # Go on database to find if key exist already. If it does, find path, drop
     cnx = mysql.connector.connect(user=Config.db_config['user'],
                                   password=Config.db_config['password'],
@@ -496,12 +488,14 @@ def apiUpload():
 
     uploadedFile = False
 
+    uploadFilename = "API_Uploaded"
+
     if file:
         print(type(file))
         upload_folder = webapp.config['UPLOAD_FOLDER']
         if not os.path.isdir(upload_folder):
             os.mkdir(upload_folder)
-        filename = os.path.join(upload_folder, file.filename)
+        filename = os.path.join(upload_folder, uploadFilename)
         print("filename : ", filename)
         filename = filename.replace('\\', '/')
         print("filename : ", filename)
@@ -512,7 +506,7 @@ def apiUpload():
 
         # Check if filename already exists in folder
         fileExists = True
-        currentFileName = file.filename
+        currentFileName = uploadFilename
         while (fileExists):
             if not os.path.isfile(filename):
                 fileExists = False
@@ -523,7 +517,7 @@ def apiUpload():
                     upload_folder, currentFileName)
 
         file.save(filename)
-        # return redirect(url_for('download_file', name=file.filename))
+
         uploadedFile = True
 
         if not RDBMS_Data:
