@@ -18,8 +18,8 @@ applications = DispatcherMiddleware(frontEnd, {
 if __name__ == "__main__":
     """Two Flask instances are combine into a single object. Using "threaded = True", the function can call API within itself while dealing with user requests.
     """
-    run_simple('localhost', 5000, applications, 
+    run_simple('0.0.0.0', 5000, applications,
                use_reloader=True,
-               use_debugger=False, 
-               use_evalex=True, 
+               use_debugger=False,
+               use_evalex=True,
                threaded=True)
