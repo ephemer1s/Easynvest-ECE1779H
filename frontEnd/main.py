@@ -50,7 +50,7 @@ def _run_on_start():
 
     # let backend read config data from database
     makeAPI_Call(
-        "http://127.0.0.1:5000/backEnd/refreshConfiguration", "get", 5)
+        "http://127.0.0.1:5000/backEnd/refreshConfiguration/131417728/1", "get", 5)
 
     # # clear database table
     # cnx = mysql.connector.connect(user=Config.db_config['user'],
@@ -219,8 +219,10 @@ def configsUpdate():
     cnx.commit()
     cnx.close()
 
-    makeAPI_Call(
-        "http://127.0.0.1:5000/backEnd/refreshConfiguration", "get", 5)
+    status = makeAPI_Call(
+        "http://127.0.0.1:5000/backEnd/refreshConfiguration" + "/" + str(capacityB) + "/" + str(replacepolicy), "get", 5)
+
+    print(status)
 
     response = webapp.response_class(
         response=json.dumps("Cache Configs Update Successfully."),
@@ -340,7 +342,6 @@ def api_Retreive_Image(key_value):
 
             pathToImage = filepath
             print(pathToImage)
-
             # response = webapp.response_class(
             #     response=json.dumps(pathToImage),
             #     status=200,
@@ -471,7 +472,7 @@ def apiUpload():
         json response
     """
     key = request.form.get('key')
-    file = request.form.get('file')
+    file = request.files['file']
 
     if file.filename == '':  # If file not given, quit
         return ({"success": "false",
