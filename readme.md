@@ -66,16 +66,6 @@ You can also install via pip3 by first activating your venv and use:
 
 ### Installation
 
-#### **How to start and login to the instance**
-
-1. After login to IAM user, turn to [EC2 console](https://console.aws.amazon.com/ec2/v2/home), select “**instances**”, select instance ID `i-04bd5d1898f6dbbfc` and boot. (There should be only one instance among all)We recommend using ssh to login to the EC2 instance but you can also login by simply selecting “**EC2 Instance** **Connect**” with entering username “**ubuntu**”. Code for logging in is as follows:
-
-   ```
-   ssh -i "path/to/your/public-key.pem" ubuntu@ec2-44-203-50-20.compute-1.amazonaws.com
-   ```
-
-#### How to run the code
-
 1. `git clone https://github.com/ephemer1s/ece1779h-a1.git`
 2. Run `bash start.sh` and the web application will start running. The shell script should be in the home directory.
 
