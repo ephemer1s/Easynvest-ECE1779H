@@ -26,6 +26,7 @@
       </ul>
     </li>
     <li><a href="#usage">Usage</a></li>
+    <li><a href="#Database Schema">Database Schema</a></li>
     <li><a href="#contact">Contact</a></li>
   </ol>
 </details>
@@ -103,17 +104,7 @@ You should find 5 buttons on the main page.
 * Using a MySQL database, the frontend saves and loads key/image_path pairs from the database and uses the backend memcache for faster access if possible, to (theoretically) lower the time it takes to complete the request due to not needing a response from the database. 
 * Images are passed between APIs using base64 format and decoded on runtime.
 
-<!-- CONTACT -->
 
-## Contact
-
-Jianyu Wen - sam.wen@mail.utoronto.ca
-
-Haozhe Wang - haozhe.wang@mail.utoronto.ca
-
-Haocheng Wei - haocheng.wei@mail.utoronto.ca
-
-Project Link: [https://github.com/ephemer1s/ece1779h-a1](https://github.com/ephemer1s/ece1779h-a1)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -137,3 +128,15 @@ It is worth noting that the Keylist table could have multiple rows to store path
 
 
 <p align="right">(<a href="#top">back to top</a>)</p>
+
+<!-- CONTACT -->
+
+## Contact
+
+Jianyu Wen - sam.wen@mail.utoronto.ca
+
+Haozhe Wang - haozhe.wang@mail.utoronto.ca
+
+Haocheng Wei - haocheng.wei@mail.utoronto.ca
+
+Project Link: [https://github.com/ephemer1s/ece1779h-a1](https://github.com/ephemer1s/ece1779h-a1)
