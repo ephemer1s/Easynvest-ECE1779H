@@ -527,7 +527,7 @@ def listKeys():
 def statistic():
     """debug: Give statistics to frontEnd to store in database every 5s
     """
-    missrate, hitrate = memcacheStatistics.getTenMinStats()
+    hitrate, missrate = memcacheStatistics.getTenMinStats()
 
     returnArray = [len(memcache), format((float(memcacheStatistics.totalSize)/1048576), '.3f'),
                    memcacheStatistics.numOfRequestsServed, format(missrate*100, '.3f'), format(hitrate*100, '.3f')]
