@@ -108,8 +108,10 @@ You should find 5 buttons on the main page.
 
 
 <p align="right">(<a href="#top">back to top</a>)</p>
+
 <!-- Database Schema -->
-## **Database Schema** 
+
+## Database Schema
 
 Our MySQL database hosts 3 tables that store data for frontEnd and backEnd to use. Database relations are presented as follows: ![img](https://lh4.googleusercontent.com/q44tvqIHN2iBLfU0TTWdJLKWCmydQDyEbSyvh9JSjPwik3_Bzqb4ex7tEZDo5Vtg0P3m6tVgTffTIKOZPyThXI6tTyieOJMY4aa2bGGL8f860XosD3E8egJXLO2W9ZAq-OH_Kh3q)  
 
