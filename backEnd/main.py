@@ -341,7 +341,7 @@ def refreshConfiguration(capacity, policy):
                                   database=Config.db_config['database'])
 
     cursor = cnx.cursor()
-    query = "SELECT capacityB, replacepolicy FROM configuration"
+    query = "SELECT capacityB, replacepolicy FROM configuration WHERE id = 0"
     cursor.execute(query)
     cnx.close()
 

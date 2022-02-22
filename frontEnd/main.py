@@ -342,7 +342,6 @@ def api_Retreive_Image(key_value):
 
             pathToImage = filepath
             print(pathToImage)
-
             # response = webapp.response_class(
             #     response=json.dumps(pathToImage),
             #     status=200,
