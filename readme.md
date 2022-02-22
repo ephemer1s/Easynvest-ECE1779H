@@ -26,6 +26,7 @@
       </ul>
     </li>
     <li><a href="#usage">Usage</a></li>
+    <li><a href="#General Architecture">General Architecture</a></li>
     <li><a href="#Database Schema">Database Schema</a></li>
     <li><a href="#contact">Contact</a></li>
   </ol>
@@ -107,7 +108,7 @@ You should find 5 buttons on the main page.
 
 
 <p align="right">(<a href="#top">back to top</a>)</p>
-
+<!-- Database Schema -->
 ## **Database Schema** 
 
 Our MySQL database hosts 3 tables that store data for frontEnd and backEnd to use. Database relations are presented as follows: ![img](https://lh4.googleusercontent.com/q44tvqIHN2iBLfU0TTWdJLKWCmydQDyEbSyvh9JSjPwik3_Bzqb4ex7tEZDo5Vtg0P3m6tVgTffTIKOZPyThXI6tTyieOJMY4aa2bGGL8f860XosD3E8egJXLO2W9ZAq-OH_Kh3q)  
@@ -135,7 +136,7 @@ It is worth noting that the Keylist table could have multiple rows to store path
 
 Jianyu Wen - sam.wen@mail.utoronto.ca
 
-Haozhe Wang - haozhe.wang@mail.utoronto.ca
+Haozhe Wang - hz.wang@mail.utoronto.ca
 
 Haocheng Wei - haocheng.wei@mail.utoronto.ca
 
