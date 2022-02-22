@@ -27,7 +27,6 @@
     </li>
     <li><a href="#usage">Usage</a></li>
     <li><a href="#contact">Contact</a></li>
-    <li><a href="#acknowledgments">Acknowledgments</a></li>
   </ol>
 </details>
 
@@ -36,7 +35,7 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-[![Product Name Screen Shot][product-screenshot]](https://example.com)
+![unknown.png](https://imgpp.com/s1/2022/02/22/unknown.png)
 
 This project is a web application for booru-like image upload and browse, created for group assignment of *course ECE1779* at **[University of Toronto](utoronto.ca)**
 
