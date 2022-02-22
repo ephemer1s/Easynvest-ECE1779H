@@ -577,7 +577,7 @@ def put():
         print(response)
         return response
 
-    print(key, file)
+    # print(key, file)
 
     if file.filename == '':  # If file not given, quit
         response = webapp.response_class(
@@ -648,11 +648,11 @@ def put():
 
     cnx.close()
 
-    old_memcache[key] = file
+    # old_memcache[key] = file
 
-    if file is not None:
-        # base64_data = base64.b64encode(file)
-        pass
+    # if file is not None:
+    #     # base64_data = base64.b64encode(file)
+    #     pass
 
     if uploadedFile:
         # Call backEnd to invalidateKey
