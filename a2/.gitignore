@@ -1,0 +1,8 @@
+__pycache__/
+.venv/
+.idea/
+Paxheader/
+*.DS_Store
+./images/
+./uploads/
+./backEnd/cacheImageFolder/

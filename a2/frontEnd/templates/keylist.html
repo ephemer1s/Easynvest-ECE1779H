@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>{{title}}</title>
+    </head>
+    <body>
+        <h1>{{title}}</h2>
+
+        <style>
+            table {
+                font-family: arial, sans-serif;
+                border-collapse: collapse;
+                width: 60%;
+              }
+              
+              td, th {
+                border: 2px solid #dddddd;
+                text-align: center;
+                padding: 10px;
+              }
+              
+              tr:nth-child(even) {
+                background-color: #F0F3F4;
+              }
+            </style>
+        
+            <body>
+        
+                <table>
+                    <tr>
+                        <th>Key </th>
+                        <th>Path </th>
+                    <tr>
+        
+                {% for row in cursor %}
+                    <tr>
+                        <td>{{ row[0]}}</td>
+                        <td>{{ row[1]}}</td>
+                    </tr>
+                {% endfor %}
+                </table><br>
+
+        <form action="{{url_for('backHome')}}" method="get">
+            <input type='submit' value='Back' />
+        </form>
+
+    </body>
+</html>

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Cache Statistics</title>
+    </head>
+
+    <style>
+    table {
+        font-family: arial, sans-serif;
+        border-collapse: collapse;
+        width: 60%;
+      }
+      
+      td, th {
+        border: 2px solid #dddddd;
+        text-align: center;
+        padding: 10px;
+      }
+      
+      tr:nth-child(even) {
+        background-color: #dddddd;
+      }
+    </style>
+
+    <body>
+        <h1>Cache Statistics</h2>
+
+        <table>
+            <tr>
+                <th>Number of Items </th>
+                <th>Total Size of Items (MB)</th>
+                <th>Number of Requests Served </th>
+                <th>Miss Rate (%) </th>
+                <th>Hit Rate (%) </th>
+            <tr>
+
+        {% for row in cursor %}
+            <tr>
+                <td>{{ row[0] }}</td>
+                <td>{{ row[1] }}</td>
+                <td>{{ row[2] }}</td>
+                <td>{{ row[3]}}</td>
+                <td>{{ row[4]}}</td>
+            </tr>
+        {% endfor %}
+        </table>
+
+        <p>* Miss Rate & Hit Rate data collected for the past 10 minutes.</p><br>
+
+        <form action="{{url_for('backHome')}}" method="get">
+            <input type='submit' value='Back' />
+        </form>
+
+    </body>
+</html>
