@@ -46,11 +46,11 @@ def _run_on_start():
 
     # initialize backend memcache
     makeAPI_Call(
-        "http://127.0.0.1:5000/backEnd/init", "get", 5)
+        "http://127.0.0.1:5001/init", "get", 5)
 
     # let backend read config data from database
     makeAPI_Call(
-        "http://127.0.0.1:5000/backEnd/refreshConfiguration/131417728/1", "get", 5)
+        "http://127.0.0.1:5001/refreshConfiguration/131417728/1", "get", 5)
 
     # # clear database table
     # cnx = mysql.connector.connect(user=Config.db_config['user'],
@@ -80,7 +80,7 @@ def updater():
     """Update the memcache stats from the memcache to the database. Called every 5s.
     """
     json_dict = makeAPI_Call(
-        "http://127.0.0.1:5000/backEnd/statistic", "get", 10)
+        "http://127.0.0.1:5001/statistic", "get", 10)
 
     # statsDict = json.loads(json_acceptable_string)
     statsList = [-1, -1, -1, 0.0, 0.0]
@@ -220,7 +220,7 @@ def configsUpdate():
     cnx.close()
 
     status = makeAPI_Call(
-        "http://127.0.0.1:5000/backEnd/refreshConfiguration" + "/" + str(capacityB) + "/" + str(replacepolicy), "get", 5)
+        "http://127.0.0.1:5001/refreshConfiguration" + "/" + str(capacityB) + "/" + str(replacepolicy), "get", 5)
 
     print(status)
 
@@ -296,7 +296,7 @@ def api_Retreive_Image(key_value):
 
     # Call cache and see if cache has the path
 
-    api_url = "http://127.0.0.1:5000/backEnd/get/" + key_value
+    api_url = "http://127.0.0.1:5001/get/" + key_value
 
     returnDict = makeAPI_Call(api_url, "get", 5)
     content = ""
@@ -335,7 +335,7 @@ def api_Retreive_Image(key_value):
 
             print("filenameWithExtension: ", filenameWithExtension)
 
-            api_url = "http://127.0.0.1:5000/backEnd/put/" + \
+            api_url = "http://127.0.0.1:5001/put/" + \
                 key_value + "/" + filenameWithExtension + "/" + filepath
 
             returnDict = makeAPI_Call(api_url, "get", 5)
@@ -380,7 +380,7 @@ def get():
     extension = ""
     # Call cache and see if cache has the path
 
-    api_url = "http://127.0.0.1:5000/backEnd/get/" + key_value
+    api_url = "http://127.0.0.1:5001/get/" + key_value
 
     returnDict = makeAPI_Call(api_url, "get", 5)
     content = ""
@@ -425,7 +425,7 @@ def get():
 
             print("filenameWithExtension: ", filenameWithExtension)
 
-            api_url = "http://127.0.0.1:5000/backEnd/put/" + \
+            api_url = "http://127.0.0.1:5001/put/" + \
                 key_value + "/" + filenameWithExtension + "/" + filepath
 
             returnDict = makeAPI_Call(api_url, "get", 5)
@@ -550,7 +550,7 @@ def apiUpload():
 
     if uploadedFile:
         # Call backEnd to invalidateKey
-        api_url = "http://127.0.0.1:5000/backEnd/invalidateKey/" + key
+        api_url = "http://127.0.0.1:5001/invalidateKey/" + key
 
         json_acceptable_string = makeAPI_Call(api_url, "get", 5)
 
@@ -656,7 +656,7 @@ def put():
 
     if uploadedFile:
         # Call backEnd to invalidateKey
-        api_url = "http://127.0.0.1:5000/backEnd/invalidateKey/" + key
+        api_url = "http://127.0.0.1:5001/invalidateKey/" + key
 
         json_acceptable_string = makeAPI_Call(api_url, "get", 5)
 
