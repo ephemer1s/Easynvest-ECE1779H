@@ -17,6 +17,7 @@ frontEnd.secret_key = "UltraSecreeeeeeeeeeet"
 applications = DispatcherMiddleware(
     frontEnd, {'/managerApp': managerApp})
 
+
 if __name__ == "__main__":
     """Two Flask instances are combine into a single object. Using "threaded = True", the function can call API within itself while dealing with user requests.
     """
