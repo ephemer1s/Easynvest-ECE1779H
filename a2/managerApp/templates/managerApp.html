@@ -89,11 +89,12 @@
     </section>
 
     <!-- Statistics Section -->
+    <!-- Waiting for function complement -->
     <section class="u-clearfix u-white u-section-2" id="sec-e33e">
 
       <!-- Monitor Chart for past 30 minute -->
 
-        <!-- There should be charts display statistics -->
+        <!-- There should be charts display memcache statistics -->
 
       <!-- Under Construction -->
 
@@ -101,7 +102,7 @@
 
       <!-- Monitor Table showing the current statistics -->
       <div class="u-clearfix u-sheet u-sheet-1">
-        <table class = "statisticstable">
+        <table class = "statisticsTable">
           <tr>
               <th>Active Workers </th>
               <th>Items Total Size (MB)</th>
@@ -112,7 +113,8 @@
           <tr>
 
           <!-- Under Construction -->
-          <label>/* Under Construction: data display*/</label><br>
+          <!-- data filled required -->
+
           <!--
           {% for row in cursor %}
             <tr>
@@ -131,10 +133,10 @@
 
     <!-- CSS for Monitor Table -->
     <style>
-      .statisticstable {
+      .statisticsTable {
           font-family: arial, sans-serif;
           border-collapse: collapse;
-          width: 40%;
+          width: 100%;
         }
         
         td, th {
@@ -146,7 +148,7 @@
         tr:nth-child(even) {
           background-color: #dddddd;
         }
-      </style>
+    </style>
 
     <!-- Configuration Subtitle -->
     <section class="u-clearfix u-grey-5 u-section-3" id="sec-2e39">
@@ -170,7 +172,10 @@
 
       <!-- Memcache Capacity & Replacement Policy Setting-->
       <!-- Waiting for further beautification -->
+      <!-- Waiting for function complement -->
       <div class="u-clearfix u-sheet u-sheet-1">
+        <!-- check if this url from A1 still work before deployment -->
+        <!-- configUpdate name should be changed -->
         <form class="configsform" action="{{ url_for('configsUpdate')}}" method="post">
           <label>Memcache Capacity (4096 max):</label>
           <input type="number" name="capacityMB" min="1" max="4096" value="1" required/>
@@ -178,43 +183,75 @@
               
           <label>Memcache Replacement Policy:</label><br>
           <input type="radio" name="replacepolicy" value="0"> Random Replacement<br>
-          <input type="radio" name="replacepolicy" value="1" checked="checked"/> Least Recently Used<br><br>
+          <input type="radio" name="replacepolicy" value="1" checked="checked"/> Least Recently Used<br>
 
-          <input type="submit" value="Apply">
+          <input type="submit" value="Apply" href="https://nicepage.com/landing-page" class="u-border-none u-btn u-btn-round u-button-style u-hover-palette-2-light-1 u-palette-1-light-1 u-radius-50 u-btn-1">
         </form><br>
       </div> 
 
       <!-- Tab button for Memcache Pool Resizing Policy -->
       <!-- Waiting for further beautification -->
-      <div class="u-tab-links-align-left u-tabs u-tabs-1">
-        <ul class="u-border-2 u-border-palette-1-base u-grey-5 u-spacing-30 u-tab-list u-unstyled u-tab-list-1" role="tablist">
-          <li class="u-tab-item" role="presentation">
-            <a class="active u-active-palette-1-base u-button-style u-grey-15 u-hover-palette-2-light-2 u-radius-5 u-tab-link u-text-active-white u-text-black u-tab-link-1" id="link-tab-0da5" href="#tab-0da5" role="tab" aria-controls="tab-0da5" aria-selected="true">Manual Mode</a>
-          </li>
-          <li class="u-tab-item" role="presentation">
-            <a class="u-active-palette-1-base u-button-style u-grey-15 u-hover-palette-2-light-2 u-radius-5 u-tab-link u-text-active-white u-text-black u-tab-link-2" id="link-tab-2917" href="#tab-2917" role="tab" aria-controls="tab-2917" aria-selected="false"> Aumomatic Mode</a>
-          </li>
-        </ul>
+      <div class="u-clearfix u-sheet u-sheet-1">
+          <div class="u-tab-links-align-left u-tabs u-tabs-1">
+            <ul class="u-border-2 u-border-palette-1-base u-grey-5 u-spacing-30 u-tab-list u-unstyled u-tab-list-1" role="tablist">
+              <li class="u-tab-item" role="presentation">
+                <a class="active u-active-palette-1-base u-button-style u-grey-15 u-hover-palette-2-light-2 u-radius-5 u-tab-link u-text-active-white u-text-black u-tab-link-1" id="link-tab-0da5" href="#tab-0da5" role="tab" aria-controls="tab-0da5" aria-selected="true"> Manual Mode </a>
+              </li>
+              <li class="u-tab-item" role="presentation">
+                <a class="u-active-palette-1-base u-button-style u-grey-15 u-hover-palette-2-light-2 u-radius-5 u-tab-link u-text-active-white u-text-black u-tab-link-2" id="link-tab-2917" href="#tab-2917" role="tab" aria-controls="tab-2917" aria-selected="false"> Aumomatic Mode </a>
+              </li>
+            </ul>
+          
+            <div class="u-tab-content">
+              <!-- Under Construction -->
+              <!-- Manual Mode Form -->
+              <div class="u-align-left u-container-style u-palette-5-light-3 u-tab-active u-tab-pane u-tab-pane-1" id="tab-0da5" role="tabpanel" aria-labelledby="link-tab-0da5">
+                <div class="u-container-layout u-container-layout-1">
+                  <p class="u-text u-text-default u-text-3">Manually growing the pool size by 1 or shrinking the pool size by 1 betweeen 1 ~ 8.</p>
+                  <!-- functionable url required before deployment -->
+                  <form class="configsform" action="{{ url_for('configsUpdate')}}" method="post">
 
-        <!-- Under Construction -->
-        <div class="u-tab-content">
-          <div class="u-align-left u-container-style u-palette-5-light-3 u-tab-active u-tab-pane u-tab-pane-1" id="tab-0da5" role="tabpanel" aria-labelledby="link-tab-0da5">
-            <div class="u-container-layout u-container-layout-1">
-              <h4 class="u-text u-text-default u-text-1">Basic Settings</h4>
-            </div>
-          </div>
-          <div class="u-container-style u-palette-5-light-3 u-tab-pane u-tab-pane-2" id="tab-2917" role="tabpanel" aria-labelledby="link-tab-2917">
-            <div class="u-container-layout u-valign-bottom u-container-layout-2">
-              <h4 class="u-text u-text-default u-text-2">Be The First To Review This Product!</h4>
-              <p class="u-text u-text-default u-text-3">Sample text. Click to select the text box. Click again or double click to start editing the text.</p>
-              <a href="" class="u-active-palette-2-base u-border-none u-btn u-btn-round u-button-style u-hover-palette-2-light-1 u-radius-10 u-btn-1">write product review</a>
+                    <!-- pool size feedback required here before deployment -->
+                    <input type="submit" value="↑"><input type="submit" value="↓"><br> 
+          
+                    <input type="submit" value="Apply" href="https://nicepage.com/landing-page" class="u-border-none u-btn u-btn-round u-button-style u-hover-palette-2-light-1 u-palette-1-light-1 u-radius-50 u-btn-1"><br>
+                  </form>
+                </div>
+              </div>
+
+              <!-- Aumomatic Mode Form -->
+              <div class="u-container-style u-palette-5-light-3 u-tab-pane u-tab-pane-2" id="tab-2917" role="tabpanel" aria-labelledby="link-tab-2917">
+                <div class="u-container-layout u-valign-bottom u-container-layout-2">
+                  <p class="u-text u-text-default u-text-3">Configure a simple auto-scaling policy by setting parameters below.</p><br>
+
+                  <!-- functionable url required before deployment -->
+                  <form class="configsform" action="{{ url_for('configsUpdate')}}" method="post">
+                    <!-- check max > min required -->
+                    <label>Max Miss Rate (%):</label>
+                    <input type="number" name="Max Miss Rate" min="1" max="99" value="75" required/>
+                    <label>Min Miss Rate (%):</label>
+                    <input type="number" name="Min Miss Rate" min="1" max="99" value="25" required/><br>
+                    <p class="u-text u-text-default u-text-3">Average miss rate for all nodes in the pool over the past 1 minute.</p>
+                    <p class="u-text u-text-default u-text-3">When max threshold is reached, pool grows. When min threshold is reached, pool shrinks. </p>
+                    <br>
+
+                    <label>Pool Expand Ratio:</label>
+                    <input type="number" name="Pool Expand Ratio" min="1" max="8" value="2" step="0.1" required/>
+                    <label>Pool Shrink Ratio:</label>
+                    <input type="number" name="Pool Shrink Ratio" min="0.125" max="1" value="0.5" step="0.1" required/><br>
+                    <p class="u-text u-text-default u-text-3">At what ratio will the pool size be explanded or shrinked.</p>
+                    
+                    <input type="submit" value="Apply" href="https://nicepage.com/landing-page" class="u-border-none u-btn u-btn-round u-button-style u-hover-palette-2-light-1 u-palette-1-light-1 u-radius-50 u-btn-1"><br>
+                  </form>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-
       <!-- Under Construction -->
+      <!--
       <div class="u-clearfix u-sheet u-sheet-1">
         <form class="configsform" action="{{ url_for('configsUpdate')}}" method="post">
           <label>Memcache Capacity (4096 max):</label>
@@ -250,6 +287,7 @@
       <div class="u-clearfix u-sheet u-sheet-1">
         <a href="https://nicepage.com/landing-page" class="u-border-none u-btn u-btn-round u-button-style u-hover-palette-2-light-1 u-palette-1-light-1 u-radius-50 u-btn-1">apply</a>
       </div>
+      -->
     </section>
 
     <!-- File Remove Subtitle  -->
@@ -270,6 +308,7 @@
     </section>
 
     <!-- File Remove Section  -->
+    <!-- Waiting for function complement -->
     <section class="u-clearfix u-white u-section-6" id="sec-e560">
       <!-- Under Construction -->
       <div class="u-clearfix u-sheet u-sheet-1">
@@ -278,16 +317,17 @@
             <lt-div class="lt-highlighter__scroll-element" style="top: 0px; left: 0px; width: 175px; height: 32px;"></lt-div>
           </lt-div>
         </lt-highlighter>
+        <!-- two functionable button here -->
+        <!-- functionable url required before deployment -->
         <a href="https://nicepage.com/landing-page" class="u-border-none u-btn u-btn-round u-button-style u-hover-palette-2-light-1 u-palette-1-light-1 u-radius-50 u-btn-1">Clear Database</a>
         <a href="https://nicepage.com/landing-page" class="u-border-none u-btn u-btn-round u-button-style u-hover-palette-2-light-1 u-palette-1-light-1 u-radius-50 u-btn-2">Clear Memcache</a>
       </div>
     </section>
 
-    <!-- poka bird. just for fun  -->
+    <!-- Cute Poka Bird. just for fun.  -->
     <div class="poka">
-      <a class="poka"><img src="https://cdn.hinatazaka46.com/files/14/hinata/pages/hinachri2020/assets/images/poka.gif" height="100" width="100"></a>
+      <a class="poka"><img src="https://cdn.hinatazaka46.com/files/14/hinata/pages/hinachri2020/assets/images/poka.gif" height="120" width="120"></a>
     </div>
-
     <style>.poka{
       position: fixed;
       left: 0;
@@ -297,7 +337,6 @@
     </style>
     
     <!-- Footer Section  -->
-    <!-- Waiting for function complement -->
     <footer class="u-align-center u-clearfix u-footer u-palette-1-light-3 u-footer" id="sec-5d25"><div class="u-clearfix u-sheet u-valign-middle u-sheet-1">
         <lt-highlighter style="display: none; z-index: 1 !important; width: 1100px; margin-right: auto; margin-left: auto;">
           <lt-div spellcheck="false" class="lt-highlighter__wrapper" style="width: 417px; height: 25px; transform: none !important; transform-origin: 208.5px 12.7969px !important; zoom: 1 !important; margin-top: 6px; margin-left: 362px;">

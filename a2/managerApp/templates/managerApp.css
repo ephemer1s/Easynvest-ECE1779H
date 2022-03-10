@@ -1,3 +1,4 @@
+/* Statistics Subtitle */
 .u-section-1 .u-sheet-1 {
   min-height: 42px;
 }
@@ -5,19 +6,31 @@
 .u-section-1 .u-text-1 {
   font-weight: 400;
   margin: 7px auto 7px 0;
-}.u-section-2 .u-sheet-1 {
-  min-height: 425px;
-}.u-section-3 .u-sheet-1 {
+}
+
+/* Statistics Section */
+.u-section-2 .u-sheet-1 {
+  min-height: 200px;
+}
+
+/* Configuration Subtitle */
+.u-section-3 .u-sheet-1 {
   min-height: 43px;
 }
 
 .u-section-3 .u-text-1 {
   font-weight: 400;
   margin: 7px auto 7px 0;
-}.u-section-4 .u-sheet-1 {
-  min-height: 43px;
 }
 
+/* Configuration Section */
+.u-section-4 .u-sheet-1 {
+  min-height: 200px;
+}
+
+/* Configuration Apply Button */
+/* Test button that would be removed in the future.
+    So just let this be there. Never mind */
 .u-section-4 .u-btn-1 {
   border-style: none;
   font-weight: 700;
@@ -27,17 +40,24 @@
   background-image: none;
   margin: 40px auto 10px 0;
   padding: 4px 18px 6px 16px;
-}.u-section-5 .u-sheet-1 {
+}
+
+/* File Remove Subtitle */
+.u-section-5 .u-sheet-1 {
   min-height: 43px;
 }
 
 .u-section-5 .u-text-1 {
   font-weight: 400;
   margin: 7px auto 7px 0;
-}.u-section-6 .u-sheet-1 {
-  min-height: 43px;
+}
+/* File Remove Section */
+.u-section-6 .u-sheet-1 {
+  min-height: 100px;
 }
 
+/* File Remove Button */
+/* These button could be useful. Please dont delete this part. */
 .u-section-6 .u-btn-1 {
   border-style: none;
   font-weight: 700;
