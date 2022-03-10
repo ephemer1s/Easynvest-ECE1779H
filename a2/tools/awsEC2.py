@@ -2,11 +2,11 @@ import boto3
 from botocore.exceptions import ClientError
 
 try:
-    from tools.config import ConfigAWS
+    from tools.credential import ConfigAWS
 except:
-    from config import ConfigAWS
+    from credential import ConfigAWS
 
-# Create a config.py in tools/ with the code as following format:
+# Create a credential.py in tools/ with the code as following format:
 
 # class ConfigAWS():
 #     aws_access_key_id = "You wish"
@@ -82,10 +82,10 @@ class MemcacheEC2(object):
     def create_ec2_instance(self):
         """
 
-        MaxCount=1, # Keep the max count to 1, unless you have a requirement to increase it
-        InstanceType="t2.micro", # Change it as per your need, But use the Free tier one
-        KeyName="ECE1779_A2_public"
-        :return: Creates the EC2 instance.
+            MaxCount=1, # Keep the max count to 1, unless you have a requirement to increase it
+            InstanceType="t2.micro", # Change it as per your need, But use the Free tier one
+            KeyName="ECE1779_A2_public"
+            :return: Creates the EC2 instance.
         """
         try:
             print("Creating EC2 instance...")
@@ -137,7 +137,9 @@ class MemcacheEC2(object):
             print("Error, ", e)
 
     def describe_ec2_instance(self):
-        # Get a super long description of all the EC2 instances in this AWS account
+        """
+            Get a super long description of all the EC2 instances in this AWS account
+        """
         try:
             print("Describing EC2 instance")
 
@@ -147,8 +149,10 @@ class MemcacheEC2(object):
             print("Error, ", e)
 
     def reboot_ec2_instance(self, number):
-        # Reboot memcache number #. Don't think this would be used.
-        # Note that you should wait for some time for the memcache EC2 to reboot before it shows up.
+        """
+            Reboot memcache number #. Don't think this would be used.
+            Note that you should wait for some time for the memcache EC2 to reboot before it shows up.
+        """
         try:
             print("Rebooting EC2 instance", number, "...")
 
@@ -174,8 +178,10 @@ class MemcacheEC2(object):
             print("Error, ", e)
 
     def start_ec2_instance(self, number):
-        # Start memcache number #.
-        # Note that you should wait for some time for the memcache EC2 to boot before it shows up.
+        """
+            Start memcache number #.
+            Note that you should wait for some time for the memcache EC2 to boot before it shows up.
+        """
         try:
             print("Starting EC2 instance", number, "...")
 
@@ -200,9 +206,11 @@ class MemcacheEC2(object):
             print("Error, ", e)
 
     def _stop_ec2_instance(self, number):
-        # Stop memcache number #.
-        # Note that you should wait for some time for the memcache EC2 to shutdown before it shows up.
-        # An internal function because theoretically should not be useful to shut a specific number.
+        """
+            Stop memcache number #.
+            Note that you should wait for some time for the memcache EC2 to shutdown before it shows up.
+            An internal function because theoretically should not be useful to shut a specific number.
+        """
         try:
             print("Stopping EC2 instance", number, "...")
             # If memcacheDict has stuff
@@ -224,28 +232,29 @@ class MemcacheEC2(object):
             print("Error, ", e)
 
     def stop_ec2_instance(self):
-        # Stop memcache with the LARGEST number.
-        # Note that you should wait for some time for the memcache EC2 to shutdown before it shows up.
-
+        """
+            Stop memcache with the LARGEST number.
+            Note that you should wait for some time for the memcache EC2 to shutdown before it shows up.
+        """
         if self.memcacheDict:
 
             # Check what is the last num
             number = 0
-            memcacheName = ("ECE1779_A2_Memcache_" +
-                            str(0))
             for i in range(self.maxMemcacheNumber-1, -1, -1):
                 if str(i) not in self.memcacheDict.keys():
                     continue
                 break
             number = i
 
-            return self._stop_ec2_instance(i)
+            return self._stop_ec2_instance(number)
+        return "ERROR! self.memcacheDict is empty."
 
     def _terminate_ec2_instance(self, number):
-        # Terminate memcache number #.
-        # Note that you should wait for some time for the memcache EC2 to terminate before it shows up.
-        # Ideally only call this on shutdown?
-
+        """
+            Terminate memcache number #.
+            Note that you should wait for some time for the memcache EC2 to terminate before it shows up.
+            Ideally only call this on shutdown?
+        """
         try:
             print("Terminating EC2 instance", number, "...")
             if self.memcacheDict:
@@ -263,25 +272,28 @@ class MemcacheEC2(object):
             print("Error, ", e)
 
     def terminate_ec2_instance(self):
-        # Terminate memcache with the LARGEST number.
-        # Note that you should wait for some time for the memcache EC2 to terminate before it shows up.
-        # Ideally only call this on shutdown?
-
+        """
+            Terminate memcache with the LARGEST number.
+            Note that you should wait for some time for the memcache EC2 to terminate before it shows up.
+            Ideally only call this on shutdown?
+        """
         if self.memcacheDict:
             # Check what is the last num
             number = 0
-            memcacheName = ("ECE1779_A2_Memcache_" +
-                            str(0))
+
             for i in range(self.maxMemcacheNumber-1, -1, -1):
                 if str(i) not in self.memcacheDict.keys():
                     continue
                 break
-            number = i
+            number = number
 
             return self._terminate_ec2_instance(i)
+        return "ERROR! self.memcacheDict is empty."
 
     def get_live_ec2_instance_id(self):
-        # Get a list of instance ids that are memcaches.
+        """
+            Get a list of instance ids that are memcaches.
+        """
         try:
             print("Instance IDs are: ")
 
@@ -297,7 +309,9 @@ class MemcacheEC2(object):
             print("Error, ", e)
 
     def get_live_ec2_running_instance_id(self):
-        # Get a list of running instance ids that are memcaches.
+        """
+            Get a list of running instance ids that are memcaches.
+        """
         try:
             print("Running Instance IDs are: ")
 
@@ -314,22 +328,41 @@ class MemcacheEC2(object):
             print("Error, ", e)
 
     def howMany(self):
-        # Get how many memcache EC2 instance are present
+        """
+            Get how many memcache EC2 instances are present
+        """
         return len(self.memcacheDict)
 
     def howManyAreRunning(self):
-        # Get how many memcache EC2 instance are running
+        """
+            Get how many memcache EC2 instances are running
+        """
         if self.memcacheDict:
             runningNum = 0
-            for i in self.memcacheDict:
+            for i in self.memcacheDict.values():
                 if i["Status"] == "ON":
                     runningNum = runningNum+1
             return runningNum
         else:
             return 0
 
+    def whoAreRunning(self):
+        """ 
+            Get the numbers of memcache EC2 instances that are running
+        """
+        if self.memcacheDict:
+            runningList = []
+            for i in self.memcacheDict.values():
+                if i["Status"] == "ON":
+                    runningList.append(i["Number"])
+            return runningList
+        else:
+            return []
+
     def tellMeAbout(self, number, verbose=False):
-        # Returns all relevent information (in dict) about memcache number #, also prints if verbose.
+        """
+            Returns all relevent information (in dict) about memcache number #, also prints if verbose.
+        """
         if self.memcacheDict:
             if not str(number) in self.memcacheDict:
                 print("Error. Memcache number", number, "does not exist.")
@@ -345,7 +378,9 @@ class MemcacheEC2(object):
         return self.memcacheDict[str(number)]
 
     def getIP(self, number, verbose=False):
-        # Returns public IP of memcache number #, also prints if verbose.
+        """
+            Returns public IP of memcache number #, also prints if verbose.
+        """
         if self.memcacheDict:
             if not str(number) in self.memcacheDict:
                 print("Error. Memcache number", number, "does not exist.")
@@ -356,12 +391,13 @@ class MemcacheEC2(object):
         return self.memcacheDict[str(number)]["PublicIP"]
 
     def refreshPublicIP(self):
-        # VERY IMPORTANT
+        """
+            VERY IMPORTANT: 
 
-        # Because public IPs are assigned after an instance is created,
-        # Need to repeatedly call this function after an instance is created
-        # to update its public IP.
-
+            Because public IPs are assigned after an instance is created,
+            Need to repeatedly call this function after an instance is created
+            to update its public IP.
+        """
         try:
             response = self.ec2_client.describe_instances()
             states = ['running', 'pending']
@@ -379,7 +415,9 @@ class MemcacheEC2(object):
             print("Error, ", e)
 
     def isON(self, number):
-        # Check if memcache EC2 number # is ON.
+        """
+            Check if memcache EC2 number # is ON.
+        """
         if self.memcacheDict:
             if not str(number) in self.memcacheDict:
                 print("Error. Memcache number", number, "does not exist.")
@@ -387,8 +425,9 @@ class MemcacheEC2(object):
         return self.memcacheDict[str(number)]["Status"] == "ON"
 
     def statelessRefresh(self):
-        # Refresh the dict with current data from AWS.
-
+        """
+            Refresh the dict with current data from AWS.
+        """
         try:
             response = self.ec2_client.describe_instances()
             self.memcacheDict.clear()
@@ -436,7 +475,6 @@ try:
     call_obj = MemcacheEC2(ec2_client)
 
     call_obj.get_live_ec2_instance_id()
-
     call_obj.statelessRefresh()
 
     input("Press Enter to continue...")
@@ -448,6 +486,14 @@ try:
 
     input("Press Enter to continue...")
 
+    call_obj.refreshPublicIP()
+
+    for i in range(8):
+        call_obj.tellMeAbout(i, verbose=True)
+
+    print(call_obj.whoAreRunning())
+
+    input("Press Enter to continue...")
     call_obj.stop_ec2_instance()
     input("Press Enter to continue...")
     call_obj.get_live_ec2_instance_id()
@@ -462,7 +508,6 @@ try:
     input("Press Enter to continue...")
     call_obj.get_live_ec2_instance_id()
     call_obj.get_live_ec2_running_instance_id()
-
 
 except ClientError as e:
     print("There is a error in the client configuration: ", e)

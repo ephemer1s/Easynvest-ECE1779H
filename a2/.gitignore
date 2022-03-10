@@ -6,3 +6,5 @@ Paxheader/
 ./images/
 ./uploads/
 ./backEnd/cacheImageFolder/
+install.py
+credential.py
