@@ -2,7 +2,7 @@ import base64
 import frontEnd
 from frontEnd.config import Config
 import mysql.connector
-from frontEnd import webapp, old_memcache
+from frontEnd import webapp
 from flask import json, render_template, url_for, request, g, flash, redirect, send_file, jsonify
 from re import TEMPLATE
 import http.client
@@ -542,7 +542,7 @@ def apiUpload():
 
     cnx.close()
 
-    old_memcache[key] = file
+    # old_memcache[key] = file
 
     if file is not None:
         # base64_data = base64.b64encode(file)
