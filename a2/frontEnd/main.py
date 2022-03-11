@@ -45,12 +45,12 @@ def _run_on_start():
     """
 
     # initialize backend memcache
-    makeAPI_Call(
-        "http://127.0.0.1:5001/init", "get", 5)
+    # makeAPI_Call(
+    #     "http://127.0.0.1:5001/init", "get", 5)
 
     # let backend read config data from database
-    makeAPI_Call(
-        "http://127.0.0.1:5001/refreshConfiguration/131417728/1", "get", 5)
+    # makeAPI_Call(
+    #     "http://127.0.0.1:5001/refreshConfiguration/131417728/1", "get", 5)
 
     # # clear database table
     # cnx = mysql.connector.connect(user=Config.db_config['user'],
@@ -64,8 +64,9 @@ def _run_on_start():
     # cnx.commit()
     # cnx.close()
 
-    x = threading.Thread(target=backEndUpdater)
-    x.start()
+    # x = threading.Thread(target=backEndUpdater)
+    # x.start()
+    pass
 
 
 def backEndUpdater():
@@ -193,68 +194,68 @@ def configs():
     return render_template("configs.html")
 
 
-@webapp.route('/configsUpdate', methods=['POST'])
-#  Update memcache parameters in database when confirmed
-def configsUpdate():
-    """API function to update the changes from the user to database, and call memcache to refreshConfigurations
+# @webapp.route('/configsUpdate', methods=['POST'])
+# #  Update memcache parameters in database when confirmed
+# def configsUpdate():
+#     """API function to update the changes from the user to database, and call memcache to refreshConfigurations
 
-    Returns:
-        Response message if updating successfully
-    """
+#     Returns:
+#         Response message if updating successfully
+#     """
 
-    capacityMB = request.form.get('capacityMB', "")
-    replacepolicy = request.form.get('replacepolicy', "")
+#     capacityMB = request.form.get('capacityMB', "")
+#     replacepolicy = request.form.get('replacepolicy', "")
 
-    # convert MB form capacity into B form
-    capacityB = int(capacityMB) * 1048576
+#     # convert MB form capacity into B form
+#     capacityB = int(capacityMB) * 1048576
 
-    cnx = mysql.connector.connect(user=Config.db_config['user'],
-                                  password=Config.db_config['password'],
-                                  host=Config.db_config['host'],
-                                  database=Config.db_config['database'])
+#     cnx = mysql.connector.connect(user=Config.db_config['user'],
+#                                   password=Config.db_config['password'],
+#                                   host=Config.db_config['host'],
+#                                   database=Config.db_config['database'])
 
-    cursor = cnx.cursor()
-    cursor.execute("UPDATE configuration SET capacityB = %s, replacepolicy = %s WHERE id = 0",
-                   (capacityB, replacepolicy,))
-    cnx.commit()
-    cnx.close()
+#     cursor = cnx.cursor()
+#     cursor.execute("UPDATE configuration SET capacityB = %s, replacepolicy = %s WHERE id = 0",
+#                    (capacityB, replacepolicy,))
+#     cnx.commit()
+#     cnx.close()
 
-    status = makeAPI_Call(
-        "http://127.0.0.1:5001/refreshConfiguration" + "/" + str(capacityB) + "/" + str(replacepolicy), "get", 5)
+#     status = makeAPI_Call(
+#         "http://127.0.0.1:5001/refreshConfiguration" + "/" + str(capacityB) + "/" + str(replacepolicy), "get", 5)
 
-    print(status)
+#     print(status)
 
-    response = webapp.response_class(
-        response=json.dumps("Cache Configs Update Successfully."),
-        status=200,
-        mimetype='application/json'
-    )
-    print(response)
+#     response = webapp.response_class(
+#         response=json.dumps("Cache Configs Update Successfully."),
+#         status=200,
+#         mimetype='application/json'
+#     )
+#     print(response)
 
-    return response
+#     return response
 
 
-@webapp.route('/status')
-def status():
-    """Statistics Page: Display current statistics of  the memcache
+# @webapp.route('/status')
+# def status():
+#     """Statistics Page: Display current statistics of the memcache
 
-    Returns:
-        Html of the statistics page
-    """
+#     Returns:
+#         Html of the statistics page
+#     """
 
-    cnx = mysql.connector.connect(user=Config.db_config['user'],
-                                  password=Config.db_config['password'],
-                                  host=Config.db_config['host'],
-                                  database=Config.db_config['database'])
+#     cnx = mysql.connector.connect(user=Config.db_config['user'],
+#                                   password=Config.db_config['password'],
+#                                   host=Config.db_config['host'],
+#                                   database=Config.db_config['database'])
 
-    cursor = cnx.cursor()
-    query = "SELECT itemNum, itemTotalSize, requestNum, missRate, hitRate FROM statistics WHERE id = 0"
-    cursor.execute(query)
-    memCacheStatistics = cursor.fetchall()
+#     cursor = cnx.cursor()
+#     query = "SELECT itemNum, itemTotalSize, requestNum, missRate, hitRate FROM statistics WHERE id = 0"
+#     cursor.execute(query)
+#     memCacheStatistics = cursor.fetchall()
 
-    view = render_template("statistics.html", cursor=memCacheStatistics)
-    cnx.close()
-    return view
+#     view = render_template("statistics.html", cursor=memCacheStatistics)
+#     cnx.close()
+#     return view
 
 
 @webapp.route('/home')

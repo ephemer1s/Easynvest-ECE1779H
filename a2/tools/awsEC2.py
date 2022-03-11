@@ -87,6 +87,18 @@ class MemcacheEC2(object):
             KeyName="ECE1779_A2_public"
             :return: Creates the EC2 instance.
         """
+
+        # Check if there are already 8 instances:
+
+        if (len(self.memcacheDict) >= self.maxMemcacheNumber):
+            print("Cannot create new instance. dict already has 8. ")
+            print("Trying to refresh... ")
+            self.statelessRefresh()
+            if (len(self.memcacheDict) >= self.maxMemcacheNumber):
+                print("Dict still full. Abandoning...")
+                return
+            print("Dict refreshed. Proceeding...")
+
         try:
             print("Creating EC2 instance...")
 
