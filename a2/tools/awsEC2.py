@@ -181,6 +181,9 @@ class MemcacheEC2(object):
                         InstanceIds=[instanceID])
 
                     self.memcacheDict[str(number)]["Status"] = "ON"
+                    # Delete public IP
+                    self.memcacheDict[str(number)]["PublicIP"] = ""
+
                     print("Signal to reboot Memcache number", number, "sent.")
                 elif self.memcacheDict[str(number)]["Status"] == "OFF":
                     print("Cannot Reboot. Memcache number",
@@ -236,6 +239,10 @@ class MemcacheEC2(object):
                         InstanceIds=[instanceID])
 
                     self.memcacheDict[str(number)]["Status"] = "OFF"
+
+                    # Delete public IP
+                    self.memcacheDict[str(number)]["PublicIP"] = ""
+
                     print("Signal to stop Memcache number", number, "sent.")
                 elif self.memcacheDict[str(number)]["Status"] == "OFF":
                     print("Memcache number", number, "is already stopped.")
