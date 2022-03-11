@@ -9,6 +9,7 @@ import json
 from markupsafe import escape
 import mysql.connector
 import base64
+import boto3
 
 
 def _clrCache(folderPath=Config.MEMCACHE_FOLDER):

@@ -93,5 +93,6 @@ memcacheStatistics = Stats()
 
 try:
     from backEnd import main
-except ImportError:
+except Exception as e:
     print("wtf no Back End?")
+    print("Error: ", e)

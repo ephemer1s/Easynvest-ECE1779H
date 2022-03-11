@@ -5,12 +5,13 @@ from frontEnd.config import Config
 
 webapp = Flask(__name__)
 
-global old_memcache
+# global old_memcache
 
-old_memcache = {}
-# try:
-from frontEnd import main
-# except ImportError:
-#     print("wtf no Front End?")
+# old_memcache = {}
+try:
+    from frontEnd import main
+except Exception as e:
+    print("wtf no Front End? ")
+    print("Error: ", e)
 
 webapp.config['UPLOAD_FOLDER'] = Config.UPLOAD_FOLDER
