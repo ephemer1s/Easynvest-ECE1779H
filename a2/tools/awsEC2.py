@@ -87,6 +87,17 @@ class MemcacheEC2(object):
             KeyName="ECE1779_A2_public"
             :return: Creates the EC2 instance.
         """
+
+        if not self.statelessRefresh():
+            print("Refresh failed. Abandon mission.")
+            return
+
+        # Check if there are already 8 instances:
+
+        if (len(self.memcacheDict) >= self.maxMemcacheNumber):
+            print("Cannot create new instance. dict already has 8. ")
+            return
+
         try:
             print("Creating EC2 instance...")
 
@@ -127,7 +138,7 @@ class MemcacheEC2(object):
             print(conn)
 
             self.memcacheDict[str(number)] = {"Name": memcacheName,
-                                              "Status": "ON",
+                                              "Status": conn['Instances'][0]["State"]["Name"],
                                               "instanceID": conn['Instances'][0]['InstanceId'],
                                               "amiID": self.amiID,
                                               "Number": number,
@@ -153,6 +164,9 @@ class MemcacheEC2(object):
             Reboot memcache number #. Don't think this would be used.
             Note that you should wait for some time for the memcache EC2 to reboot before it shows up.
         """
+        if not self.statelessRefresh():
+            print("Refresh failed. Abandon mission.")
+            return
         try:
             print("Rebooting EC2 instance", number, "...")
 
@@ -163,14 +177,23 @@ class MemcacheEC2(object):
                     return
                 instanceID = self.memcacheDict[str(number)]["instanceID"]
 
-                if self.memcacheDict[str(number)]["Status"] == "ON":
+                badStates = ["shutting-down",
+                             "terminated", "stopping", "stopped"]
+
+                if self.memcacheDict[str(number)]["Status"] == "running":
 
                     conn = self.ec2_client.reboot_instances(
                         InstanceIds=[instanceID])
-
-                    self.memcacheDict[str(number)]["Status"] = "ON"
                     print("Signal to reboot Memcache number", number, "sent.")
-                elif self.memcacheDict[str(number)]["Status"] == "OFF":
+                    self.memcacheDict[str(
+                        number)]["Status"] = "rebooting"
+                    # Delete public IP
+                    self.memcacheDict[str(number)]["PublicIP"] = ""
+
+                elif self.memcacheDict[str(number)]["Status"] == "pending":
+                    print("Cannot Reboot. Memcache number",
+                          number, "is pending.")
+                elif self.memcacheDict[str(number)]["Status"] in badStates:
                     print("Cannot Reboot. Memcache number",
                           number, "is stopped.")
 
@@ -182,6 +205,9 @@ class MemcacheEC2(object):
             Start memcache number #.
             Note that you should wait for some time for the memcache EC2 to boot before it shows up.
         """
+        if not self.statelessRefresh():
+            print("Refresh failed. Abandon mission.")
+            return
         try:
             print("Starting EC2 instance", number, "...")
 
@@ -192,15 +218,31 @@ class MemcacheEC2(object):
                     return
                 instanceID = self.memcacheDict[str(number)]["instanceID"]
 
-                if self.memcacheDict[str(number)]["Status"] == "OFF":
+                if self.memcacheDict[str(number)]["Status"] == "stopped":
 
                     conn = self.ec2_client.start_instances(
                         InstanceIds=[instanceID])
-
-                    self.memcacheDict[str(number)]["Status"] = "ON"
                     print("Signal to start Memcache number", number, "sent.")
-                elif self.memcacheDict[str(number)]["Status"] == "ON":
+                    self.memcacheDict[str(
+                        number)]["Status"] = conn['StartingInstances'][0]["CurrentState"]["Name"]
+
+                    if self.memcacheDict[str(number)]["Status"] == "pending":
+                        print("Memcache number", number, "is pending...")
+
+                elif self.memcacheDict[str(number)]["Status"] == "running":
                     print("Memcache number", number, "is already running.")
+                elif self.memcacheDict[str(number)]["Status"] == "shutting-down":
+                    print("Cannot start Memcache number",
+                          number, "because it is shutting down.")
+                elif self.memcacheDict[str(number)]["Status"] == "pending":
+                    print("Cannot start Memcache number",
+                          number, "because it is pending.")
+                elif self.memcacheDict[str(number)]["Status"] == "terminated":
+                    print("Cannot start Memcache number",
+                          number, "because it is terminated.")
+                elif self.memcacheDict[str(number)]["Status"] == "stopping":
+                    print("Cannot start Memcache number",
+                          number, "because it is stopping.")
 
         except Exception as e:
             print("Error, ", e)
@@ -211,6 +253,9 @@ class MemcacheEC2(object):
             Note that you should wait for some time for the memcache EC2 to shutdown before it shows up.
             An internal function because theoretically should not be useful to shut a specific number.
         """
+        if not self.statelessRefresh():
+            print("Refresh failed. Abandon mission.")
+            return
         try:
             print("Stopping EC2 instance", number, "...")
             # If memcacheDict has stuff
@@ -219,14 +264,31 @@ class MemcacheEC2(object):
                     print("Error. Memcache number", number, "does not exist.")
                     return
                 instanceID = self.memcacheDict[str(number)]["instanceID"]
-                if self.memcacheDict[str(number)]["Status"] == "ON":
+                if self.memcacheDict[str(number)]["Status"] == "running":
                     conn = self.ec2_client.stop_instances(
                         InstanceIds=[instanceID])
-
-                    self.memcacheDict[str(number)]["Status"] = "OFF"
                     print("Signal to stop Memcache number", number, "sent.")
-                elif self.memcacheDict[str(number)]["Status"] == "OFF":
+                    self.memcacheDict[str(
+                        number)]["Status"] = conn['StoppingInstances'][0]["CurrentState"]["Name"]
+                    if self.memcacheDict[str(number)]["Status"] == "stopping":
+                        print("Memcache number", number, "is stopping...")
+                    # Delete public IP
+                    self.memcacheDict[str(number)]["PublicIP"] = ""
+
+                elif self.memcacheDict[str(number)]["Status"] == "stopped":
                     print("Memcache number", number, "is already stopped.")
+                elif self.memcacheDict[str(number)]["Status"] == "shutting-down":
+                    print("Cannot stop Memcache number", number,
+                          "because it is shutting down.")
+                elif self.memcacheDict[str(number)]["Status"] == "terminated":
+                    print("Cannot stop Memcache number",
+                          number, "because it is terminated.")
+                elif self.memcacheDict[str(number)]["Status"] == "stopping":
+                    print("Cannot stop Memcache number",
+                          number, "because it is stopping.")
+                elif self.memcacheDict[str(number)]["Status"] == "pending":
+                    print("Cannot stop Memcache number",
+                          number, "because it is pending.")
 
         except Exception as e:
             print("Error, ", e)
@@ -255,6 +317,9 @@ class MemcacheEC2(object):
             Note that you should wait for some time for the memcache EC2 to terminate before it shows up.
             Ideally only call this on shutdown?
         """
+        if not self.statelessRefresh():
+            print("Refresh failed. Abandon mission.")
+            return
         try:
             print("Terminating EC2 instance", number, "...")
             if self.memcacheDict:
@@ -263,11 +328,20 @@ class MemcacheEC2(object):
                     return
                 instanceID = self.memcacheDict[str(number)]["instanceID"]
 
-                conn = self.ec2_client.terminate_instances(
-                    InstanceIds=[instanceID])
+                if self.memcacheDict[str(number)]["Status"] != "shutting-down" and self.memcacheDict[str(number)]["Status"] != "terminated":
+                    conn = self.ec2_client.terminate_instances(
+                        InstanceIds=[instanceID])
+                    print("Signal to terminate Memcache number", number, "sent.")
+                    self.memcacheDict[str(
+                        number)]["Status"] = conn['TerminatingInstances'][0]["CurrentState"]["Name"]
 
-                self.memcacheDict.pop(str(number))
-                print("Signal to terminate Memcache number", number, "sent.")
+                    if self.memcacheDict[str(number)]["Status"] == "shutting-down":
+                        print("Memcache number", number, "is shutting down...")
+                    self.memcacheDict.pop(str(number))
+                else:
+                    print("Cannot terminate Memcache number", number,
+                          "because it is already gone forever.")
+
         except Exception as e:
             print("Error, ", e)
 
@@ -318,7 +392,7 @@ class MemcacheEC2(object):
             response = self.ec2_client.describe_instances()
 
             runningInstanceIDs = []
-            states = ['running', 'pending']
+            states = ['running']
             for i in response["Reservations"]:
                 if self.amiID == i["Instances"][0]["ImageId"] and i["Instances"][0]["State"]["Name"] in states and "Tags" in i["Instances"][0] and i["Instances"][0]["Tags"][0]["Value"].__contains__("ECE1779_A2_Memcache") and i["Instances"][0]["State"]["Name"] != 'terminated':
                     runningInstanceIDs.append(i["Instances"][0]["InstanceId"])
@@ -331,16 +405,22 @@ class MemcacheEC2(object):
         """
             Get how many memcache EC2 instances are present
         """
+        if not self.statelessRefresh():
+            print("Refresh failed. Abandon mission.")
+            return -1
         return len(self.memcacheDict)
 
     def howManyAreRunning(self):
         """
             Get how many memcache EC2 instances are running
         """
+        if not self.statelessRefresh():
+            print("Refresh failed. Abandon mission.")
+            return -1
         if self.memcacheDict:
             runningNum = 0
             for i in self.memcacheDict.values():
-                if i["Status"] == "ON":
+                if i["Status"] == "running":
                     runningNum = runningNum+1
             return runningNum
         else:
@@ -350,10 +430,13 @@ class MemcacheEC2(object):
         """ 
             Get the numbers of memcache EC2 instances that are running
         """
+        if not self.statelessRefresh():
+            print("Refresh failed. Abandon mission.")
+            return []
         if self.memcacheDict:
             runningList = []
             for i in self.memcacheDict.values():
-                if i["Status"] == "ON":
+                if i["Status"] == "running":
                     runningList.append(i["Number"])
             return runningList
         else:
@@ -363,6 +446,9 @@ class MemcacheEC2(object):
         """
             Returns all relevent information (in dict) about memcache number #, also prints if verbose.
         """
+        if not self.statelessRefresh():
+            print("Refresh failed. Abandon mission.")
+            return {}
         if self.memcacheDict:
             if not str(number) in self.memcacheDict:
                 print("Error. Memcache number", number, "does not exist.")
@@ -381,10 +467,13 @@ class MemcacheEC2(object):
         """
             Returns public IP of memcache number #, also prints if verbose.
         """
+        if not self.statelessRefresh():
+            print("Refresh failed. Abandon mission.")
+            return
         if self.memcacheDict:
             if not str(number) in self.memcacheDict:
                 print("Error. Memcache number", number, "does not exist.")
-                return {}
+                return ""
         if verbose:
             print("PublicIP:", self.memcacheDict[str(number)]["PublicIP"])
 
@@ -407,22 +496,38 @@ class MemcacheEC2(object):
                     memcacheName = i["Instances"][0]["Tags"][0]["Value"]
                     memcacheNum = int(memcacheName[-1])
                     if i["Instances"][0]["State"]["Name"] in states:
-                        if i["Instances"][0]["PublicIpAddress"]:
+                        if "PublicIpAddress" in i["Instances"][0].keys() and i["Instances"][0]["PublicIpAddress"]:
                             if str(memcacheNum) in self.memcacheDict:
                                 self.memcacheDict[str(
                                     memcacheNum)]["PublicIP"] = i["Instances"][0]["PublicIpAddress"]
         except Exception as e:
             print("Error, ", e)
 
-    def isON(self, number):
+    def isRunning(self, number):
         """
-            Check if memcache EC2 number # is ON.
+            Check if memcache EC2 number # is running.
         """
+        if not self.statelessRefresh():
+            print("Refresh failed. Abandon mission.")
+            return False
         if self.memcacheDict:
             if not str(number) in self.memcacheDict:
                 print("Error. Memcache number", number, "does not exist.")
                 return {}
-        return self.memcacheDict[str(number)]["Status"] == "ON"
+        return self.memcacheDict[str(number)]["Status"] == "running"
+
+    def numberStatus(self, number):
+        """
+            Returns the status of a memcache number.
+        """
+        if not self.statelessRefresh():
+            print("Refresh failed. Abandon mission.")
+            return ""
+        if self.memcacheDict:
+            if not str(number) in self.memcacheDict:
+                print("Error. Memcache number", number, "does not exist.")
+                return {}
+        return self.memcacheDict[str(number)]["Status"]
 
     def statelessRefresh(self):
         """
@@ -431,39 +536,36 @@ class MemcacheEC2(object):
         try:
             response = self.ec2_client.describe_instances()
             self.memcacheDict.clear()
-            instanceIDs = []
-            runningInstanceIDs = []
+            # instanceIDs = []
+            # runningInstanceIDs = []
 
             states = ['running', 'pending']
             # print(response)
             for i in response["Reservations"]:
                 if self.amiID == i["Instances"][0]["ImageId"] and "Tags" in i["Instances"][0] and i["Instances"][0]["Tags"][0]["Value"].__contains__("ECE1779_A2_Memcache") and i["Instances"][0]["State"]["Name"] != 'terminated':
-                    instanceIDs.append(i["Instances"][0]["InstanceId"])
+                    # instanceIDs.append(i["Instances"][0]["InstanceId"])
                     memcacheName = i["Instances"][0]["Tags"][0]["Value"]
                     memcacheNum = int(memcacheName[-1])
                     if i["Instances"][0]["State"]["Name"] in states:
-                        runningInstanceIDs.append(
-                            i["Instances"][0]["InstanceId"])
-                        self.memcacheDict[str(memcacheNum)] = {"Name": memcacheName,
-                                                               "Status": "ON",
-                                                               "instanceID": i['Instances'][0]['InstanceId'],
-                                                               "amiID": self.amiID,
-                                                               "Number": memcacheNum,
-                                                               "PublicIP": ""}
-                        if i["Instances"][0]["PublicIpAddress"]:
-                            self.memcacheDict[str(
-                                memcacheNum)]["PublicIP"] = i["Instances"][0]["PublicIpAddress"]
-                    else:
-                        self.memcacheDict[str(memcacheNum)] = {"Name": memcacheName,
-                                                               "Status": "OFF",
-                                                               "instanceID": i['Instances'][0]['InstanceId'],
-                                                               "amiID": self.amiID,
-                                                               "Number": memcacheNum,
-                                                               "PublicIP": ""}
+                        # runningInstanceIDs.append(i["Instances"][0]["InstanceId"])
+                        pass
 
-            print(self.memcacheDict)
+                    self.memcacheDict[str(memcacheNum)] = {"Name": memcacheName,
+                                                           "Status": i['Instances'][0]["State"]["Name"],
+                                                           "instanceID": i['Instances'][0]['InstanceId'],
+                                                           "amiID": self.amiID,
+                                                           "Number": memcacheNum,
+                                                           "PublicIP": ""}
+
+                    if "PublicIpAddress" in i["Instances"][0].keys() and i["Instances"][0]["PublicIpAddress"]:
+                        self.memcacheDict[str(
+                            memcacheNum)]["PublicIP"] = i["Instances"][0]["PublicIpAddress"]
+
+            # print(self.memcacheDict)
+            return True
         except Exception as e:
             print("Error, ", e)
+            return False
 
 
 # Calling Area ######################################################################
