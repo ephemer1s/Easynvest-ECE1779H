@@ -395,6 +395,24 @@ class MemcacheEC2(object):
         print("Killed all EC2 instances.")
         return True
 
+    def get_all_ip(self, verbose=False):
+        """_summary_ Returns all known IPs of all EC2 memcaches for frontend to use. Should be called by managerapp during 60s refresh and on EC2 instance termination, also prints if verbose.
+
+        """
+        returnList = []
+        if not self.statelessRefresh():
+            print("Refresh failed. Abandon mission.")
+            return
+        if self.memcacheDict:
+            for i in self.memcacheDict():
+                if i["PublicIP"] != "":
+                    returnList.append(i["PublicIP"])
+
+        if verbose:
+            print("PublicIPs:", returnList)
+
+        return returnList
+
     def get_live_ec2_instance_id(self):
         """
             Get a list of instance ids that are memcaches.
