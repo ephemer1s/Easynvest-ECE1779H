@@ -90,7 +90,7 @@
 
       <!-- Monitor Chart for past 30 minute -->
 
-        <!-- There should be charts display memcache statistics -->
+        <!-- ATTENTION: Charts shoud be displayed here @Haocheng -->
 
       <!-- Under Construction -->
 
@@ -109,20 +109,17 @@
           <tr>
 
           <!-- Under Construction -->
-          <!-- data filled required -->
-
-          <!--
-          {% for row in cursor %}
             <tr>
+                <td>{{ instanceAmount }}</td>
+                {% for row in cursor %}
                 <td>{{ row[0] }}</td>
                 <td>{{ row[1] }}</td>
                 <td>{{ row[2] }}</td>
                 <td>{{ row[3] }}</td>
                 <td>{{ row[4] }}</td>
-                <td>{{ row[5] }}</td>
+                {% endfor %}
             </tr>
-          {% endfor %}
-          -->
+
         </table><br>
       </div>
     </section>
@@ -167,7 +164,6 @@
     <section class="u-clearfix u-white u-section-4" id="sec-7ee8">
 
       <!-- Memcache Capacity & Replacement Policy Setting-->
-      <!-- Waiting for further beautification -->
       <!-- Waiting for function complement -->
       <div class="u-clearfix u-sheet u-sheet-1">
         <!-- check if this url still works before deployment -->
@@ -185,42 +181,52 @@
       </div> 
 
       <!-- Tab button for Memcache Pool Resizing Policy -->
-      <!-- Waiting for further beautification -->
       <div class="u-clearfix u-sheet u-sheet-1">
         <div class="poolResizeModeTab">
           <button class="tablinks" onclick="openPoolResizeModeTab(event, 'Manual Mode')" id="defaultOpen">Manual Mode</button>
-          <button class="tablinks" onclick="openPoolResizeModeTab(event, 'Aumomatic Mode')">Aumomatic Mode</button>
+          <button class="tablinks" onclick="openPoolResizeModeTab(event, 'Automatic Mode')">Automatic Mode</button>
         </div>
           
           <div id="Manual Mode" class="tabcontent">
             <p class="u-text u-text-default u-text-3">Manually growing or shrinking the pool size by 1 betweeen 1 ~ 8.</p>
-            <!-- functionable url required before deployment -->
-            <form class="poolResizeManualForm" action="{{ url_for('poolResizeManual')}}" method="post">
+            <p class="u-text u-text-default u-text-3"><b>Current Memcache Pool Size:</b> {{instanceAmount}}</p>
 
-              <!-- pool size feedback required here before deployment -->
-              <input type="submit" value="↑"><input type="submit" value="↓"><br> 
-    
-              <input type="submit" value="Apply" href="https://nicepage.com/landing-page" class="u-border-none u-btn u-btn-round u-button-style u-hover-palette-2-light-1 u-palette-1-light-1 u-radius-50 u-btn-1"><br>
-            </form>
+            <!-- Tab button for choosing growing or shrinking -->
+            <div class="manualPoolResizeTab">
+              <button class="tablinksManual" onclick="openManualPoolResizeTab(event, 'Manual Grow')" id="defaultOpenManual">Grow (+1)</button>
+              <button class="tablinksManual" onclick="openManualPoolResizeTab(event, 'Manual Shrink')">Shrink (-1)</button>
+            </div>
+
+            <div id="Manual Grow" class="tabcontentManual">
+              <form class="poolResizeManualGrowForm" action="{{ url_for('poolSizeManualGrow')}}" method="post">
+                <input type="submit" value="Apply" href="https://nicepage.com/landing-page" class="u-border-none u-btn u-btn-round u-button-style u-hover-palette-2-light-1 u-palette-1-light-1 u-radius-50 u-btn-1">
+              </form>
+            </div>
+
+            <div id="Manual Shrink" class="tabcontentManual">
+              <form class="poolResizeManualShrinkForm" action="{{ url_for('poolSizeManualShrink')}}" method="post">
+                <input type="submit" value="Apply" href="https://nicepage.com/landing-page" class="u-border-none u-btn u-btn-round u-button-style u-hover-palette-2-light-1 u-palette-1-light-1 u-radius-50 u-btn-1">
+              </form>
+            </div>
           </div>
           
-          <div id="Aumomatic Mode" class="tabcontent">
+          <div id="Automatic Mode" class="tabcontent">
             <p class="u-text u-text-default u-text-3">Configure a simple auto-scaling policy by setting parameters below.</p><br>
             <!-- functionable url required before deployment -->
             <form class="poolResizeAutoForm" action="{{ url_for('poolResizeAuto')}}" method="post">
               <!-- check max > min required -->
               <label><b>Max Miss Rate</b> (%):</label>
-              <input type="number" name="Max Miss Rate" min="1" max="99" value="75" required/>
+              <input type="number" name="maxMissRate" min="1" max="99" value="75" required/>
               <label><b>Min Miss Rate</b> (%):</label>
-              <input type="number" name="Min Miss Rate" min="1" max="99" value="25" required/><br>
+              <input type="number" name="minMissRate" min="1" max="99" value="25" required/><br>
               <p class="u-text u-text-default u-text-3">Average miss rate for all nodes in the pool over the past 1 minute.</p>
               <p class="u-text u-text-default u-text-3">When max threshold is reached, pool grows. When min threshold is reached, pool shrinks. </p>
               <br>
 
               <label><b>Pool Expand Ratio:</b></label>
-              <input type="number" name="Pool Expand Ratio" min="1" max="8" value="2" step="0.1" required/>
+              <input type="number" name="poolExpandRatio" min="1" max="8" value="2" step="0.01" required/>
               <label><b>Pool Shrink Ratio:</b></label>
-              <input type="number" name="Pool Shrink Ratio" min="0.125" max="1" value="0.5" step="0.1" required/><br>
+              <input type="number" name="poolShrinkRatio" min="0.12" max="1" value="0.5" step="0.01" required/><br>
               <p class="u-text u-text-default u-text-3">At what ratio will the pool size be explanded or shrinked.</p>
               
               <input type="submit" value="Apply" href="https://nicepage.com/landing-page" class="u-border-none u-btn u-btn-round u-button-style u-hover-palette-2-light-1 u-palette-1-light-1 u-radius-50 u-btn-1"><br>
@@ -246,6 +252,23 @@
       document.getElementById("defaultOpen").click();
     </script>
 
+    <script>
+      function openManualPoolResizeTab(evt, resizeChoice) {
+        var i, tabcontentManual, tablinksManual;
+        tabcontentManual = document.getElementsByClassName("tabcontentManual");
+        for (i = 0; i < tabcontentManual.length; i++) {
+          tabcontentManual[i].style.display = "none";
+        }
+        tablinksManual = document.getElementsByClassName("tablinksManual");
+        for (i = 0; i < tablinksManual.length; i++) {
+          tablinksManual[i].className = tablinksManual[i].className.replace(" active", "");
+        }
+        document.getElementById(resizeChoice).style.display = "block";
+        evt.currentTarget.className += " active";
+      }
+      document.getElementById("defaultOpenManual").click();
+    </script>
+
     <style>
     /* Style the tab */
     .poolResizeModeTab {
@@ -254,8 +277,25 @@
       background-color: #f1f1f1;
     }
 
+    .manualPoolResizeTab {
+      overflow: hidden;
+      border: none;
+      background-color: transparent;
+    }
+
     /* Style the buttons inside the tab */
     .poolResizeModeTab button {
+      background-color: inherit;
+      float: left;
+      border: none;
+      outline: none;
+      cursor: pointer;
+      padding: 14px 16px;
+      transition: 0.3s;
+      font-size: 17px;
+    }
+
+    .manualPoolResizeTab button {
       background-color: inherit;
       float: left;
       border: none;
@@ -271,8 +311,16 @@
       background-color: #f4ecf7;
     }
 
+    .manualPoolResizeTab button:hover {
+      background-color: #f4ecf7;
+    }
+
     /* Create an active/current tablink class */
     .poolResizeModeTab button.active {
+      background-color: #d6eaf8;
+    }
+
+    .manualPoolResizeTab button.active {
       background-color: #d6eaf8;
     }
 
@@ -283,7 +331,15 @@
       border: 1px solid #ccc;
       border-top: none;
     }
+
+    .tabcontentManual {
+      display: none;
+      padding: 6px 12px;
+      border: none;
+      border-top: none;
+    }
     </style>
+
 
     <!-- File Remove Subtitle  -->
     <section class="u-clearfix u-grey-5 u-section-5" id="sec-b683">
@@ -348,8 +404,7 @@
           </lt-div>
         </lt-highlighter>
         <!-- You could put your name here :)  -->
-        <p class="u-align-center u-custom-font u-font-georgia u-small-text u-text u-text-grey-60 u-text-variant u-text-1">Page created by&nbsp;
-          <a class="u-active-none u-border-none u-btn u-button-link u-button-style u-hover-none u-none u-text-palette-1-base u-btn-1" href="https://github.com/haozhe0302"></a>Haozhe</p>
+        <p class="u-align-center u-custom-font u-font-georgia u-small-text u-text u-text-grey-60 u-text-variant u-text-1">Page created by <a class="u-active-none u-border-none u-btn u-button-link u-button-style u-hover-none u-none u-text-palette-1-base u-btn-1" href="https://github.com/haozhe0302">Haozhe</a></p>
       </div></footer>
   </body>
 </html>
