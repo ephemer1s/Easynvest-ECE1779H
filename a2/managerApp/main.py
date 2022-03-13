@@ -302,11 +302,11 @@ def poolResizeAuto():
 
 
 def autoScalerUpdater():
-    """Loops every 5s, call autoScaler()
+    """Loops every 60s, call autoScaler()
     """
     while True:
         autoScaler()
-        time.sleep(5)
+        time.sleep(60) # It could be something like 5s when testing
 
 
 def autoScaler():
@@ -374,7 +374,7 @@ def autoScaler():
         for i in range(curInstanceNum - targetInstanceNum):
             print("AutoScaler Status 1: Shrinking...")
             call_obj.terminate_ec2_instance()
-            time.sleep(30)
+            time.sleep(3)
 
     # Status 2 Miss Rate too high : growing pool size
     elif missRate >= maxMissRate:
@@ -402,7 +402,7 @@ def autoScaler():
         for i in range(targetInstanceNum - curInstanceNum):
             print("AutoScaler Status 2: Growing...")
             call_obj.create_ec2_instance()
-            time.sleep(5)
+            time.sleep(3)
 
     # Status 0 Miss Rate Steady : hands off and keep monitoring
     else:

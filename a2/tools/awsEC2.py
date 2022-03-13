@@ -135,7 +135,7 @@ class MemcacheEC2(object):
                                     }]
 
             )
-            print(conn)
+            # print(conn)
 
             self.memcacheDict[str(number)] = {"Name": memcacheName,
                                               "Status": conn['Instances'][0]["State"]["Name"],
