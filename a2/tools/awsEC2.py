@@ -315,17 +315,17 @@ class MemcacheEC2(object):
         """
             Terminate memcache number #.
             Note that you should wait for some time for the memcache EC2 to terminate before it shows up.
-            Ideally only call this on shutdown?
+            Called on start up as well as on shrinking.
         """
         if not self.statelessRefresh():
             print("Refresh failed. Abandon mission.")
-            return
+            return False
         try:
             print("Terminating EC2 instance", number, "...")
             if self.memcacheDict:
                 if not str(number) in self.memcacheDict:
                     print("Error. Memcache number", number, "does not exist.")
-                    return
+                    return False
                 instanceID = self.memcacheDict[str(number)]["instanceID"]
 
                 if self.memcacheDict[str(number)]["Status"] != "shutting-down" and self.memcacheDict[str(number)]["Status"] != "terminated":
@@ -341,28 +341,59 @@ class MemcacheEC2(object):
                 else:
                     print("Cannot terminate Memcache number", number,
                           "because it is already gone forever.")
-
+                    return False
+            return True
         except Exception as e:
             print("Error, ", e)
+            return False
 
     def terminate_ec2_instance(self):
         """
             Terminate memcache with the LARGEST number.
             Note that you should wait for some time for the memcache EC2 to terminate before it shows up.
-            Ideally only call this on shutdown?
+
+            CHANGE: 2022.03.13: Will find the last num that is not shutting down.
         """
         if self.memcacheDict:
             # Check what is the last num
             number = 0
 
+            # Check if it is in a state that can be terminated:
+
+            if not self.statelessRefresh():
+                print("Refresh failed. Abandon mission.")
+                return
             for i in range(self.maxMemcacheNumber-1, -1, -1):
                 if str(i) not in self.memcacheDict.keys():
                     continue
-                break
-            number = number
 
-            return self._terminate_ec2_instance(i)
+                # Check state
+
+                if self.memcacheDict[str(i)]["Status"] == "shutting-down":
+                    self.memcacheDict.pop(str(i))
+                    continue
+                if self.memcacheDict[str(i)]["Status"] == "terminated":
+                    self.memcacheDict.pop(str(i))
+                    continue
+
+                break
+            number = i
+
+            return self._terminate_ec2_instance(number)
         return "ERROR! self.memcacheDict is empty."
+
+    def terminate_one_ec2_instance(self, number):
+        return self._terminate_ec2_instance(self, number)
+
+    def terminate_everything(self):
+        maxIterTimes = len(self.memcacheDict)
+        for i in maxIterTimes:
+            if not self.terminate_ec2_instance():
+                print("Something went wrong in the", str(i+1), "termination.")
+                print("Aborting...")
+                return False
+        print("Killed all EC2 instances.")
+        return True
 
     def get_live_ec2_instance_id(self):
         """
@@ -559,7 +590,7 @@ class MemcacheEC2(object):
             states = ['running', 'pending']
             # print(response)
             for i in response["Reservations"]:
-                if self.amiID == i["Instances"][0]["ImageId"] and "Tags" in i["Instances"][0] and i["Instances"][0]["Tags"][0]["Value"].__contains__("ECE1779_A2_Memcache") and i["Instances"][0]["State"]["Name"] != 'terminated':
+                if self.amiID == i["Instances"][0]["ImageId"] and "Tags" in i["Instances"][0] and i["Instances"][0]["Tags"][0]["Value"].__contains__("ECE1779_A2_Memcache") and i["Instances"][0]["State"]["Name"] != 'terminated' and i["Instances"][0]["State"]["Name"] != 'shutting-down':
                     # instanceIDs.append(i["Instances"][0]["InstanceId"])
                     memcacheName = i["Instances"][0]["Tags"][0]["Value"]
                     memcacheNum = int(memcacheName[-1])
@@ -629,6 +660,6 @@ try:
 #     call_obj.get_live_ec2_running_instance_id()
 
 except ClientError as e:
-     print("There is a error in the client configuration: ", e)
+    print("There is a error in the client configuration: ", e)
 
 # Calling Area ######################################################################

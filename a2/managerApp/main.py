@@ -22,17 +22,20 @@ import os
 TEMPLATE_DIR = os.path.abspath("./templates")
 STATIC_DIR = os.path.abspath("./static")
 
+
 def connect_to_database():
     return mysql.connector.connect(user=ConfigManager.db_config['user'],
                                    password=ConfigManager.db_config['password'],
                                    host=ConfigManager.db_config['host'],
                                    database=ConfigManager.db_config['database'])
 
+
 def get_db():
     db = getattr(g, '_database', None)
     if db is None:
         db = g._database = connect_to_database()
     return db
+
 
 @webapp.teardown_appcontext
 def teardown_db(exception):
@@ -48,9 +51,9 @@ def _run_on_start():
     """
     try:
         ec2_client = boto3.client('ec2',
-                                "us-east-1",
-                                aws_access_key_id=ConfigAWS.aws_access_key_id,
-                                aws_secret_access_key=ConfigAWS.aws_secret_access_key)
+                                  "us-east-1",
+                                  aws_access_key_id=ConfigAWS.aws_access_key_id,
+                                  aws_secret_access_key=ConfigAWS.aws_secret_access_key)
         call_obj = MemcacheEC2(ec2_client)
 
         call_obj.statelessRefresh()
@@ -59,7 +62,6 @@ def _run_on_start():
         instanceIDs = call_obj.whoAreExisting()
         runningInstanceIDs = call_obj.whoAreRunning()
         print("Initializing Memcache...")
-
 
         # Check current memcache ec2 instance status and do initialization
         if not runningInstanceIDs:
@@ -83,13 +85,17 @@ def _run_on_start():
                 if (num not in call_obj.whoAreRunning()):
                     shutdownInstanceNum.append(num)
             # Status 4: If there are some ec2 running with others shutdown, terminate all shutdown ec2 and keep the running one running
-            if len(shutdownInstanceNum)>0:
+            if len(shutdownInstanceNum) > 0:
                 print("Initialization Status 4")
                 for num in shutdownInstanceNum:
-                    # ATTENTION: Currently _terminate_ec2_instance() method are not available for external call, which would cause a warning
-                    # If _terminate_ec2_instance could not be available, apply a similar rule as status 2
-                    # Status 4 is not functionable right now
-                    _terminate_ec2_instance(num)
+                    # # ATTENTION: Currently _terminate_ec2_instance() method are not available for external call, which would cause a warning
+                    # # If _terminate_ec2_instance could not be available, apply a similar rule as status 2
+                    # # Status 4 is not functionable right now
+                    # _terminate_ec2_instance(num)
+
+                    # Here you go --Sam 2022.3.13
+
+                    call_obj.terminate_one_ec2_instance(num)
             # Status 5: If all the existing ec2 are running, just do nothing and keep going happily
             else:
                 print("Initialization Status 5")
@@ -100,7 +106,7 @@ def _run_on_start():
     # Thread for auto scaler starts
     autoScalerThreading = threading.Thread(target=autoScalerUpdater)
     autoScalerThreading.start()
-        
+
 
 @webapp.route('/')
 def main():
@@ -111,11 +117,10 @@ def main():
     """
 
     ec2_client = boto3.client('ec2',
-                                "us-east-1",
-                                aws_access_key_id=ConfigAWS.aws_access_key_id,
-                                aws_secret_access_key=ConfigAWS.aws_secret_access_key)
+                              "us-east-1",
+                              aws_access_key_id=ConfigAWS.aws_access_key_id,
+                              aws_secret_access_key=ConfigAWS.aws_secret_access_key)
     call_obj = MemcacheEC2(ec2_client)
-
 
     instanceAmount = len(call_obj.whoAreExisting())
 
@@ -129,7 +134,8 @@ def main():
     cursor.execute(query)
     memCacheStatistics = cursor.fetchall()
 
-    view = render_template("managerApp.html", instanceAmount = instanceAmount, cursor=memCacheStatistics)
+    view = render_template(
+        "managerApp.html", instanceAmount=instanceAmount, cursor=memCacheStatistics)
     cnx.close()
     return view
 
@@ -161,12 +167,14 @@ def replacePolicyUpdate():
     cnx.close()
 
     # please note to add /backEnd to the API call url
-    status = makeAPI_Call("http://127.0.0.1:5001/backEnd/refreshConfiguration" + "/" + str(capacityB) + "/" + str(replacepolicy), "get", 5)
+    status = makeAPI_Call("http://127.0.0.1:5001/backEnd/refreshConfiguration" +
+                          "/" + str(capacityB) + "/" + str(replacepolicy), "get", 5)
 
     print(status)
 
     response = webapp.response_class(
-        response=json.dumps("Memcache Replacement Policy Configs Update Successfully."),
+        response=json.dumps(
+            "Memcache Replacement Policy Configs Update Successfully."),
         status=200,
         mimetype='application/json'
     )
@@ -183,12 +191,12 @@ def poolSizeManualGrow():
         Response message if creating successfully
     """
     ec2_client = boto3.client('ec2',
-                            "us-east-1",
-                            aws_access_key_id=ConfigAWS.aws_access_key_id,
-                            aws_secret_access_key=ConfigAWS.aws_secret_access_key)
+                              "us-east-1",
+                              aws_access_key_id=ConfigAWS.aws_access_key_id,
+                              aws_secret_access_key=ConfigAWS.aws_secret_access_key)
     call_obj = MemcacheEC2(ec2_client)
 
-    if len(call_obj.whoAreExisting())<8:
+    if len(call_obj.whoAreExisting()) < 8:
         call_obj.create_ec2_instance()
         response = webapp.response_class(
             response=json.dumps("Memcache Pool Size Growing Successfully."),
@@ -198,7 +206,8 @@ def poolSizeManualGrow():
         print(response)
     else:
         response = webapp.response_class(
-            response=json.dumps("Memcache Pool Size Has Already Reached Its Maximum. Growing Failed."),
+            response=json.dumps(
+                "Memcache Pool Size Has Already Reached Its Maximum. Growing Failed."),
             status=200,
             mimetype='application/json'
         )
@@ -215,12 +224,12 @@ def poolSizeManualShrink():
         Response message if shrinking successfully
     """
     ec2_client = boto3.client('ec2',
-                            "us-east-1",
-                            aws_access_key_id=ConfigAWS.aws_access_key_id,
-                            aws_secret_access_key=ConfigAWS.aws_secret_access_key)
+                              "us-east-1",
+                              aws_access_key_id=ConfigAWS.aws_access_key_id,
+                              aws_secret_access_key=ConfigAWS.aws_secret_access_key)
     call_obj = MemcacheEC2(ec2_client)
 
-    if len(call_obj.whoAreRunning())>1:
+    if len(call_obj.whoAreRunning()) > 1:
         call_obj.terminate_ec2_instance()
         response = webapp.response_class(
             response=json.dumps("Memcache Pool Size Shrinking Successfully."),
@@ -230,15 +239,16 @@ def poolSizeManualShrink():
         print(response)
     else:
         response = webapp.response_class(
-            response=json.dumps("Memcache Pool Size Has Already Reached Its Minimum. Shrinking Failed."),
+            response=json.dumps(
+                "Memcache Pool Size Has Already Reached Its Minimum. Shrinking Failed."),
             status=200,
             mimetype='application/json'
         )
         print(response)
     return response
-    
 
-@webapp.route('/poolResizeAuto', methods=['POST']) 
+
+@webapp.route('/poolResizeAuto', methods=['POST'])
 def poolResizeAuto():
     """Configure a simple auto-scaling policy to resize the memcache pool size
     API function to automatically resize memcache pool size with preset cloudwatch threshold
@@ -255,32 +265,35 @@ def poolResizeAuto():
     if maxMissRate > minMissRate+0.01:
         # ATTENTION: Currently updating to the RDS databse. It should have been updating to Cloudwatch. Modify this part before deployment.
         cnx = mysql.connector.connect(user=ConfigManager.db_config['user'],
-                                    password=ConfigManager.db_config['password'],
-                                    host=ConfigManager.db_config['host'],
-                                    database=ConfigManager.db_config['database'])
+                                      password=ConfigManager.db_config['password'],
+                                      host=ConfigManager.db_config['host'],
+                                      database=ConfigManager.db_config['database'])
 
         cursor = cnx.cursor()
         cursor.execute("UPDATE autoscalerconfigs SET maxMissRate = %s, minMissRate = %s, poolExpandRatio = %s, poolShrinkRatio = %s WHERE id = 0",
-                    (maxMissRate, minMissRate, poolExpandRatio, poolShrinkRatio))
+                       (maxMissRate, minMissRate, poolExpandRatio, poolShrinkRatio))
         cnx.commit()
         cnx.close()
 
         response = webapp.response_class(
-            response=json.dumps("Memcache Auto Scaler Configs Update Successfully."),
+            response=json.dumps(
+                "Memcache Auto Scaler Configs Update Successfully."),
             status=200,
             mimetype='application/json'
         )
         print(response)
     elif maxMissRate == minMissRate+0.01:
         response = webapp.response_class(
-            response=json.dumps("Error: The difference between Max and Min Miss Rate is too SMALL. Updating failed."),
+            response=json.dumps(
+                "Error: The difference between Max and Min Miss Rate is too SMALL. Updating failed."),
             status=200,
             mimetype='application/json'
         )
         print(response)
     else:
         response = webapp.response_class(
-            response=json.dumps("Error: Max Miss Rate must be LARGER than Min Miss Rate. Updating failed."),
+            response=json.dumps(
+                "Error: Max Miss Rate must be LARGER than Min Miss Rate. Updating failed."),
             status=200,
             mimetype='application/json'
         )
@@ -304,9 +317,9 @@ def autoScaler():
 
     # ATTENTION: Currently acquiring statics from RDS databse. It should have been fetched from Cloudwatch. Modify this part before deployment.
     cnx = mysql.connector.connect(user=ConfigManager.db_config['user'],
-                                    password=ConfigManager.db_config['password'],
-                                    host=ConfigManager.db_config['host'],
-                                    database=ConfigManager.db_config['database'])
+                                  password=ConfigManager.db_config['password'],
+                                  host=ConfigManager.db_config['host'],
+                                  database=ConfigManager.db_config['database'])
 
     cursor = cnx.cursor()
     cursor.execute("SELECT missRate FROM statistics WHERE id = 0")
@@ -314,7 +327,8 @@ def autoScaler():
     memcacheStatics = cursor.fetchall()
     missRate = memcacheStatics[0][0]
 
-    cursor.execute("SELECT maxMissRate, minMissRate, poolExpandRatio, poolShrinkRatio FROM autoscalerconfigs WHERE id = 0")
+    cursor.execute(
+        "SELECT maxMissRate, minMissRate, poolExpandRatio, poolShrinkRatio FROM autoscalerconfigs WHERE id = 0")
     autoScalerConfigs = cursor.fetchall()
     maxMissRate = autoScalerConfigs[0][0]
     minMissRate = autoScalerConfigs[0][1]
@@ -325,9 +339,9 @@ def autoScaler():
 
     # Check memcache EC2 status
     ec2_client = boto3.client('ec2',
-                            "us-east-1",
-                            aws_access_key_id=ConfigAWS.aws_access_key_id,
-                            aws_secret_access_key=ConfigAWS.aws_secret_access_key)
+                              "us-east-1",
+                              aws_access_key_id=ConfigAWS.aws_access_key_id,
+                              aws_secret_access_key=ConfigAWS.aws_secret_access_key)
     call_obj = MemcacheEC2(ec2_client)
 
     curInstanceNum = len(call_obj.whoAreExisting())
@@ -345,16 +359,16 @@ def autoScaler():
         # Set miss rate to a safe value temporarily otherwise autoscaler may stuck
         # ATTENTION: Currently acquiring statics from RDS databse. It should have been fetched from Cloudwatch. Modify this part before deployment.
         cnx = mysql.connector.connect(user=ConfigManager.db_config['user'],
-                                    password=ConfigManager.db_config['password'],
-                                    host=ConfigManager.db_config['host'],
-                                    database=ConfigManager.db_config['database'])
+                                      password=ConfigManager.db_config['password'],
+                                      host=ConfigManager.db_config['host'],
+                                      database=ConfigManager.db_config['database'])
 
         cursor = cnx.cursor()
         cursor.execute("UPDATE statistics SET missRate = %s, hitRate = %s WHERE id = 0",
-                   (minMissRate+0.01, 0.99-minMissRate,))
+                       (minMissRate+0.01, 0.99-minMissRate,))
         cnx.commit()
         cnx.close()
-        
+
         # ATTENTION: Currently we have to terminate instance one by one, since a second terminate call would not actually work if there is already an instance under termination
         # Maybe we could consider using _terminate_ec2_instance() to terminate multiple instances at the same time
         for i in range(curInstanceNum - targetInstanceNum):
@@ -375,13 +389,13 @@ def autoScaler():
         # Set miss rate to a safe value temporarily otherwise autoscaler may stuck
         # ATTENTION: Currently acquiring statics from RDS databse. It should have been fetched from Cloudwatch. Modify this part before deployment.
         cnx = mysql.connector.connect(user=ConfigManager.db_config['user'],
-                                    password=ConfigManager.db_config['password'],
-                                    host=ConfigManager.db_config['host'],
-                                    database=ConfigManager.db_config['database'])
+                                      password=ConfigManager.db_config['password'],
+                                      host=ConfigManager.db_config['host'],
+                                      database=ConfigManager.db_config['database'])
 
         cursor = cnx.cursor()
         cursor.execute("UPDATE statistics SET missRate = %s, hitRate = %s WHERE id = 0",
-                   (maxMissRate-0.01, 1.01-maxMissRate,))
+                       (maxMissRate-0.01, 1.01-maxMissRate,))
         cnx.commit()
         cnx.close()
 
@@ -406,6 +420,8 @@ def clearDatabase():
     pass
 
 # Under Construction
+
+
 @webapp.route('/clearMemcache', methods=['POST'])
 def clearMemcache():
     """Clear the content of all memcache nodes in the pool
