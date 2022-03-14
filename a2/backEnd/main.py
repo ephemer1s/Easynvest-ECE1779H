@@ -509,6 +509,12 @@ def init():
                     "message": message})
 
 
+@webapp.before_first_request
+def _run_on_start():
+    init()
+    refreshConfiguration(400000, 'LRU')
+
+
 @webapp.route('/listKeys')
 def listKeys():
     """debug: List all keys

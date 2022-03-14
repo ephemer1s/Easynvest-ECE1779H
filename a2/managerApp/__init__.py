@@ -10,8 +10,8 @@ webapp = Flask(__name__)
 # old_memcache = {}
 try:
     from managerApp import main
+    
 except Exception as e:
     print("wtf no Manager App?")
     print("Error: ", e)
 
-# webapp.config['UPLOAD_FOLDER'] = Config.UPLOAD_FOLDER
