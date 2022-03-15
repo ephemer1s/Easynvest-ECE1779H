@@ -313,7 +313,7 @@ def autoScalerMonitor():
 def publicIPUpdater():
     """Update current running memcache EC2 public ip to fronEnd update_IP_List API
     """
-    # Need to put public ip list here
+    # ATTENTION: Please remember to add publicIPUpdater() after every terminate_ec2_instance(), otherwise potential bug could exist
     ec2_client = boto3.client('ec2',
                               "us-east-1",
                               aws_access_key_id=ConfigAWS.aws_access_key_id,
