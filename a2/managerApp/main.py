@@ -75,6 +75,7 @@ def _run_on_start():
                 call_obj.start_ec2_instance(call_obj.whoAreExisting()[0])
                 for i in range(len(instanceIDs)-1):
                     call_obj.terminate_ec2_instance()
+                publicIPUpdater()
             # Status 3: If there is only 1 ec2 exists and is not running, just start it
             else:
                 print("Initialization Status 3")
@@ -104,7 +105,7 @@ def _run_on_start():
         print("AWS memcache initialization failed: ", e)
 
     # Thread for auto scaler starts
-    autoScalerThreading = threading.Thread(target=autoScalerUpdater)
+    autoScalerThreading = threading.Thread(target=autoScalerMonitor)
     autoScalerThreading.start()
 
 
@@ -167,10 +168,9 @@ def replacePolicyUpdate():
     cnx.close()
 
     # please note to add /backEnd to the API call url
-    status = makeAPI_Call("http://127.0.0.1:5001/backEnd/refreshConfiguration" +
-                          "/" + str(capacityB) + "/" + str(replacepolicy), "get", 5)
+    # status = makeAPI_Call("http://127.0.0.1:5001/backEnd/refreshConfiguration" + "/" + str(capacityB) + "/" + str(replacepolicy), "get", 5)
 
-    print(status)
+    # print(status)
 
     response = webapp.response_class(
         response=json.dumps(
@@ -231,6 +231,7 @@ def poolSizeManualShrink():
 
     if len(call_obj.whoAreRunning()) > 1:
         call_obj.terminate_ec2_instance()
+        publicIPUpdater()
         response = webapp.response_class(
             response=json.dumps("Memcache Pool Size Shrinking Successfully."),
             status=200,
@@ -301,12 +302,36 @@ def poolResizeAuto():
     return response
 
 
-def autoScalerUpdater():
+def autoScalerMonitor():
     """Loops every 60s, call autoScaler()
     """
     while True:
         autoScaler()
+        publicIPUpdater()
         time.sleep(60) # It could be something like 5s when testing
+
+def publicIPUpdater():
+    """Update current running memcache EC2 public ip to fronEnd update_IP_List API
+    """
+    # ATTENTION: Please remember to add publicIPUpdater() after every terminate_ec2_instance(), otherwise potential bug could exist
+    ec2_client = boto3.client('ec2',
+                              "us-east-1",
+                              aws_access_key_id=ConfigAWS.aws_access_key_id,
+                              aws_secret_access_key=ConfigAWS.aws_secret_access_key)
+    call_obj = MemcacheEC2(ec2_client)
+
+    ipList = call_obj.get_all_ip()
+    ipStr = ''
+
+    for i in range(len(ipList)):
+        if i == 0:
+            ipStr += ipList[i]
+        else:
+            ipStr += '_'
+            ipStr += ipList[i]
+
+    # ATTENTION: Only uncomment this makeAPI_Call code to make this function actually work when frontEnd app is running
+    # makeAPI_Call("http://127.0.0.1:5001/frontEnd//updateIPList" + "/" + ipStr, "post", 5)
 
 
 def autoScaler():
@@ -374,7 +399,9 @@ def autoScaler():
         for i in range(curInstanceNum - targetInstanceNum):
             print("AutoScaler Status 1: Shrinking...")
             call_obj.terminate_ec2_instance()
-            time.sleep(3)
+            time.sleep(1)
+            publicIPUpdater()
+            time.sleep(1)
 
     # Status 2 Miss Rate too high : growing pool size
     elif missRate >= maxMissRate:
@@ -402,7 +429,7 @@ def autoScaler():
         for i in range(targetInstanceNum - curInstanceNum):
             print("AutoScaler Status 2: Growing...")
             call_obj.create_ec2_instance()
-            time.sleep(3)
+            time.sleep(2)
 
     # Status 0 Miss Rate Steady : hands off and keep monitoring
     else:
