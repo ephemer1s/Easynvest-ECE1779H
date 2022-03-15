@@ -404,7 +404,7 @@ class MemcacheEC2(object):
             print("Refresh failed. Abandon mission.")
             return
         if self.memcacheDict:
-            for i in self.memcacheDict():
+            for i in self.memcacheDict.values():
                 if i["PublicIP"] != "":
                     returnList.append(i["PublicIP"])
 

@@ -8,11 +8,13 @@ from werkzeug.middleware.dispatcher import DispatcherMiddleware
 
 from managerApp import webapp as managerApp
 from backEnd import webapp as backEnd
+from frontEnd import webapp as frontEnd
 
 managerApp.secret_key = "Secreeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeet"
 backEnd.secret_key = "Secreeeeeeeeeeet"
+frontEnd.secret_key = "UltraSecreeeeeeeeeeet"
 
-application = DispatcherMiddleware(managerApp, {'/backEnd': backEnd})
+application = DispatcherMiddleware(managerApp, {'/frontEnd': frontEnd})
 
 if __name__ == "__main__":
     """Using "threaded = True", the function can call API within itself while dealing with user requests.
