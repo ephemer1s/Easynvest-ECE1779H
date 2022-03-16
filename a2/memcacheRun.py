@@ -7,25 +7,21 @@ if not os.path.exists('./logs'):
     os.mkdir('./logs')
 import werkzeug
 
-from werkzeug.serving import run_simple  # werkzeug development server
+# from werkzeug.serving import run_simple  # werkzeug development server
 # use to combine each Flask app into a larger one that is dispatched based on prefix
-from werkzeug.middleware.dispatcher import DispatcherMiddleware
+# from werkzeug.middleware.dispatcher import DispatcherMiddleware
+
 
 from backEnd import webapp as backEnd
 #from frontEnd import webapp as frontEnd
 #from managerApp import webapp as managerApp
 
-
-#managerApp.secret_key = "Secreeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeet"
-#frontEnd.secret_key = "UltraSecreeeeeeeeeeet"
 backEnd.secret_key = "Secreeeeeeeeeeet"
 
-application = DispatcherMiddleware({'/backEnd': backEnd})
+
+# application = DispatcherMiddleware({'/backEnd': backEnd})
 
 if __name__ == "__main__":
-    """Using "threaded = True", the function can call API within itself while dealing with user requests.
-    """
-
     try:
         print(werkzeug.__version__)
     except ImportError as error:
@@ -38,10 +34,12 @@ if __name__ == "__main__":
             f.write(str(time.time()) + exception.__class__.__name__ + ": " + exception.message)
     with open("./logs/memcache.log", 'a') as f:
         f.write(str(time.time()) + "    Memcache has loaded!\n")
-    run_simple('0.0.0.0', 5001, application,
-               use_reloader=True,
-               use_debugger=True,
-               use_evalex=True,
-               threaded=True)
-
+    backEnd.run(host='0.0.0.0', port=5001)
+    # """Using "threaded = True", the function can call API within itself while dealing with user requests.
+    # """
+    # run_simple('0.0.0.0', 5001, application,
+    #            use_reloader=True,
+    #            use_debugger=True,
+    #            use_evalex=True,
+    #            threaded=True)
 

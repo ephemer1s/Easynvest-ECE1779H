@@ -946,6 +946,8 @@ def makeAPI_Call(api_url: str, method: str, _timeout: int):
     if method == "put":
         r = requests.put(api_url, timeout=_timeout, headers=headers)
 
+    print(r)
+
     json_acceptable_string = r.json()
 
     # print("Here is response: ", json_acceptable_string)
