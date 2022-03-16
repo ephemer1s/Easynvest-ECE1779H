@@ -77,7 +77,6 @@ def _run_on_start():
                 call_obj.start_ec2_instance(call_obj.whoAreExisting()[0])
                 for i in range(len(instanceIDs)-1):
                     call_obj.terminate_ec2_instance()
-
             # Status 3: If there is only 1 ec2 exists and is not running, just start it
             else:
                 print("Initialization Status 3")
@@ -163,8 +162,9 @@ def replacePolicyUpdate():
     cnx.close()
 
     # please note to add /backEnd to the API call url
-
+    # update on 3/16/13:00 : removed /backend from makeAPICall
     # status = makeAPI_Call("http://127.0.0.1:5001/refreshConfiguration" + "/" + str(capacityB) + "/" + str(replacepolicy), "get", 5)
+
 
     # v ----------------------------------------------------------------------------------- Ass 2 ----------------------------------------------------------------------------------- v
     ec2_client = boto3.client('ec2',
@@ -334,7 +334,6 @@ def autoScalerMonitor():
     """
     while True:
         autoScaler()
-
         publicIPUpdater()
         time.sleep(60)  # It could be something like 5s when testing
 
@@ -367,7 +366,6 @@ def publicIPUpdater():
     makeAPI_Call_Not_Json(
         "http://127.0.0.1:5000/updateIPList", "post", 5, _data=dataDict)
 
-
 def autoScaler():
     """Automatically resizes the memcache pool based on configuration values set by the managerApp
     """
@@ -380,10 +378,9 @@ def autoScaler():
 
         # ATTENTION: Currently acquiring statics from RDS databse. It should have been fetched from Cloudwatch. Modify this part before deployment.
         cnx = mysql.connector.connect(user=ConfigManager.db_config['user'],
-                                      password=ConfigManager.db_config['password'],
-                                      host=ConfigManager.db_config['host'],
-                                      database=ConfigManager.db_config['database'])
-
+                                    password=ConfigManager.db_config['password'],
+                                    host=ConfigManager.db_config['host'],
+                                    database=ConfigManager.db_config['database'])
         cursor = cnx.cursor()
         cursor.execute("SELECT missRate FROM statistics WHERE id = 0")
 
@@ -408,7 +405,7 @@ def autoScaler():
         call_obj = MemcacheEC2(ec2_client)
 
         curInstanceNum = len(call_obj.whoAreExisting())
-
+        
         # Status 2 Miss Rate too low : shrinking pool size
         if missRate <= minMissRate:
             # When shrinking, floor targetInstanceNum
@@ -437,15 +434,16 @@ def autoScaler():
             for i in range(curInstanceNum - targetInstanceNum):
                 print("AutoScaler Status 2: Shrinking...")
                 call_obj.terminate_ec2_instance()
+
                 publicIPUpdater()
+
                 time.sleep(3)
 
         # Status 3 Miss Rate too high : growing pool size
         elif missRate >= maxMissRate:
             # When growing, ceiling targetInstanceNum
             # e.g: 1 * 1.2 = 1.2 → 2
-            targetInstanceNum = math.ceil(
-                float(curInstanceNum) * poolExpandRatio)
+            targetInstanceNum = math.ceil(float(curInstanceNum) * poolExpandRatio)
 
             # Never growing pool size more than 8
             if targetInstanceNum > 8:
