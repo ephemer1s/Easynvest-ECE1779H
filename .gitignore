@@ -16,3 +16,4 @@ Paxheader/
 ./a2/backEnd/cacheImageFolder/
 ./a2/install.py
 ./a2/credential.py
+./a2/logs/
