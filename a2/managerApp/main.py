@@ -164,7 +164,7 @@ def replacePolicyUpdate():
 
     # please note to add /backEnd to the API call url
 
-    # status = makeAPI_Call("http://127.0.0.1:5001/backEnd/refreshConfiguration" + "/" + str(capacityB) + "/" + str(replacepolicy), "get", 5)
+    # status = makeAPI_Call("http://127.0.0.1:5001/refreshConfiguration" + "/" + str(capacityB) + "/" + str(replacepolicy), "get", 5)
 
     # v ----------------------------------------------------------------------------------- Ass 2 ----------------------------------------------------------------------------------- v
     ec2_client = boto3.client('ec2',
@@ -180,7 +180,7 @@ def replacePolicyUpdate():
     for eachIP in ipList:
 
         try:
-            returnDict = makeAPI_Call("http://" + eachIP + ":5001/backEnd/refreshConfiguration" +
+            returnDict = makeAPI_Call("http://" + eachIP + ":5001/refreshConfiguration" +
                                       "/" + str(capacityB) + "/" + str(replacePolicy), "get", 5)
 
         except requests.exceptions.RequestException as e:
@@ -358,6 +358,8 @@ def publicIPUpdater():
         else:
             ipStr += '_'
             ipStr += ipList[i]
+
+    # ipStr = '127.0.0.1'  # debug
 
     dataDict = {"IPLIST": ipStr}
 
