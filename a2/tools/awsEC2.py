@@ -383,7 +383,7 @@ class MemcacheEC2(object):
         return "ERROR! self.memcacheDict is empty."
 
     def terminate_one_ec2_instance(self, number):
-        return self._terminate_ec2_instance(self, number)
+        return self._terminate_ec2_instance(number)
 
     def terminate_everything(self):
         maxIterTimes = len(self.memcacheDict)
@@ -404,7 +404,7 @@ class MemcacheEC2(object):
             print("Refresh failed. Abandon mission.")
             return
         if self.memcacheDict:
-            for i in self.memcacheDict():
+            for i in self.memcacheDict.values():
                 if i["PublicIP"] != "":
                     returnList.append(i["PublicIP"])
 

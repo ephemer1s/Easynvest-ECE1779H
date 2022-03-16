@@ -78,6 +78,7 @@ def _run_on_start():
                 call_obj.start_ec2_instance(call_obj.whoAreExisting()[0])
                 for i in range(len(instanceIDs)-1):
                     call_obj.terminate_ec2_instance()
+                publicIPUpdater()
             # Status 3: If there is only 1 ec2 exists and is not running, just start it
             else:
                 print("Initialization Status 3")
@@ -107,7 +108,7 @@ def _run_on_start():
         print("AWS memcache initialization failed: ", e)
 
     # Thread for auto scaler starts
-    autoScalerThreading = threading.Thread(target=autoScalerUpdater)
+    autoScalerThreading = threading.Thread(target=autoScalerMonitor)
     autoScalerThreading.start()
 
 
@@ -170,10 +171,32 @@ def replacePolicyUpdate():
     cnx.close()
 
     # please note to add /backEnd to the API call url
-    status = makeAPI_Call("http://127.0.0.1:5001/backEnd/refreshConfiguration" +
-                          "/" + str(capacityB) + "/" + str(replacePolicy), "get", 5)
 
-    print(status)
+    # status = makeAPI_Call("http://127.0.0.1:5001/backEnd/refreshConfiguration" + "/" + str(capacityB) + "/" + str(replacepolicy), "get", 5)
+
+
+    # v ----------------------------------------------------------------------------------- Ass 2 ----------------------------------------------------------------------------------- v
+    ec2_client = boto3.client('ec2',
+                              "us-east-1",
+                              aws_access_key_id=ConfigAWS.aws_access_key_id,
+                              aws_secret_access_key=ConfigAWS.aws_secret_access_key)
+    call_obj = MemcacheEC2(ec2_client)
+
+    ipList = call_obj.get_all_ip()
+
+    returnDict = {}
+
+    for eachIP in ipList:
+
+        try:
+            returnDict = makeAPI_Call("http://" + eachIP + ":5001/backEnd/refreshConfiguration" +
+                                      "/" + str(capacityB) + "/" + str(replacepolicy), "get", 5)
+
+        except requests.exceptions.RequestException as e:
+            print("ERROR: ", e)
+    # ^ ----------------------------------------------------------------------------------- Ass 2 ----------------------------------------------------------------------------------- ^
+
+    # print(status)
 
     response = webapp.response_class(
         response=json.dumps(
@@ -240,6 +263,7 @@ def poolSizeManualShrink():
         AUTOSCALER_MODE = 0
         print("AutoScaler Mode: Manual")
         call_obj.terminate_ec2_instance()
+        publicIPUpdater()
         response = webapp.response_class(
             response=json.dumps("Memcache Pool Size Shrinking Successfully."),
             status=200,
@@ -314,12 +338,41 @@ def poolResizeAuto():
     return response
 
 
-def autoScalerUpdater():
+def autoScalerMonitor():
     """Loops every 60s, call autoScaler()
     """
     while True:
         autoScaler()
-        time.sleep(5) # Time could be something like 5s when testing
+
+        publicIPUpdater()
+        time.sleep(60)  # It could be something like 5s when testing
+
+
+def publicIPUpdater():
+    """Update current running memcache EC2 public ip to fronEnd update_IP_List API
+    """
+    # ATTENTION: Please remember to add publicIPUpdater() after every terminate_ec2_instance(), otherwise potential bug could exist
+    ec2_client = boto3.client('ec2',
+                              "us-east-1",
+                              aws_access_key_id=ConfigAWS.aws_access_key_id,
+                              aws_secret_access_key=ConfigAWS.aws_secret_access_key)
+    call_obj = MemcacheEC2(ec2_client)
+
+    ipList = call_obj.get_all_ip()
+    ipStr = ''
+
+    for i in range(len(ipList)):
+        if i == 0:
+            ipStr += ipList[i]
+        else:
+            ipStr += '_'
+            ipStr += ipList[i]
+
+    dataDict = {"IPLIST": ipStr}
+
+    # ATTENTION: Only uncomment this makeAPI_Call code to make this function actually work when frontEnd app is running
+    makeAPI_Call_Not_Json(
+        "http://127.0.0.1:5000/updateIPList", "post", 5, _data=dataDict)
 
 
 def autoScaler():
@@ -339,7 +392,26 @@ def autoScaler():
                                     database=ConfigManager.db_config['database'])
 
         cursor = cnx.cursor()
-        cursor.execute("SELECT missRate FROM statistics WHERE id = 0")
+        cursor.execute("UPDATE statistics SET missRate = %s, hitRate = %s WHERE id = 0",
+                       (minMissRate+0.01, 0.99-minMissRate,))
+        cnx.commit()
+        cnx.close()
+
+        # ATTENTION: Currently we have to terminate instance one by one, since a second terminate call would not actually work if there is already an instance under termination
+        # Maybe we could consider using _terminate_ec2_instance() to terminate multiple instances at the same time
+        for i in range(curInstanceNum - targetInstanceNum):
+            print("AutoScaler Status 1: Shrinking...")
+            call_obj.terminate_ec2_instance()
+            time.sleep(1)
+            publicIPUpdater()
+            time.sleep(1)
+
+    # Status 2 Miss Rate too high : growing pool size
+    elif missRate >= maxMissRate:
+        # When growing, ceiling targetInstanceNum
+        # e.g: 1 * 1.2 = 1.2 → 2
+        targetInstanceNum = math.ceil(float(curInstanceNum) * poolExpandRatio)
+
 
         memcacheStatics = cursor.fetchall()
         missRate = memcacheStatics[0][0]
@@ -354,12 +426,10 @@ def autoScaler():
 
         cnx.close()
 
-        # Check memcache EC2 status
-        ec2_client = boto3.client('ec2',
-                                "us-east-1",
-                                aws_access_key_id=ConfigAWS.aws_access_key_id,
-                                aws_secret_access_key=ConfigAWS.aws_secret_access_key)
-        call_obj = MemcacheEC2(ec2_client)
+        for i in range(targetInstanceNum - curInstanceNum):
+            print("AutoScaler Status 2: Growing...")
+            call_obj.create_ec2_instance()
+            time.sleep(2)
 
         curInstanceNum = len(call_obj.whoAreExisting())
 
@@ -460,7 +530,16 @@ def backHome():
     return render_template("managerApp.html")
 
 
-def makeAPI_Call(api_url: str, method: str, _timeout: int):
+@webapp.route('/wakeUp')
+def wakeUp():
+    """called from frontend on startup to get memcache working
+    """
+    print("Manager App is up! UwU")
+    return jsonify({"success": "true",
+                    "statusCode": 200})
+
+
+def makeAPI_Call(api_url: str, method: str, _timeout: int, _data={}):
     """Helper function to call an API.
 
     Args:
@@ -477,7 +556,8 @@ def makeAPI_Call(api_url: str, method: str, _timeout: int):
     if method == "get":
         r = requests.get(api_url, timeout=_timeout, headers=headers)
     if method == "post":
-        r = requests.post(api_url, timeout=_timeout, headers=headers)
+        r = requests.post(api_url, data=_data,
+                          timeout=_timeout, headers=headers)
     if method == "delete":
         r = requests.delete(api_url, timeout=_timeout, headers=headers)
     if method == "put":
@@ -486,3 +566,30 @@ def makeAPI_Call(api_url: str, method: str, _timeout: int):
     json_acceptable_string = r.json()
 
     return json_acceptable_string
+
+
+def makeAPI_Call_Not_Json(api_url: str, method: str, _timeout: int, _data={}):
+    """Helper function to call an API.
+
+    Args:
+        api_url (str): URL to the API function
+        method (str): get, post, delete, or put
+        _timeout (int): (in seconds) how long should the front end wait for a response
+
+    Returns:
+        <?>: response
+    """
+    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.76 Safari/537.36', "Upgrade-Insecure-Requests": "1",
+               "DNT": "1", "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8", "Accept-Language": "en-US,en;q=0.5", "Accept-Encoding": "gzip, deflate"}
+    method = method.lower()
+    if method == "get":
+        r = requests.get(api_url, timeout=_timeout, headers=headers)
+    if method == "post":
+        r = requests.post(api_url, data=_data,
+                          timeout=_timeout, headers=headers)
+    if method == "delete":
+        r = requests.delete(api_url, timeout=_timeout, headers=headers)
+    if method == "put":
+        r = requests.put(api_url, timeout=_timeout, headers=headers)
+
+    return r

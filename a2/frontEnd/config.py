@@ -4,3 +4,4 @@ class Config():
                  'host': 'database-1.clriqywhb6pw.us-east-1.rds.amazonaws.com',
                  'database': 'database-a1'}
     UPLOAD_FOLDER = './uploads/'
+    memcacheIP_List = []
