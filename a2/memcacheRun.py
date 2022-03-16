@@ -12,12 +12,12 @@ from werkzeug.serving import run_simple  # werkzeug development server
 from werkzeug.middleware.dispatcher import DispatcherMiddleware
 
 from backEnd import webapp as backEnd
-# from frontEnd import webapp as frontEnd
-# from managerApp import webapp as managerApp
+#from frontEnd import webapp as frontEnd
+#from managerApp import webapp as managerApp
 
 
-# managerApp.secret_key = "Secreeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeet"
-# frontEnd.secret_key = "UltraSecreeeeeeeeeeet"
+#managerApp.secret_key = "Secreeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeet"
+#frontEnd.secret_key = "UltraSecreeeeeeeeeeet"
 backEnd.secret_key = "Secreeeeeeeeeeet"
 
 application = DispatcherMiddleware({'/backEnd': backEnd})
