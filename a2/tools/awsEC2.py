@@ -20,7 +20,7 @@ class MemcacheEC2(object):
         self.maxMemcacheNumber = 8
         self.memcacheDict = {}
 
-        self.amiID = "ami-0d80836d3f4c29ef9"  # Change this to our own AMI ID!
+        self.amiID = "ami-0c3f04df1cd3f9538"  # Change this to our own AMI ID!
 
     def grep_vpc_subnet_id(self):
         response = self.ec2_client.describe_vpcs()
