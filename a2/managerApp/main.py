@@ -170,6 +170,27 @@ def replacePolicyUpdate():
     # please note to add /backEnd to the API call url
     # status = makeAPI_Call("http://127.0.0.1:5001/backEnd/refreshConfiguration" + "/" + str(capacityB) + "/" + str(replacepolicy), "get", 5)
 
+    # v ----------------------------------------------------------------------------------- Ass 2 ----------------------------------------------------------------------------------- v
+    ec2_client = boto3.client('ec2',
+                              "us-east-1",
+                              aws_access_key_id=ConfigAWS.aws_access_key_id,
+                              aws_secret_access_key=ConfigAWS.aws_secret_access_key)
+    call_obj = MemcacheEC2(ec2_client)
+
+    ipList = call_obj.get_all_ip()
+
+    returnDict = {}
+
+    for eachIP in ipList:
+
+        try:
+            returnDict = makeAPI_Call("http://" + eachIP + ":5001/backEnd/refreshConfiguration" +
+                                      "/" + str(capacityB) + "/" + str(replacepolicy), "get", 5)
+
+        except requests.exceptions.RequestException as e:
+            print("ERROR: ", e)
+    # ^ ----------------------------------------------------------------------------------- Ass 2 ----------------------------------------------------------------------------------- ^
+
     # print(status)
 
     response = webapp.response_class(
