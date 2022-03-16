@@ -14,7 +14,7 @@ managerApp.secret_key = "Secreeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
 backEnd.secret_key = "Secreeeeeeeeeeet"
 frontEnd.secret_key = "UltraSecreeeeeeeeeeet"
 
-application = DispatcherMiddleware(managerApp, {'/frontEnd': frontEnd})
+application = DispatcherMiddleware({'/backEnd': backEnd})
 
 if __name__ == "__main__":
     """Using "threaded = True", the function can call API within itself while dealing with user requests.

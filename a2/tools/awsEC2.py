@@ -383,7 +383,7 @@ class MemcacheEC2(object):
         return "ERROR! self.memcacheDict is empty."
 
     def terminate_one_ec2_instance(self, number):
-        return self._terminate_ec2_instance(self, number)
+        return self._terminate_ec2_instance(number)
 
     def terminate_everything(self):
         maxIterTimes = len(self.memcacheDict)

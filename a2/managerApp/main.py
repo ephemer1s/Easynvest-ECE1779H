@@ -308,7 +308,8 @@ def autoScalerMonitor():
     while True:
         autoScaler()
         publicIPUpdater()
-        time.sleep(60) # It could be something like 5s when testing
+        time.sleep(60)  # It could be something like 5s when testing
+
 
 def publicIPUpdater():
     """Update current running memcache EC2 public ip to fronEnd update_IP_List API
@@ -330,8 +331,11 @@ def publicIPUpdater():
             ipStr += '_'
             ipStr += ipList[i]
 
+    dataDict = {"IPLIST": ipStr}
+
     # ATTENTION: Only uncomment this makeAPI_Call code to make this function actually work when frontEnd app is running
-    # makeAPI_Call("http://127.0.0.1:5001/frontEnd//updateIPList" + "/" + ipStr, "post", 5)
+    makeAPI_Call_Not_Json(
+        "http://127.0.0.1:5000/updateIPList", "post", 5, _data=dataDict)
 
 
 def autoScaler():
@@ -469,7 +473,16 @@ def backHome():
     return render_template("managerApp.html")
 
 
-def makeAPI_Call(api_url: str, method: str, _timeout: int):
+@webapp.route('/wakeUp')
+def wakeUp():
+    """called from frontend on startup to get memcache working
+    """
+    print("Manager App is up! UwU")
+    return jsonify({"success": "true",
+                    "statusCode": 200})
+
+
+def makeAPI_Call(api_url: str, method: str, _timeout: int, _data={}):
     """Helper function to call an API.
 
     Args:
@@ -486,7 +499,8 @@ def makeAPI_Call(api_url: str, method: str, _timeout: int):
     if method == "get":
         r = requests.get(api_url, timeout=_timeout, headers=headers)
     if method == "post":
-        r = requests.post(api_url, timeout=_timeout, headers=headers)
+        r = requests.post(api_url, data=_data,
+                          timeout=_timeout, headers=headers)
     if method == "delete":
         r = requests.delete(api_url, timeout=_timeout, headers=headers)
     if method == "put":
@@ -495,3 +509,30 @@ def makeAPI_Call(api_url: str, method: str, _timeout: int):
     json_acceptable_string = r.json()
 
     return json_acceptable_string
+
+
+def makeAPI_Call_Not_Json(api_url: str, method: str, _timeout: int, _data={}):
+    """Helper function to call an API.
+
+    Args:
+        api_url (str): URL to the API function
+        method (str): get, post, delete, or put
+        _timeout (int): (in seconds) how long should the front end wait for a response
+
+    Returns:
+        <?>: response
+    """
+    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.76 Safari/537.36', "Upgrade-Insecure-Requests": "1",
+               "DNT": "1", "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8", "Accept-Language": "en-US,en;q=0.5", "Accept-Encoding": "gzip, deflate"}
+    method = method.lower()
+    if method == "get":
+        r = requests.get(api_url, timeout=_timeout, headers=headers)
+    if method == "post":
+        r = requests.post(api_url, data=_data,
+                          timeout=_timeout, headers=headers)
+    if method == "delete":
+        r = requests.delete(api_url, timeout=_timeout, headers=headers)
+    if method == "put":
+        r = requests.put(api_url, timeout=_timeout, headers=headers)
+
+    return r
