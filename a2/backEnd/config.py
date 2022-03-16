@@ -1,6 +1,7 @@
 class Config():
 
     MEMCACHE_FOLDER = './backEnd/cacheImageFolder'
+    TEMP_FOLDER = './backEnd/temp'
     IMAGE_FORMAT = ['.jpg', '.jpeg', '.png', '.tiff', '.gif', '.tif', '.bmp',
                     '.raw', '.cr2', '.nef', '.orf', '.sr2', '.psd', '.xcf', '.ai', 'cdr']
     db_config = {'user': 'root',
