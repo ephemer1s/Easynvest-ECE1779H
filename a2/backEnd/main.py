@@ -100,16 +100,16 @@ def _updateStatsMiss():
     pass
 
 
-@webapp.route('/put/<key>/<name>/<path:path>')
-def PUT(key, name, path):
+@webapp.route('/put/<key>/<name>', methods=['POST'])
+def PUT(key, name):
     """API function to set the key and value
 
     Args:
         key (string): key
         name (string): file name of the image, should include extensions
-        path (string): file path for backend to copy
+        # path (string): file path for backend to copy
 
-        [NOT USED] content (file): File Pointer? For the backEnd to copy from
+        content (file): Base64 image data
 
     Returns:
         json:   "success": "true" or "false",
@@ -125,20 +125,24 @@ def PUT(key, name, path):
                         "message": message
                         })
 
-    if not path:
-        print("Error: Path missing!")
-        message = "Error: Path missing!"
+    content = request.form.get('imgContent')
+
+    if not content:
+        print("Error: content missing!")
+        message = "Error: content missing!"
         return jsonify({"success": "false",
                         "statusCode": 400,
                         "message": message
                         })
-    if not os.path.isfile(path):
-        print("Error: File is missing!")
-        message = "Error: File is missing!"
-        return jsonify({"success": "false",
-                        "statusCode": 400,
-                        "message": message
-                        })
+
+    # Save base64 to a "Temp" location:
+
+    tempFilePath = Config.TEMP_FOLDER + "/" + name
+
+    with open(tempFilePath, "wb") as tempImage:
+        tempImage.write(base64.b64decode(content))
+
+    path = tempFilePath
 
     memcacheStatistics.totalSize = _updateSize()
 
@@ -159,6 +163,14 @@ def PUT(key, name, path):
             # Someone is crazy enough to upload an image that is larger than the capacity allowed. We cant save it!
             print("Error: File size larger than capacity allowed!")
             message = "Error: File size larger than capacity allowed!"
+
+            for image in os.listdir(Config.TEMP_FOLDER):
+                print("Trying to delete ", image)
+            for filetype in Config.IMAGE_FORMAT:
+                if image.endswith(filetype):
+                    print("Deleting ", image)
+                    os.remove(os.path.join(Config.TEMP_FOLDER, image))
+
             return jsonify({"success": "false",
                             "statusCode": 400,
                             "message": message
@@ -211,10 +223,18 @@ def PUT(key, name, path):
 
         memcache[key] = {'name': name, 'timestamp': datetime.datetime.now()}
 
-        # Copy file from path
+        # # Copy file from path
 
         shutil.copy2(path, os.path.join(
             Config.MEMCACHE_FOLDER, memcache[key]['name']))
+
+        for image in os.listdir(Config.TEMP_FOLDER):
+            print("Trying to delete ", image)
+        for filetype in Config.IMAGE_FORMAT:
+            if image.endswith(filetype):
+                print("Deleting ", image)
+                os.remove(os.path.join(Config.TEMP_FOLDER, image))
+
         memcacheStatistics.totalSize = _updateSize()
 
         if keyAlreadyExist:
@@ -234,6 +254,141 @@ def PUT(key, name, path):
     return jsonify({"success": "false",
                     "statusCode": 400,
                     "message": message})
+
+# @webapp.route('/put/<key>/<name>/<path:path>')
+# def PUT(key, name, path):
+#     """API function to set the key and value
+
+#     Args:
+#         key (string): key
+#         name (string): file name of the image, should include extensions
+#         path (string): file path for backend to copy
+
+#         [NOT USED] content (file): File Pointer? For the backEnd to copy from
+
+#     Returns:
+#         json:   "success": "true" or "false",
+#                 "statusCode": 200 or 400,
+#                 "message": What happened
+#     """
+
+#     if not key or not name:
+#         print("Error: key or name missing!")
+#         message = "Error: key or name missing!"
+#         return jsonify({"success": "false",
+#                         "statusCode": 400,
+#                         "message": message
+#                         })
+
+#     if not path:
+#         print("Error: Path missing!")
+#         message = "Error: Path missing!"
+#         return jsonify({"success": "false",
+#                         "statusCode": 400,
+#                         "message": message
+#                         })
+#     if not os.path.isfile(path):
+#         print("Error: File is missing!")
+#         message = "Error: File is missing!"
+#         return jsonify({"success": "false",
+#                         "statusCode": 400,
+#                         "message": message
+#                         })
+
+#     memcacheStatistics.totalSize = _updateSize()
+
+#     keyAlreadyExist = False
+
+#     if key in memcache.keys():
+#         # Should not happen, since frontEnd should invalidate first
+
+#         # Replace
+#         _delCache(key, folderPath=Config.MEMCACHE_FOLDER)
+#         keyAlreadyExist = True
+
+#     if key not in memcache.keys():
+#         # Check if size is sufficient
+#         checkSize = True
+
+#         if _getSize(path) > memcacheConfig['capacity']:
+#             # Someone is crazy enough to upload an image that is larger than the capacity allowed. We cant save it!
+#             print("Error: File size larger than capacity allowed!")
+#             message = "Error: File size larger than capacity allowed!"
+#             return jsonify({"success": "false",
+#                             "statusCode": 400,
+#                             "message": message
+#                             })
+
+#         if memcacheStatistics.totalSize + _getSize(path) > memcacheConfig['capacity']:
+
+#             if(not memcache):
+#                 # memcache is empty but folder is not. Calling _clrcache()
+#                 _clrCache(folderPath=Config.MEMCACHE_FOLDER)
+#             else:
+#                 checkSize = False
+
+#         while (checkSize == False):
+#             # Check Replacement policy, LRU or Random Replacement
+
+#             if(not memcache):
+#                 # memcache is empty but folder is not. Calling _clrcache()
+#                 _clrCache(folderPath=Config.MEMCACHE_FOLDER)
+
+#             if memcacheConfig['policy'] == "LRU":
+#                 # delete the oldest
+
+#                 # loop through memcache and check datetime, pop the oldest one
+#                 oldestTimeStamp = min([d['timestamp']
+#                                        for d in memcache.values()])
+
+#                 oldestKey = ""
+#                 for keys in memcache.keys():
+#                     if memcache[keys]['timestamp'] == oldestTimeStamp:
+#                         oldestKey = keys
+#                 # delete the file in cacheImageFolder as well
+#                 if(oldestKey):
+#                     _delCache(oldestKey, folderPath=Config.MEMCACHE_FOLDER)
+#                 else:
+#                     print("how can this happen to me?")
+
+#             elif memcacheConfig['policy'] == "Random":
+
+#                 # delete a random one
+#                 _delCache(random.choice(list(memcache)),
+#                           folderPath=Config.MEMCACHE_FOLDER)
+
+#             # Check if size is now sufficient
+
+#             if memcacheStatistics.totalSize + _getSize(path) > memcacheConfig['capacity']:
+#                 checkSize = False
+#             else:
+#                 checkSize = True
+
+#         memcache[key] = {'name': name, 'timestamp': datetime.datetime.now()}
+
+#         # Copy file from path
+
+#         shutil.copy2(path, os.path.join(
+#             Config.MEMCACHE_FOLDER, memcache[key]['name']))
+#         memcacheStatistics.totalSize = _updateSize()
+
+#         if keyAlreadyExist:
+#             message = "key " + escape(key) + " is now REPLACED."
+#             return jsonify({"success": "true",
+#                             "statusCode": 200,
+#                             "message": message
+#                             })
+#         else:
+#             message = "key " + escape(key) + " is now in memcache."
+#             return jsonify({"success": "true",
+#                             "statusCode": 200,
+#                             "message": message
+#                             })
+
+#     message = "YOU SHOULD NOT BE HERE"
+#     return jsonify({"success": "false",
+#                     "statusCode": 400,
+#                     "message": message})
 
 
 @ webapp.route('/get/<key>')
@@ -502,6 +657,13 @@ def init():
         except OSError as error:
             print(error)
     _clrCache(folderPath=Config.MEMCACHE_FOLDER)
+
+    if not os.path.isdir(Config.TEMP_FOLDER):
+        try:
+            os.mkdir(Config.TEMP_FOLDER)
+        except OSError as error:
+            print(error)
+    _clrCache(folderPath=Config.TEMP_FOLDER)
 
     message = "Cache cleared and ready to roll"
     return jsonify({"success": "true",

@@ -395,12 +395,18 @@ def api_Retreive_Image(key_value):
         else:
             print("All memcache IP do not work. What is going on?")
             raise
-# ^ ----------------------------------------------------------------------------------- Ass 2 ----------------------------------------------------------------------------------- ^
+    # ^ ----------------------------------------------------------------------------------- Ass 2 ----------------------------------------------------------------------------------- ^
 
     content = ""
     if returnDict['cache'] == "hit":
         pathToImage = returnDict['filePath']
         content = returnDict['content']
+
+        filepath = pathToImage.replace('\\', '/')
+
+        filenameWithExtension = os.path.basename(filepath)
+        extension = os.path.splitext(filenameWithExtension)[1]
+
     elif returnDict['cache'] == "miss":
         cnx = mysql.connector.connect(user=Config.db_config['user'],
                                       password=Config.db_config['password'],
@@ -433,54 +439,9 @@ def api_Retreive_Image(key_value):
 
             print("filenameWithExtension: ", filenameWithExtension)
 
-# v ----------------------------------------------------------------------------------- Ass 2 ----------------------------------------------------------------------------------- v
-            memcacheIPAddress, backUpIPList = MD5checker(key_value)
+            # Must upload the entire image in base64 to memcache
 
-            api_url = "http://" + memcacheIPAddress + ":5001/put/" + \
-                key_value + "/" + filenameWithExtension + "/" + filepath
-
-            returnDict = {}
-
-            try:
-                returnDict = makeAPI_Call(api_url, "get", 3)
-            except requests.exceptions.RequestException as e:
-                print("Memcache with IP", memcacheIPAddress,
-                      "does not work right now due to", e, "\nTrying backup memcache IPs")
-
-                # That IP is unavailable right now; Defaulting in order of backUpIPList (Config.memcacheIP_List without the one we just tried)
-
-                worked = False
-                for newMemcacheIPAddress in backUpIPList:
-                    print("Trying", newMemcacheIPAddress, "...")
-                    api_url = "http://" + newMemcacheIPAddress + ":5001/put/" + \
-                        key_value + "/" + filenameWithExtension + "/" + filepath
-                    try:
-                        returnDict = makeAPI_Call(api_url, "get", 3)
-                        worked = True
-                        break
-                    except requests.exceptions.RequestException as e:
-                        print("Memcache with IP", newMemcacheIPAddress,
-                              "does not work right now due to", e, "\nTrying backup memcache IPs")
-                        continue
-                if worked:
-                    print("Worked.")
-                else:
-                    print("All memcache IP do not work. What is going on?")
-                    raise
-# ^ ----------------------------------------------------------------------------------- Ass 2 ----------------------------------------------------------------------------------- ^
-
-            pathToImage = filepath
-            print(pathToImage)
-            # response = webapp.response_class(
-            #     response=json.dumps(pathToImage),
-            #     status=200,
-            #     mimetype='application/json'
-            # )
-
-            # return response
-            filepath = pathToImage.replace('\\', '/')
-
-            filenameWithExtension = os.path.basename(filepath)
+            # check if file exist
 
             if not os.path.isfile(filepath):
                 return jsonify({"success": "false",
@@ -492,6 +453,61 @@ def api_Retreive_Image(key_value):
             image = open(filepath, 'rb')
             image_Binary = image.read()
             content = base64.b64encode(image_Binary).decode()
+
+            dataDict = {"imgContent": content}
+
+            # v ----------------------------------------------------------------------------------- Ass 2 ----------------------------------------------------------------------------------- v
+            memcacheIPAddress, backUpIPList = MD5checker(key_value)
+
+            api_url = "http://"+memcacheIPAddress+":5001/put/" + \
+                key_value + "/" + filenameWithExtension
+
+            returnDict = {}
+
+            try:
+                returnDict = makeAPI_Call(api_url, "post", 10, _data=dataDict)
+            except requests.exceptions.RequestException as e:
+                print("Memcache with IP", memcacheIPAddress,
+                      "does not work right now due to", e, "\nTrying backup memcache IPs")
+
+                # That IP is unavailable right now; Defaulting in order of backUpIPList (Config.memcacheIP_List without the one we just tried)
+
+                worked = False
+                for newMemcacheIPAddress in backUpIPList:
+                    print("Trying", newMemcacheIPAddress, "...")
+                    api_url = "http://"+newMemcacheIPAddress+":5001/put/" + \
+                        key_value + "/" + filenameWithExtension + "/" + content
+                    try:
+                        returnDict = makeAPI_Call(
+                            api_url, "post", 10, _data=dataDict)
+                        worked = True
+                        break
+                    except requests.exceptions.RequestException as e:
+                        print("Memcache with IP", newMemcacheIPAddress,
+                              "does not work right now due to", e, "\nTrying backup memcache IPs")
+                        continue
+                if worked:
+                    print("Worked.")
+                else:
+                    print("All memcache IP do not work. What is going on?")
+                    raise
+            # ^ ----------------------------------------------------------------------------------- Ass 2 ----------------------------------------------------------------------------------- ^
+
+            pathToImage = filepath
+            print(pathToImage)
+
+            # response = webapp.response_class(
+            #     response=json.dumps(pathToImage),
+            #     status=200,
+            #     mimetype='application/json'
+            # )
+
+            # return response
+            filepath = pathToImage.replace('\\', '/')
+
+            filenameWithExtension = os.path.basename(filepath)
+
+            extension = os.path.splitext(filenameWithExtension)[1]
     return jsonify({"success": "true",
                     "content": content})
 
@@ -585,16 +601,33 @@ def get():
 
             print("filenameWithExtension: ", filenameWithExtension)
 
+            # Must upload the entire image in base64 to memcache
+
+            # check if file exist
+
+            if not os.path.isfile(filepath):
+                return jsonify({"success": "false",
+                                "error": {
+                                    "code": 400,
+                                    "message": "File not found."
+                                }})
+
+            image = open(filepath, 'rb')
+            image_Binary = image.read()
+            content = base64.b64encode(image_Binary).decode()
+
+            dataDict = {"imgContent": content}
+
             # v ----------------------------------------------------------------------------------- Ass 2 ----------------------------------------------------------------------------------- v
             memcacheIPAddress, backUpIPList = MD5checker(key_value)
 
             api_url = "http://"+memcacheIPAddress+":5001/put/" + \
-                key_value + "/" + filenameWithExtension + "/" + filepath
+                key_value + "/" + filenameWithExtension
 
             returnDict = {}
 
             try:
-                returnDict = makeAPI_Call(api_url, "get", 5)
+                returnDict = makeAPI_Call(api_url, "post", 10, _data=dataDict)
             except requests.exceptions.RequestException as e:
                 print("Memcache with IP", memcacheIPAddress,
                       "does not work right now due to", e, "\nTrying backup memcache IPs")
@@ -605,9 +638,10 @@ def get():
                 for newMemcacheIPAddress in backUpIPList:
                     print("Trying", newMemcacheIPAddress, "...")
                     api_url = "http://"+newMemcacheIPAddress+":5001/put/" + \
-                        key_value + "/" + filenameWithExtension + "/" + filepath
+                        key_value + "/" + filenameWithExtension + "/" + content
                     try:
-                        returnDict = makeAPI_Call(api_url, "get", 5)
+                        returnDict = makeAPI_Call(
+                            api_url, "post", 10, _data=dataDict)
                         worked = True
                         break
                     except requests.exceptions.RequestException as e:
@@ -635,18 +669,6 @@ def get():
 
             filenameWithExtension = os.path.basename(filepath)
 
-            # check if file exist
-
-            if not os.path.isfile(filepath):
-                return jsonify({"success": "false",
-                                "error": {
-                                    "code": 400,
-                                    "message": "File not found."
-                                }})
-
-            image = open(filepath, 'rb')
-            image_Binary = image.read()
-            content = base64.b64encode(image_Binary).decode()
             extension = os.path.splitext(filenameWithExtension)[1]
 
     return render_template("browse.html", content=content, extension=extension)
@@ -923,7 +945,7 @@ def put():
     return response
 
 
-def makeAPI_Call(api_url: str, method: str, _timeout: int):
+def makeAPI_Call(api_url: str, method: str, _timeout: int, _data={}):
     """Helper function to call an API.
 
     Args:
@@ -940,7 +962,8 @@ def makeAPI_Call(api_url: str, method: str, _timeout: int):
     if method == "get":
         r = requests.get(api_url, timeout=_timeout, headers=headers)
     if method == "post":
-        r = requests.post(api_url, timeout=_timeout, headers=headers)
+        r = requests.post(api_url, data=_data,
+                          timeout=_timeout, headers=headers)
     if method == "delete":
         r = requests.delete(api_url, timeout=_timeout, headers=headers)
     if method == "put":
@@ -948,5 +971,4 @@ def makeAPI_Call(api_url: str, method: str, _timeout: int):
 
     json_acceptable_string = r.json()
 
-    # print("Here is response: ", json_acceptable_string)
     return json_acceptable_string

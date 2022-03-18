@@ -50,7 +50,6 @@ def teardown_db(exception):
 @webapp.before_first_request
 def _run_on_start():
     """Initialization when the flask app first startup. 
-
     """
     try:
         ec2_client = boto3.client('ec2',
@@ -78,7 +77,6 @@ def _run_on_start():
                 call_obj.start_ec2_instance(call_obj.whoAreExisting()[0])
                 for i in range(len(instanceIDs)-1):
                     call_obj.terminate_ec2_instance()
-                publicIPUpdater()
             # Status 3: If there is only 1 ec2 exists and is not running, just start it
             else:
                 print("Initialization Status 3")
@@ -92,13 +90,6 @@ def _run_on_start():
             if len(shutdownInstanceNum) > 0:
                 print("Initialization Status 4")
                 for num in shutdownInstanceNum:
-                    # # ATTENTION: Currently _terminate_ec2_instance() method are not available for external call, which would cause a warning
-                    # # If _terminate_ec2_instance could not be available, apply a similar rule as status 2
-                    # # Status 4 is not functionable right now
-                    # _terminate_ec2_instance(num)
-
-                    # Here you go --Sam 2022.3.13
-
                     call_obj.terminate_one_ec2_instance(num)
             # Status 5: If all the existing ec2 are running, just do nothing and keep going happily
             else:
@@ -171,9 +162,8 @@ def replacePolicyUpdate():
     cnx.close()
 
     # please note to add /backEnd to the API call url
-
-    # status = makeAPI_Call("http://127.0.0.1:5001/backEnd/refreshConfiguration" + "/" + str(capacityB) + "/" + str(replacepolicy), "get", 5)
-
+    # update on 3/16/13:00 : removed /backend from makeAPICall
+    # status = makeAPI_Call("http://127.0.0.1:5001/refreshConfiguration" + "/" + str(capacityB) + "/" + str(replacepolicy), "get", 5)
 
     # v ----------------------------------------------------------------------------------- Ass 2 ----------------------------------------------------------------------------------- v
     ec2_client = boto3.client('ec2',
@@ -189,8 +179,8 @@ def replacePolicyUpdate():
     for eachIP in ipList:
 
         try:
-            returnDict = makeAPI_Call("http://" + eachIP + ":5001/backEnd/refreshConfiguration" +
-                                      "/" + str(capacityB) + "/" + str(replacepolicy), "get", 5)
+            returnDict = makeAPI_Call("http://" + eachIP + ":5001/refreshConfiguration" +
+                                      "/" + str(capacityB) + "/" + str(replacePolicy), "get", 5)
 
         except requests.exceptions.RequestException as e:
             print("ERROR: ", e)
@@ -296,7 +286,7 @@ def poolResizeAuto():
     poolShrinkRatio = request.form.get('poolShrinkRatio', "")
 
     if maxMissRate > minMissRate+0.01:
-        # ATTENTION: Currently updating to the RDS databse. It should have been updating to Cloudwatch. Modify this part before deployment.
+        # ATTENTION: Currently updating to the RDS database. It should have been updating to Cloudwatch. Modify this part before deployment.
         cnx = mysql.connector.connect(user=ConfigManager.db_config['user'],
                                       password=ConfigManager.db_config['password'],
                                       host=ConfigManager.db_config['host'],
@@ -343,7 +333,6 @@ def autoScalerMonitor():
     """
     while True:
         autoScaler()
-
         publicIPUpdater()
         time.sleep(60)  # It could be something like 5s when testing
 
@@ -368,6 +357,8 @@ def publicIPUpdater():
             ipStr += '_'
             ipStr += ipList[i]
 
+    # ipStr = '127.0.0.1'  # debug
+
     dataDict = {"IPLIST": ipStr}
 
     # ATTENTION: Only uncomment this makeAPI_Call code to make this function actually work when frontEnd app is running
@@ -379,7 +370,7 @@ def autoScaler():
     """Automatically resizes the memcache pool based on configuration values set by the managerApp
     """
     global AUTOSCALER_MODE
-    # Status 0 Manual Mode : AutoSclaer thread is still running but stay hands off
+    # Status 0 Manual Mode : AUTOSCALER thread is still running but stay hands off
     if AUTOSCALER_MODE == 0:
         print("AutoScaler Status 0: Manual")
     else:
@@ -387,31 +378,11 @@ def autoScaler():
 
         # ATTENTION: Currently acquiring statics from RDS databse. It should have been fetched from Cloudwatch. Modify this part before deployment.
         cnx = mysql.connector.connect(user=ConfigManager.db_config['user'],
-                                    password=ConfigManager.db_config['password'],
-                                    host=ConfigManager.db_config['host'],
-                                    database=ConfigManager.db_config['database'])
-
+                                      password=ConfigManager.db_config['password'],
+                                      host=ConfigManager.db_config['host'],
+                                      database=ConfigManager.db_config['database'])
         cursor = cnx.cursor()
-        cursor.execute("UPDATE statistics SET missRate = %s, hitRate = %s WHERE id = 0",
-                       (minMissRate+0.01, 0.99-minMissRate,))
-        cnx.commit()
-        cnx.close()
-
-        # ATTENTION: Currently we have to terminate instance one by one, since a second terminate call would not actually work if there is already an instance under termination
-        # Maybe we could consider using _terminate_ec2_instance() to terminate multiple instances at the same time
-        for i in range(curInstanceNum - targetInstanceNum):
-            print("AutoScaler Status 1: Shrinking...")
-            call_obj.terminate_ec2_instance()
-            time.sleep(1)
-            publicIPUpdater()
-            time.sleep(1)
-
-    # Status 2 Miss Rate too high : growing pool size
-    elif missRate >= maxMissRate:
-        # When growing, ceiling targetInstanceNum
-        # e.g: 1 * 1.2 = 1.2 → 2
-        targetInstanceNum = math.ceil(float(curInstanceNum) * poolExpandRatio)
-
+        cursor.execute("SELECT missRate FROM statistics WHERE id = 0")
 
         memcacheStatics = cursor.fetchall()
         missRate = memcacheStatics[0][0]
@@ -426,13 +397,14 @@ def autoScaler():
 
         cnx.close()
 
-        for i in range(targetInstanceNum - curInstanceNum):
-            print("AutoScaler Status 2: Growing...")
-            call_obj.create_ec2_instance()
-            time.sleep(2)
+        # Check memcache EC2 status
+        ec2_client = boto3.client('ec2',
+                                  "us-east-1",
+                                  aws_access_key_id=ConfigAWS.aws_access_key_id,
+                                  aws_secret_access_key=ConfigAWS.aws_secret_access_key)
+        call_obj = MemcacheEC2(ec2_client)
 
         curInstanceNum = len(call_obj.whoAreExisting())
-
 
         # Status 2 Miss Rate too low : shrinking pool size
         if missRate <= minMissRate:
@@ -447,13 +419,13 @@ def autoScaler():
             # Set miss rate to a safe value temporarily otherwise autoscaler may stuck
             # ATTENTION: Currently acquiring statics from RDS databse. It should have been fetched from Cloudwatch. Modify this part before deployment.
             cnx = mysql.connector.connect(user=ConfigManager.db_config['user'],
-                                        password=ConfigManager.db_config['password'],
-                                        host=ConfigManager.db_config['host'],
-                                        database=ConfigManager.db_config['database'])
+                                          password=ConfigManager.db_config['password'],
+                                          host=ConfigManager.db_config['host'],
+                                          database=ConfigManager.db_config['database'])
 
             cursor = cnx.cursor()
             cursor.execute("UPDATE statistics SET missRate = %s, hitRate = %s WHERE id = 0",
-                        (minMissRate+0.01, 0.99-minMissRate,))
+                           (minMissRate+0.01, 0.99-minMissRate,))
             cnx.commit()
             cnx.close()
 
@@ -462,13 +434,17 @@ def autoScaler():
             for i in range(curInstanceNum - targetInstanceNum):
                 print("AutoScaler Status 2: Shrinking...")
                 call_obj.terminate_ec2_instance()
+
+                publicIPUpdater()
+
                 time.sleep(3)
 
         # Status 3 Miss Rate too high : growing pool size
         elif missRate >= maxMissRate:
             # When growing, ceiling targetInstanceNum
             # e.g: 1 * 1.2 = 1.2 → 2
-            targetInstanceNum = math.ceil(float(curInstanceNum) * poolExpandRatio)
+            targetInstanceNum = math.ceil(
+                float(curInstanceNum) * poolExpandRatio)
 
             # Never growing pool size more than 8
             if targetInstanceNum > 8:
@@ -477,13 +453,13 @@ def autoScaler():
             # Set miss rate to a safe value temporarily otherwise autoscaler may stuck
             # ATTENTION: Currently acquiring statics from RDS databse. It should have been fetched from Cloudwatch. Modify this part before deployment.
             cnx = mysql.connector.connect(user=ConfigManager.db_config['user'],
-                                        password=ConfigManager.db_config['password'],
-                                        host=ConfigManager.db_config['host'],
-                                        database=ConfigManager.db_config['database'])
+                                          password=ConfigManager.db_config['password'],
+                                          host=ConfigManager.db_config['host'],
+                                          database=ConfigManager.db_config['database'])
 
             cursor = cnx.cursor()
             cursor.execute("UPDATE statistics SET missRate = %s, hitRate = %s WHERE id = 0",
-                        (maxMissRate-0.01, 1.01-maxMissRate,))
+                           (maxMissRate-0.01, 1.01-maxMissRate,))
             cnx.commit()
             cnx.close()
 
