@@ -352,7 +352,7 @@ def MD5checker(key):
 
 @webapp.route('/api/key/<key_value>', methods=['POST', 'GET'])
 def api_Retreive_Image(key_value):
-    """Get the path of the image given a key. Will first try to get from cache, then try to get from database if cache miss.
+    """Get the content of the image given a key. Will first try to get from cache, then try to get from database if cache miss.
 
     Returns:
         the file contents
@@ -514,7 +514,7 @@ def api_Retreive_Image(key_value):
 
 @webapp.route('/get', methods=['GET', 'POST'])
 def get():
-    """Get the path of the image given a key. Will first try to get from cache, then try to get from database if cache miss.
+    """Get the contents of the image given a key. Will first try to get from cache, then try to get from database if cache miss.
 
     Returns:
         the file contents

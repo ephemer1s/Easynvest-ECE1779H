@@ -10,6 +10,8 @@ from markupsafe import escape
 import mysql.connector
 import base64
 import boto3
+import threading
+import time
 
 
 def _clrCache(folderPath=Config.MEMCACHE_FOLDER):
@@ -675,6 +677,46 @@ def init():
 def _run_on_start():
     init()
     refreshConfiguration(400000, 'LRU')
+
+    # start thread to update to cloudwatch every 5s.
+    x = threading.Thread(target=cloudWatchUpdateMonitor)
+    x.start()
+
+    y = threading.Thread(target=databaseUpdateMonitor)
+    y.start()
+
+
+def cloudWatchUpdateMonitor():
+    """_summary_ call cloudWatchUpdate() every 5s.
+    """
+    while True:
+        cloudWatchUpdate()
+        time.sleep(5)
+
+
+def databaseUpdateMonitor():
+    """_summary_ call databaseUpdate() every 60s.
+    """
+    while True:
+        databaseUpdate()
+        time.sleep(60)
+
+
+def databaseUpdate():
+    index, missRate, hitRate, numOfItemsInCache, totalSize, totalRequestsInAMin, currentTime = memcacheStatistics.getOneMinStats()
+
+    # @Haozhe
+
+
+def cloudWatchUpdate():
+    """ Give statistics to frontEnd to store in cloudWatch every 5s
+    """
+
+    index, missRate, hitRate, numOfItemsInCache, totalSize, totalRequestsInAMin, currentTime = memcacheStatistics.getOneMinStats()
+
+    # Call boto3 cloudwatch
+    # @Haocheng
+    # Use (index, missRate)
 
 
 @webapp.route('/listKeys')
