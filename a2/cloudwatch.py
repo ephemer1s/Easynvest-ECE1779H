@@ -1,5 +1,6 @@
 import boto3
 
+
 # Put custom metrics
 def putCacheMissRate(missrate, instance_name):
     '''
@@ -8,7 +9,7 @@ def putCacheMissRate(missrate, instance_name):
     instance_name: current memcache instance identifier (could be anything based on your implementation)
     '''
     print('Sending Cache Miss Rate to Cloudwatch')
-    cloudwatch = boto3.client('cloudwatch')
+    cloudwatch = boto3.client('cloudwatch', region_name='us-east-1')
     response = cloudwatch.put_metric_data(
         MetricData = [{
                 'MetricName': 'miss_rate',
@@ -28,7 +29,7 @@ def getCacheMissRate(instances: list):
     '''
     Get miss rate from a specified server from cloudwatch. return a dict containing responses.
     '''
-    cloudwatch = boto3.client('cloudwatch')
+    cloudwatch = boto3.client('cloudwatch', region_name='us-east-1')
     paginator = cloudwatch.get_paginator('list_metrics')
     responses = {}
     for i in instances:
@@ -42,3 +43,9 @@ def getCacheMissRate(instances: list):
             print(content['Metrics'])
         responses[i] = response
     return responses
+
+
+if __name__ == '__main__':
+    print('Testing Cloudwatch APIs...........')
+    putCacheMissRate(1.14, str(5.14))
+    print('Finished')
