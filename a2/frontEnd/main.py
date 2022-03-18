@@ -197,6 +197,17 @@ def configs():
     return render_template("configs.html")
 
 
+@webapp.route('/memcachePoolUpdated/<capacity>', methods=['GET'])
+def memcachePoolUpdated(capacity):
+    """called from managerApp to signal change in memcache pool size
+    """
+
+    print("Memcache Pool size changed to " + str(capacity) + "!")
+
+    # do stuff TBD
+
+    return
+
 # @webapp.route('/configsUpdate', methods=['POST'])
 # #  Update memcache parameters in database when confirmed
 # def configsUpdate():

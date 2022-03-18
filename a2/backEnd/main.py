@@ -585,6 +585,75 @@ def refreshConfiguration(capacity, policy):
     return returnjson
 
 
+@ webapp.route('/refreshConfigurationManagerApp/<capacity>/<policy>')
+def refreshConfigurationManagerApp(capacity, policy):
+    """API Function call to read mem-cache related details from the managerApp
+    and reconfigure it
+    """
+
+    memcacheConfig['capacity'] = int(capacity)
+
+    memcacheConfig['policy'] = "LRU" if policy == 1 else "Random"
+
+    # Need to check if current Capacity is still enough
+
+    checkSize = True
+
+    if memcacheStatistics.totalSize > memcacheConfig['capacity']:
+
+        if(not memcache):
+            # memcache is empty but folder is not. Calling _clrcache()
+            _clrCache(folderPath=Config.MEMCACHE_FOLDER)
+        else:
+            checkSize = False
+
+    while (checkSize == False):
+        # Check Replacement policy, LRU or Random Replacement
+
+        if(not memcache):
+            # memcache is empty but folder is not. Calling _clrcache()
+            _clrCache(folderPath=Config.MEMCACHE_FOLDER)
+
+        if memcacheConfig['policy'] == "LRU":
+            # delete the oldest
+
+            # loop through memcache and check datetime, pop the oldest one
+            oldestTimeStamp = min([d['timestamp']
+                                   for d in memcache.values()])
+
+            oldestKey = ""
+            for keys in memcache.keys():
+                if memcache[keys]['timestamp'] == oldestTimeStamp:
+                    oldestKey = keys
+            # delete the file in cacheImageFolder as well
+            if(oldestKey):
+                _delCache(oldestKey, folderPath=Config.MEMCACHE_FOLDER)
+            else:
+                print("how can this happen to me?")
+
+        elif memcacheConfig['policy'] == "Random":
+
+            # delete a random one
+            _delCache(random.choice(list(memcache)),
+                      folderPath=Config.MEMCACHE_FOLDER)
+
+        # Check if size is now sufficient
+
+        if memcacheStatistics.totalSize > memcacheConfig['capacity']:
+            checkSize = False
+        else:
+            checkSize = True
+
+    message = "Updated: " + \
+        str(memcacheConfig['capacity']) + \
+        ", " + str(memcacheConfig["policy"])
+    returnjson = jsonify({"success": "true",
+                          "statusCode": 200,
+                          "configSource": "managerApp",
+                          "message": message})
+    return returnjson
+
+
 @webapp.route('/')
 def main():
     # to get the current working directory
@@ -717,6 +786,17 @@ def cloudWatchUpdate():
     # Call boto3 cloudwatch
     # @Haocheng
     # Use (index, missRate)
+
+
+@webapp.route('/updateIndex/<id>')
+def updateIndex(id):
+    """Update id
+    """
+
+    memcacheStatistics.index = id
+
+    return jsonify({"success": "true",
+                    "statusCode": 200})
 
 
 @webapp.route('/listKeys')
