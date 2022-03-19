@@ -2,7 +2,7 @@ import time
 import datetime
 from dateutil.tz import tzutc
 import boto3
-from credential import ConfigAWS
+from tools.credential import ConfigAWS
 
 class CloudwatchAPI(object):
 
@@ -107,7 +107,7 @@ class CloudwatchAPI(object):
                 continue
             elif len(datapoints) == 1:
                 latest_data = datapoints[0]
-            else:
+            else: # len(datapoints) > 1
                 timestamps = [j['Timestamp'] for j in datapoints]
                 timestamps.sort()
                 latest_data = None
