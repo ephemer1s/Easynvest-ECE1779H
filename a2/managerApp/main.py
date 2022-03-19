@@ -176,13 +176,14 @@ def replacePolicyUpdate():
 
     ipList = call_obj.get_all_ip()
 
-    returnDict = {}
-
     for eachIP in ipList:
-
+        # eachIP = '127.0.0.1'  # debug
         try:
-            returnDict = makeAPI_Call("http://" + eachIP + ":5001/refreshConfigurationManagerApp" +
-                                      "/" + str(capacityB) + "/" + str(replacePolicy), "get", 5)
+            url = "http://" + eachIP + ":5001/refreshConfiguration" + \
+                "/" + str(capacityB) + "/" + str(replacePolicy)
+            print(url)
+            returnDict = makeAPI_Call(url, "get", 5)
+            print(returnDict)
 
         except requests.exceptions.RequestException as e:
             print("ERROR: ", e)
@@ -190,13 +191,13 @@ def replacePolicyUpdate():
 
     # print(status)
 
-    # Need to notify frontend that memcachePool has updated
-    try:
-        makeAPI_Call_Not_Json(
-            "http://127.0.0.1:5000/memcachePoolUpdated/" + str(capacityB), "get", 5)
+    # # Need to notify frontend that memcachePool has updated
+    # try:
+    #     makeAPI_Call_Not_Json(
+    #         "http://127.0.0.1:5000/memcachePoolUpdated/" + str(capacityB), "get", 5)
 
-    except requests.exceptions.RequestException as e:
-        print("ERROR in managerApp: memcachePoolUpdated: ", e)
+    # except requests.exceptions.RequestException as e:
+    #     print("ERROR in managerApp: memcachePoolUpdated: ", e)
 
     response = webapp.response_class(
         response=json.dumps(
