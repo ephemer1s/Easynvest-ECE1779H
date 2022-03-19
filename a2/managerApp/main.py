@@ -410,9 +410,9 @@ def autoScaler():
 
         ######## Old code for fetching missrate using SQL cursor
         # cursor.execute("SELECT missRate FROM statistics WHERE id = 0")
-
         # memcacheStatics = cursor.fetchall()
         # missRate = memcacheStatics[0][0]
+        
         ######## New code for fetching missrate from cloudwatch by @Haocheng
         # Check this @ Haozhe
         # TODO: modify this index list.
