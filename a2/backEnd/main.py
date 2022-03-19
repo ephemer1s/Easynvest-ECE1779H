@@ -768,13 +768,41 @@ def databaseUpdateMonitor():
     """
     while True:
         databaseUpdate()
-        time.sleep(60)
+        time.sleep(60)   # It should have been 60s. Set to 3s for testing. 
 
 
 def databaseUpdate():
+    """ Update this memcache statistics log to database for ManagerApp charts to use
+    """
     index, missRate, hitRate, numOfItemsInCache, totalSize, totalRequestsInAMin, currentTime = memcacheStatistics.getOneMinStats()
+    # totalSize in bytes
 
-    # @Haozhe
+    if index >=0:  #  Since index is set as -1 initially, you could set index != 99 or sth like that when testing 
+        cnx = mysql.connector.connect(user=Config.db_config['user'],
+                                    password=Config.db_config['password'],
+                                    host=Config.db_config['host'],
+                                    database=Config.db_config['database'])
+
+        cursor = cnx.cursor()
+
+        # Insert new log into database
+        cursor.execute("INSERT INTO memcachestatlog VALUES (%s, %s, %s, %s, %s, %s, %s)",
+                    (index, currentTime, missRate, hitRate, totalRequestsInAMin, numOfItemsInCache, totalSize, ))
+        cnx.commit()
+
+        # Delete old memcache log of more than 30 min ago in database
+        # I hate mysql. It makes things much harder :-(  
+        cursor.execute("SELECT memcacheIndex, MIN(currentTime) FROM memcachestatlog GROUP BY memcacheIndex HAVING COUNT(currentTime) >= 31")
+        oldestLog = cursor.fetchall()
+        if oldestLog :
+            oldestLogIndex = oldestLog[0][0]
+            oldestLogTime = oldestLog[0][1]
+            cursor.execute("DELETE FROM memcachestatlog WHERE memcacheIndex = %s AND currentTime = %s", (oldestLogIndex, oldestLogTime, ))
+            cnx.commit()
+        cnx.close()
+
+        print("Memcache Log Update to DB Successfully: ", index, " ", currentTime)
+    pass
 
 
 def cloudWatchUpdate():
