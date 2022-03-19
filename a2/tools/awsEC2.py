@@ -639,49 +639,50 @@ class MemcacheEC2(object):
 
 
 # Calling Area ######################################################################
-try:
-    ec2_client = boto3.client('ec2',
-                              "us-east-1",
-                              aws_access_key_id=ConfigAWS.aws_access_key_id,
-                              aws_secret_access_key=ConfigAWS.aws_secret_access_key)
-    call_obj = MemcacheEC2(ec2_client)
+if __name__ == '__main__':
+    try:
+        ec2_client = boto3.client('ec2',
+                                "us-east-1",
+                                aws_access_key_id=ConfigAWS.aws_access_key_id,
+                                aws_secret_access_key=ConfigAWS.aws_secret_access_key)
+        call_obj = MemcacheEC2(ec2_client)
 
-#     call_obj.get_live_ec2_instance_id()
-#     call_obj.statelessRefresh()
+    #     call_obj.get_live_ec2_instance_id()
+    #     call_obj.statelessRefresh()
 
-#     input("Press Enter to continue...")
+    #     input("Press Enter to continue...")
 
-#     call_obj.create_ec2_instance()
-#     input("Press Enter to continue...")
-#     call_obj.get_live_ec2_instance_id()
-#     call_obj.get_live_ec2_running_instance_id()
+    #     call_obj.create_ec2_instance()
+    #     input("Press Enter to continue...")
+    #     call_obj.get_live_ec2_instance_id()
+    #     call_obj.get_live_ec2_running_instance_id()
 
-#     input("Press Enter to continue...")
+    #     input("Press Enter to continue...")
 
-#     call_obj.refreshPublicIP()
+    #     call_obj.refreshPublicIP()
 
-#     for i in range(8):
-#         call_obj.tellMeAbout(i, verbose=True)
+    #     for i in range(8):
+    #         call_obj.tellMeAbout(i, verbose=True)
 
-#     print(call_obj.whoAreRunning())
+    #     print(call_obj.whoAreRunning())
 
-#     input("Press Enter to continue...")
-#     call_obj.stop_ec2_instance()
-#     input("Press Enter to continue...")
-#     call_obj.get_live_ec2_instance_id()
-#     call_obj.get_live_ec2_running_instance_id()
+    #     input("Press Enter to continue...")
+    #     call_obj.stop_ec2_instance()
+    #     input("Press Enter to continue...")
+    #     call_obj.get_live_ec2_instance_id()
+    #     call_obj.get_live_ec2_running_instance_id()
 
-#     input("Press Enter to continue...")
+    #     input("Press Enter to continue...")
 
-#     call_obj.statelessRefresh()
-#     input("Press Enter to continue...")
+    #     call_obj.statelessRefresh()
+    #     input("Press Enter to continue...")
 
-#     call_obj.terminate_ec2_instance()
-#     input("Press Enter to continue...")
-#     call_obj.get_live_ec2_instance_id()
-#     call_obj.get_live_ec2_running_instance_id()
+    #     call_obj.terminate_ec2_instance()
+    #     input("Press Enter to continue...")
+    #     call_obj.get_live_ec2_instance_id()
+    #     call_obj.get_live_ec2_running_instance_id()
 
-except ClientError as e:
-    print("There is an error in the client configuration: ", e)
+    except ClientError as e:
+        print("There is an error in the client configuration: ", e)
 
 # Calling Area ######################################################################
