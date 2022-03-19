@@ -107,7 +107,7 @@ class CloudwatchAPI(object):
                 continue
             elif len(datapoints) == 1:
                 latest_data = datapoints[0]
-            else:
+            else: # len(datapoints) > 1
                 timestamps = [j['Timestamp'] for j in datapoints]
                 timestamps.sort()
                 latest_data = None

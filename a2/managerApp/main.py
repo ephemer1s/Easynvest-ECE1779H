@@ -412,16 +412,15 @@ def autoScaler():
         # cursor.execute("SELECT missRate FROM statistics WHERE id = 0")
         # memcacheStatics = cursor.fetchall()
         # missRate = memcacheStatics[0][0]
-        
+
         ######## New code for fetching missrate from cloudwatch by @Haocheng
         # Check this @ Haozhe
         # TODO: modify this index list.
-        index_list = None
-        index_list = [str(i) for i in index_list]
+        index_list = [str(i) for i in range(8)]
         cloudwatch = CloudwatchAPI(ConfigAWS.aws_access_key_id, ConfigAWS.aws_secret_access_key)
-        response = cloudwatch.getCacheMissRate(response, index_list, intervals=60, periods=5)
+        response = cloudwatch.getCacheMissRateStatistics(index_list, intervals=60, periods=5)
         print([str(i['Datapoints']) for i in response]) # test prints
-        missrate = cloudwatch.getLastMeanMissRate(response)
+        missRate = cloudwatch.getLastMeanMissRate(response)
         
 
         cursor.execute(
