@@ -93,6 +93,36 @@ class CloudwatchAPI(object):
         return responses
 
 
+    def getLastMeanMissRate(self, responses):
+        '''
+        Calculate the global miss rate of past 1 minute, with responses from cloudwatch given.
+        responses: responses returned by getCacheMissRateStatistics(self, instances: list, intervals=60, period=60)
+        '''
+        sum_mean = 0
+        numOfinstances = len(responses)
+        for i in responses:
+            datapoints = i['Datapoints']
+            if len(datapoints) == 0:
+                print('Current Instance have no datapoint in response, skipping.......')
+                continue
+            elif len(datapoints) == 1:
+                latest_data = datapoints[0]
+            else:
+                timestamps = [j['Timestamp'] for j in datapoints]
+                timestamps.sort()
+                latest_data = None
+                for data in datapoints:
+                    if data['Timestamp'] == timestamps[-1]:
+                        latest_data = data
+                        break
+            if latest_data is None:
+                raise Exception('Error finding latest datapoint when processing responces')
+            else:
+                print(latest_data['Average'])
+                sum_mean += latest_data['Average']
+        return sum_mean / numOfinstances
+
+
 if __name__ == '__main__':
     cli = CloudwatchAPI(ConfigAWS.aws_access_key_id, ConfigAWS.aws_secret_access_key)
     # test upload
