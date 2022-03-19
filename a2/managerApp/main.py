@@ -500,12 +500,35 @@ def autoScaler():
 # Under Construction
 @webapp.route('/clearDatabase', methods=['POST'])
 def clearDatabase():
-    """Delete image data stored on the database and all image files stored on S3
+    """Delete image path data stored in the database and all image files stored in S3
 
     Returns:
         Response message if deleting successfully
     """
-    pass
+
+    # Delete all the rows of image path info in database
+    cnx = mysql.connector.connect(user=ConfigManager.db_config['user'],
+                                          password=ConfigManager.db_config['password'],
+                                          host=ConfigManager.db_config['host'],
+                                          database=ConfigManager.db_config['database'])
+
+    cursor = cnx.cursor()
+    cursor.execute("DELETE FROM keylist")
+    cnx.commit()
+    cnx.close()
+
+    # Delete all the image file in S3
+    # ATTENTION: Require S3 clear code here
+    # Under Construction
+
+    response = webapp.response_class(
+            response=json.dumps(
+                "Database and S3 data delete successfully."),
+            status=200,
+            mimetype='application/json'
+        )
+    print(response)
+    return response
 
 # Under Construction
 
@@ -517,7 +540,30 @@ def clearMemcache():
     Returns:
         Response message if clearing successfully
     """
-    pass
+
+    ec2_client = boto3.client('ec2',
+                              "us-east-1",
+                              aws_access_key_id=ConfigAWS.aws_access_key_id,
+                              aws_secret_access_key=ConfigAWS.aws_secret_access_key)
+    call_obj = MemcacheEC2(ec2_client)
+
+    ipList = call_obj.get_all_ip()
+
+    for eachIP in ipList:
+        api_url = "http://" + eachIP + ":5001/clear"
+        returnDict = makeAPI_Call(api_url, "get", 10)
+
+        if returnDict["message"] == 'OK':
+            print("Memcache File Clear: " + eachIP)
+
+    response = webapp.response_class(
+            response=json.dumps(
+                "Memcache data delete successfully."),
+            status=200,
+            mimetype='application/json'
+        )
+    print(response)
+    return response
 
 
 @webapp.route('/home')
