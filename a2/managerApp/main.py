@@ -1,24 +1,22 @@
-import base64
-import managerApp
-from managerApp.config import ConfigManager
+import math, threading, time, base64
+import http.client
+from re import TEMPLATE
+import requests
 import mysql.connector
-from managerApp import webapp
-
 import boto3
+from flask import json, render_template, url_for, request, g, flash, redirect, send_file, jsonify
+
+# custom imports
+import managerApp
+from managerApp import webapp
+from managerApp.config import ConfigManager
 from botocore.exceptions import ClientError
 import tools
+from tools.awsS3 import S3_Class
 from tools.awsEC2 import MemcacheEC2
+from tools.awsCloudwatch import CloudwatchAPI
 from tools.credential import ConfigAWS
 
-from flask import json, render_template, url_for, request, g, flash, redirect, send_file, jsonify
-from re import TEMPLATE
-import http.client
-import math
-import requests
-import time
-import threading
-import boto3
-from tools.awsS3 import S3_Class
 
 import os
 TEMPLATE_DIR = os.path.abspath("./templates")
@@ -409,10 +407,22 @@ def autoScaler():
                                       host=ConfigManager.db_config['host'],
                                       database=ConfigManager.db_config['database'])
         cursor = cnx.cursor()
-        cursor.execute("SELECT missRate FROM statistics WHERE id = 0")
 
-        memcacheStatics = cursor.fetchall()
-        missRate = memcacheStatics[0][0]
+        ######## Old code for fetching missrate using SQL cursor
+        # cursor.execute("SELECT missRate FROM statistics WHERE id = 0")
+
+        # memcacheStatics = cursor.fetchall()
+        # missRate = memcacheStatics[0][0]
+        ######## New code for fetching missrate from cloudwatch by @Haocheng
+        # Check this @ Haozhe
+        # TODO: modify this index list.
+        index_list = None
+        index_list = [str(i) for i in index_list]
+        cloudwatch = CloudwatchAPI(ConfigAWS.aws_access_key_id, ConfigAWS.aws_secret_access_key)
+        response = cloudwatch.getCacheMissRate(response, index_list, intervals=60, periods=5)
+        print([str(i['Datapoints']) for i in response]) # test prints
+        missrate = cloudwatch.getLastMeanMissRate(response)
+        
 
         cursor.execute(
             "SELECT maxMissRate, minMissRate, poolExpandRatio, poolShrinkRatio FROM autoscalerconfigs WHERE id = 0")

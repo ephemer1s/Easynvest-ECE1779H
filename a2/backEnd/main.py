@@ -1,18 +1,14 @@
-import os
-from backEnd import webapp, memcache, memcacheStatistics, memcacheConfig, Stats, Stat
-import datetime
-import random
-from backEnd.config import Config
-from flask import request, jsonify, session
+import os, datetime, random, json, base64, time, threading
 import shutil
-import json
 from markupsafe import escape
 import mysql.connector
-import base64
 import boto3
-import threading
-import time
+from flask import request, jsonify, session
 
+from backEnd import webapp, memcache, memcacheStatistics, memcacheConfig, Stats, Stat
+from backEnd.config import Config
+from tools.awsCloudwatch import CloudwatchAPI
+from tools.credential import ConfigAWS
 
 def _clrCache(folderPath=Config.MEMCACHE_FOLDER):
     """Drop all key pairs in memcache
@@ -808,12 +804,13 @@ def databaseUpdate():
 def cloudWatchUpdate():
     """ Give statistics to frontEnd to store in cloudWatch every 5s
     """
-
-    index, missRate, hitRate, numOfItemsInCache, totalSize, totalRequestsInAMin, currentTime = memcacheStatistics.getOneMinStats()
-
-    # Call boto3 cloudwatch
-    # @Haocheng
-    # Use (index, missRate)
+    # index, missRate, hitRate, numOfItemsInCache, totalSize, totalRequestsInAMin, currentTime = memcacheStatistics.getOneMinStats()
+    index, missRate, _, _, _, _, _ = memcacheStatistics.getOneMinStats()
+    # Call boto3 cloudwatch @Haocheng
+    cloudwatch = CloudwatchAPI(ConfigAWS.aws_access_key_id, ConfigAWS.aws_secret_access_key)
+    response = cloudwatch.putCacheMissRate(missRate, str(index))
+    print('Missrate Pushed to Cloudwatch : ' + str(response))
+    return response
 
 
 @webapp.route('/updateIndex/<id>')
