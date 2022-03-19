@@ -17,6 +17,8 @@ import math
 import requests
 import time
 import threading
+import boto3
+from tools.awsS3 import S3_Class
 
 import os
 TEMPLATE_DIR = os.path.abspath("./templates")
@@ -508,9 +510,9 @@ def clearDatabase():
 
     # Delete all the rows of image path info in database
     cnx = mysql.connector.connect(user=ConfigManager.db_config['user'],
-                                          password=ConfigManager.db_config['password'],
-                                          host=ConfigManager.db_config['host'],
-                                          database=ConfigManager.db_config['database'])
+                                  password=ConfigManager.db_config['password'],
+                                  host=ConfigManager.db_config['host'],
+                                  database=ConfigManager.db_config['database'])
 
     cursor = cnx.cursor()
     cursor.execute("DELETE FROM keylist")
@@ -519,14 +521,22 @@ def clearDatabase():
 
     # Delete all the image file in S3
     # ATTENTION: Require S3 clear code here
+
+    s3_client = boto3.client('s3',
+                             "us-east-1",
+                             aws_access_key_id=ConfigAWS.aws_access_key_id,
+                             aws_secret_access_key=ConfigAWS.aws_secret_access_key)
+    call_obj = S3_Class(s3_client)
+    call_obj.delete_all()
+
     # Under Construction
 
     response = webapp.response_class(
-            response=json.dumps(
-                "Database and S3 data delete successfully."),
-            status=200,
-            mimetype='application/json'
-        )
+        response=json.dumps(
+            "Database and S3 data delete successfully."),
+        status=200,
+        mimetype='application/json'
+    )
     print(response)
     return response
 
@@ -557,11 +567,11 @@ def clearMemcache():
             print("Memcache File Clear: " + eachIP)
 
     response = webapp.response_class(
-            response=json.dumps(
-                "Memcache data delete successfully."),
-            status=200,
-            mimetype='application/json'
-        )
+        response=json.dumps(
+            "Memcache data delete successfully."),
+        status=200,
+        mimetype='application/json'
+    )
     print(response)
     return response
 

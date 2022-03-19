@@ -89,80 +89,105 @@ class S3_Class(object):
             _filename (string): filename
             _download_folder (string): folder in a2/
         """
+        if 'Contents' in self.s3_client.list_objects(Bucket=self.bucketName):
+            bucketList = self.s3_client.list_objects(
+                Bucket=self.bucketName)['Contents']
 
-        bucketList = self.s3_client.list_objects(
-            Bucket=self.bucketName)['Contents']
+            fileList = []
+            for file in bucketList:
+                fileList.append(file['Key'])
+                print(file['Key'])
 
-        fileList = []
-        for file in bucketList:
-            fileList.append(file['Key'])
-            print(file['Key'])
+            filename = os.path.join(_download_folder, _filename)
+            # print("filename : ", filename)
+            filename = filename.replace('\\', '/')
 
-        filename = os.path.join(_download_folder, _filename)
-        # print("filename : ", filename)
-        filename = filename.replace('\\', '/')
-
-        # check if _filename exist on S3:
-        if _filename in fileList:
-            if not os.path.isdir(_download_folder):
-                os.mkdir(_download_folder)
-            self.s3_client.download_file(
-                self.bucketName, _filename, filename)
-            print("File Downloaded to "+filename)
-            return True
+            # check if _filename exist on S3:
+            if _filename in fileList:
+                if not os.path.isdir(_download_folder):
+                    os.mkdir(_download_folder)
+                self.s3_client.download_file(
+                    self.bucketName, _filename, filename)
+                print("File Downloaded to "+filename)
+                return True
+            else:
+                print("File DNE on S3.")
+                return False
         else:
             print("File DNE on S3.")
             return False
 
     def delete_file(self, _filename):
-        bucketList = self.s3_client.list_objects(
-            Bucket=self.bucketName)['Contents']
+        if 'Contents' in self.s3_client.list_objects(Bucket=self.bucketName):
+            bucketList = self.s3_client.list_objects(
+                Bucket=self.bucketName)['Contents']
 
-        fileList = []
-        for file in bucketList:
-            fileList.append(file['Key'])
-            print(file['Key'])
+            fileList = []
+            for file in bucketList:
+                fileList.append(file['Key'])
+                print(file['Key'])
 
-        # check if _filename exist on S3:
-        if _filename in fileList:
-            self.s3_client.delete_object(Bucket=self.bucketName, Key=_filename)
-            print(_filename+" deleted.")
-            return True
+            # check if _filename exist on S3:
+            if _filename in fileList:
+                self.s3_client.delete_object(
+                    Bucket=self.bucketName, Key=_filename)
+                print(_filename+" deleted.")
+                return True
+            else:
+                print("File DNE on S3.")
+                return False
         else:
             print("File DNE on S3.")
             return False
 
+    def delete_all(self):
+        if 'Contents' in self.s3_client.list_objects(Bucket=self.bucketName):
+            for obj in self.s3_client.list_objects(Bucket=self.bucketName)['Contents']:
+                self.s3_client.delete_object(
+                    Bucket=self.bucketName, Key=obj['Key'])
+            return True
+        else:
+            return True
+
     def get_file(self, _filename):
-        bucketList = self.s3_client.list_objects(
-            Bucket=self.bucketName)['Contents']
+        if 'Contents' in self.s3_client.list_objects(Bucket=self.bucketName):
+            bucketList = self.s3_client.list_objects(
+                Bucket=self.bucketName)['Contents']
 
-        fileList = []
-        for file in bucketList:
-            fileList.append(file['Key'])
-            print(file['Key'])
+            fileList = []
+            for file in bucketList:
+                fileList.append(file['Key'])
+                print(file['Key'])
 
-        # check if _filename exist on S3:
-        if _filename in fileList:
-            object = self.s3_client.get_object(
-                Bucket=self.bucketName, Key=_filename)
-            print(_filename+" gotten.")
-            return object['Body'].read()
+            # check if _filename exist on S3:
+            if _filename in fileList:
+                object = self.s3_client.get_object(
+                    Bucket=self.bucketName, Key=_filename)
+                print(_filename+" gotten.")
+                return object['Body'].read()
+            else:
+                print("File DNE on S3.")
+                return False
         else:
             print("File DNE on S3.")
             return False
 
     def check_if_file_exist(self, _filename):
-        bucketList = self.s3_client.list_objects(
-            Bucket=self.bucketName)['Contents']
+        if 'Contents' in self.s3_client.list_objects(Bucket=self.bucketName):
+            bucketList = self.s3_client.list_objects(
+                Bucket=self.bucketName)['Contents']
 
-        fileList = []
-        for file in bucketList:
-            fileList.append(file['Key'])
-            print(file['Key'])
+            fileList = []
+            for file in bucketList:
+                fileList.append(file['Key'])
+                print(file['Key'])
 
-        # check if _filename exist on S3:
-        if _filename in fileList:
-            return True
+            # check if _filename exist on S3:
+            if _filename in fileList:
+                return True
+            else:
+                print("File DNE on S3.")
+                return False
         else:
             print("File DNE on S3.")
             return False
