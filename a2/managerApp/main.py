@@ -413,6 +413,7 @@ def autoScaler():
         # memcacheStatics = cursor.fetchall()
         # missRate = memcacheStatics[0][0]
 
+
         ######## New code for fetching missrate from cloudwatch by @Haocheng
         # Check this @ Haozhe
         # TODO: modify this index list.
