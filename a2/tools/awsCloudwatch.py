@@ -2,7 +2,7 @@ import time
 import datetime
 from dateutil.tz import tzutc
 import boto3
-from credential import ConfigAWS
+from tools.credential import ConfigAWS
 
 class CloudwatchAPI(object):
 
