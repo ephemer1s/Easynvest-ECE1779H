@@ -6,6 +6,10 @@ try:
 except:
     from credential import ConfigAWS
 
+
+class ConfigAWS_ami():
+    ami = "ami-0a61262af00d0834d"  # Change this to our own AMI ID!
+
 # Create a credential.py in tools/ with the code as following format:
 
 # class ConfigAWS():
@@ -20,7 +24,7 @@ class MemcacheEC2(object):
         self.maxMemcacheNumber = 8
         self.memcacheDict = {}
 
-        self.amiID = "ami-0c3f04df1cd3f9538"  # Change this to our own AMI ID!
+        self.amiID = ConfigAWS_ami.ami  # Change this to our own AMI ID!
 
     def grep_vpc_subnet_id(self):
         response = self.ec2_client.describe_vpcs()
@@ -678,6 +682,6 @@ try:
 #     call_obj.get_live_ec2_running_instance_id()
 
 except ClientError as e:
-    print("There is a error in the client configuration: ", e)
+    print("There is an error in the client configuration: ", e)
 
 # Calling Area ######################################################################

@@ -17,6 +17,8 @@ import math
 import requests
 import time
 import threading
+import boto3
+from tools.awsS3 import S3_Class
 
 import os
 TEMPLATE_DIR = os.path.abspath("./templates")
@@ -174,19 +176,28 @@ def replacePolicyUpdate():
 
     ipList = call_obj.get_all_ip()
 
-    returnDict = {}
-
     for eachIP in ipList:
-
+        # eachIP = '127.0.0.1'  # debug
         try:
-            returnDict = makeAPI_Call("http://" + eachIP + ":5001/refreshConfiguration" +
-                                      "/" + str(capacityB) + "/" + str(replacePolicy), "get", 5)
+            url = "http://" + eachIP + ":5001/refreshConfiguration" + \
+                "/" + str(capacityB) + "/" + str(replacePolicy)
+            print(url)
+            returnDict = makeAPI_Call(url, "get", 5)
+            print(returnDict)
 
         except requests.exceptions.RequestException as e:
             print("ERROR: ", e)
     # ^ ----------------------------------------------------------------------------------- Ass 2 ----------------------------------------------------------------------------------- ^
 
     # print(status)
+
+    # # Need to notify frontend that memcachePool has updated
+    # try:
+    #     makeAPI_Call_Not_Json(
+    #         "http://127.0.0.1:5000/memcachePoolUpdated/" + str(capacityB), "get", 5)
+
+    # except requests.exceptions.RequestException as e:
+    #     print("ERROR in managerApp: memcachePoolUpdated: ", e)
 
     response = webapp.response_class(
         response=json.dumps(
@@ -338,7 +349,7 @@ def autoScalerMonitor():
 
 
 def publicIPUpdater():
-    """Update current running memcache EC2 public ip to fronEnd update_IP_List API
+    """Update current running memcache EC2 public ip to frontEnd update_IP_List API
     """
     # ATTENTION: Please remember to add publicIPUpdater() after every terminate_ec2_instance(), otherwise potential bug could exist
     ec2_client = boto3.client('ec2',
@@ -348,6 +359,22 @@ def publicIPUpdater():
     call_obj = MemcacheEC2(ec2_client)
 
     ipList = call_obj.get_all_ip()
+
+    # Tell memcache what their ids are:
+
+    returnDict = {}
+    id = 0
+    for eachIP in ipList:
+
+        try:
+            returnDict = makeAPI_Call_Not_Json("http://" + eachIP + ":5001/updateIndex" +
+                                               "/" + str(id), "get", 5)
+            id = id + 1
+
+        except requests.exceptions.RequestException as e:
+            print("ERROR: ", e)
+            id = id + 1
+
     ipStr = ''
 
     for i in range(len(ipList)):
@@ -476,12 +503,43 @@ def autoScaler():
 # Under Construction
 @webapp.route('/clearDatabase', methods=['POST'])
 def clearDatabase():
-    """Delete image data stored on the database and all image files stored on S3
+    """Delete image path data stored in the database and all image files stored in S3
 
     Returns:
         Response message if deleting successfully
     """
-    pass
+
+    # Delete all the rows of image path info in database
+    cnx = mysql.connector.connect(user=ConfigManager.db_config['user'],
+                                  password=ConfigManager.db_config['password'],
+                                  host=ConfigManager.db_config['host'],
+                                  database=ConfigManager.db_config['database'])
+
+    cursor = cnx.cursor()
+    cursor.execute("DELETE FROM keylist")
+    cnx.commit()
+    cnx.close()
+
+    # Delete all the image file in S3
+    # ATTENTION: Require S3 clear code here
+
+    s3_client = boto3.client('s3',
+                             "us-east-1",
+                             aws_access_key_id=ConfigAWS.aws_access_key_id,
+                             aws_secret_access_key=ConfigAWS.aws_secret_access_key)
+    call_obj = S3_Class(s3_client)
+    call_obj.delete_all()
+
+    # Under Construction
+
+    response = webapp.response_class(
+        response=json.dumps(
+            "Database and S3 data delete successfully."),
+        status=200,
+        mimetype='application/json'
+    )
+    print(response)
+    return response
 
 # Under Construction
 
@@ -493,7 +551,30 @@ def clearMemcache():
     Returns:
         Response message if clearing successfully
     """
-    pass
+
+    ec2_client = boto3.client('ec2',
+                              "us-east-1",
+                              aws_access_key_id=ConfigAWS.aws_access_key_id,
+                              aws_secret_access_key=ConfigAWS.aws_secret_access_key)
+    call_obj = MemcacheEC2(ec2_client)
+
+    ipList = call_obj.get_all_ip()
+
+    for eachIP in ipList:
+        api_url = "http://" + eachIP + ":5001/clear"
+        returnDict = makeAPI_Call(api_url, "get", 10)
+
+        if returnDict["message"] == 'OK':
+            print("Memcache File Clear: " + eachIP)
+
+    response = webapp.response_class(
+        response=json.dumps(
+            "Memcache data delete successfully."),
+        status=200,
+        mimetype='application/json'
+    )
+    print(response)
+    return response
 
 
 @webapp.route('/home')

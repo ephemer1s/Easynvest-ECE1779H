@@ -45,6 +45,7 @@ class Stats:
         self.list = []
         self.totalSize = 0
         self.numOfRequestsServed = 0
+        self.index = -1
 
     def addStat(self, _stat):
         """Add a Stat object to self.list.
@@ -85,6 +86,39 @@ class Stats:
         missRate = miss/total
 
         return (hitRate, missRate)
+
+    def getOneMinStats(self):
+        """Get stats info within the previous 1 minutes. 
+        Takes all the stats and filter the ones within 1 minutes,
+        Calculate hitRate and missrate.
+
+        Returns:
+            missRate, hitRate, len(self.list), self.totalSize, total, timestamp
+        """
+
+        total = 0
+        miss = 0
+        hit = 0
+
+        currentTime = datetime.datetime.now()
+        oneMinAgo = currentTime - datetime.timedelta(minutes=1)  # 1 minutes
+
+        for stat in self.list:
+            if currentTime >= stat.timestamp and oneMinAgo <= stat.timestamp:
+                if stat.action == "miss":
+                    miss = miss+1
+                    total = total + 1
+                if stat.action == "hit":
+                    hit = hit+1
+                    total = total + 1
+
+        if total == 0:
+            return self.index, 0.0, 0.0, len(self.list), self.totalSize, total, currentTime.strftime("%Y-%m-%d %H:%M:%S")
+
+        hitRate = hit/total
+        missRate = miss/total
+
+        return self.index, missRate, hitRate, len(self.list), self.totalSize, total, currentTime.strftime("%Y-%m-%d %H:%M:%S")
 
 
 # initialize Memcache stats

@@ -235,6 +235,7 @@
       </div>
     </section>
 
+    <!-- Javascript for Mode Switch Tab -->
     <script>
       function openPoolResizeModeTab(evt, modeName) {
         var i, tabcontent, tablinks;
@@ -269,6 +270,7 @@
       document.getElementById("defaultOpenManual").click();
     </script>
 
+    <!-- CSS for Mode Switch Tab -->
     <style>
     /* Style the tab */
     .poolResizeModeTab {
@@ -359,20 +361,82 @@
     </section>
 
     <!-- File Remove Section  -->
-    <!-- Waiting for function complement -->
     <section class="u-clearfix u-white u-section-6" id="sec-e560">
-      <!-- Under Construction -->
       <div class="u-clearfix u-sheet u-sheet-1">
-        <lt-highlighter style="display: none; z-index: 1 !important;">
-          <lt-div spellcheck="false" class="lt-highlighter__wrapper" style="width: 175px; height: 32px; transform: none !important; transform-origin: 87.6823px 15.9062px !important; zoom: 1 !important; margin-top: 17px; margin-left: 0px;">
-            <lt-div class="lt-highlighter__scroll-element" style="top: 0px; left: 0px; width: 175px; height: 32px;"></lt-div>
-          </lt-div>
-        </lt-highlighter>
-        <!-- two functionable button here -->
-        <!-- functionable url required before deployment -->
-        <a href="https://nicepage.com/landing-page" class="u-border-none u-btn u-btn-round u-button-style u-hover-palette-2-light-1 u-palette-1-light-1 u-radius-50 u-btn-1">Clear Database</a>
-        <a href="https://nicepage.com/landing-page" class="u-border-none u-btn u-btn-round u-button-style u-hover-palette-2-light-1 u-palette-1-light-1 u-radius-50 u-btn-2">Clear Memcache</a>
+        <div class="fileRemoveTab">
+          <button class="tablinksFileRemove" onclick="openFileRemoveTab(event, 'Clear Database & S3')">Clear Database & S3</button>
+          <button class="tablinksFileRemove" onclick="openFileRemoveTab(event, 'Clear Memcache')">Clear Memcache</button>
+        </div>
+
+        <div id="Clear Database & S3" class="tabcontentFileRemove">
+          <p class="u-text u-text-default u-text-3">Are you sure you would like to clear all the data in <b>Database and S3</b>?</p>
+          <p class="u-text u-text-default u-text-3">Please note that this operation is <b>irreversible</b></p>
+          <form class="clearDBForm" action="{{ url_for('clearDatabase')}}" method="post">
+            <input type="submit" value="Apply" href="https://nicepage.com/landing-page" class="u-border-none u-btn u-btn-round u-button-style u-hover-palette-2-light-1 u-palette-1-light-1 u-radius-50 u-btn-1">
+          </form>
+        </div>
+
+        <div id="Clear Memcache" class="tabcontentFileRemove">
+          <p class="u-text u-text-default u-text-3">Are you sure you would like to clear all the data in <b>Memcache</b>?</p>
+          <p class="u-text u-text-default u-text-3">Please note that this operation is <b>irreversible</b></p>
+          <form class="clearmemcacheForm" action="{{ url_for('clearMemcache')}}" method="post">
+            <input type="submit" value="Apply" href="https://nicepage.com/landing-page" class="u-border-none u-btn u-btn-round u-button-style u-hover-palette-2-light-1 u-palette-1-light-1 u-radius-50 u-btn-1">
+          </form>
+        </div>
       </div>
+
+      <!-- CSS for File Remove Tab -->
+      <style>
+      .fileRemoveTab {
+        overflow: hidden;
+        border: none;
+        background-color: transparent;
+      }
+
+      .fileRemoveTab button {
+        background-color: #F8F9F9;
+        float: left;
+        border: 1px solid #ccc;
+        outline: none;
+        cursor: pointer;
+        padding: 14px 16px;
+        transition: 0.3s;
+        font-size: 17px;
+      }
+
+      .fileRemoveTab button:hover {
+        background-color: #f4ecf7;
+      }
+
+      .fileRemoveTab button.active {
+        background-color: #d6eaf8;
+      }
+
+      .tabcontentFileRemove {
+        display: none;
+        padding: 6px 12px;
+        border: none;
+        border-top: none;
+      }
+      </style>
+
+      <!-- Javascript for File Remove Tab -->
+      <script>
+        function openFileRemoveTab(evt, clearChoice) {
+          var i, tabcontentFileRemove, tablinksFileRemove;
+          tabcontentFileRemove = document.getElementsByClassName("tabcontentFileRemove");
+          for (i = 0; i < tabcontentFileRemove.length; i++) {
+            tabcontentFileRemove[i].style.display = "none";
+          }
+          tablinksFileRemove = document.getElementsByClassName("tablinksFileRemove");
+          for (i = 0; i < tablinksFileRemove.length; i++) {
+            tablinksFileRemove[i].className = tablinksFileRemove[i].className.replace(" active", "");
+          }
+          document.getElementById(clearChoice).style.display = "block";
+          evt.currentTarget.className += " active";
+        }
+      </script>
+
     </section>
 
     <!-- Cute Poka Bird. just for fun.  -->

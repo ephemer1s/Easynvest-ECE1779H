@@ -10,6 +10,8 @@ from markupsafe import escape
 import mysql.connector
 import base64
 import boto3
+import threading
+import time
 
 
 def _clrCache(folderPath=Config.MEMCACHE_FOLDER):
@@ -485,44 +487,113 @@ def invalidateKey(key):
         return response
 
 
+# @ webapp.route('/refreshConfiguration/<capacity>/<policy>')
+# def refreshConfiguration(capacity, policy):
+#     """API Function call to read mem-cache related details from the database
+#     and reconfigure it with default values
+#     """
+
+#     cnx = mysql.connector.connect(user=Config.db_config['user'],
+#                                   password=Config.db_config['password'],
+#                                   host=Config.db_config['host'],
+#                                   database=Config.db_config['database'])
+
+#     cursor = cnx.cursor()
+#     query = "SELECT capacityB, replacepolicy FROM configuration WHERE id = 0"
+#     cursor.execute(query)
+#     cnx.close()
+
+#     configuration = cursor.fetchall()
+
+#     returnjson = jsonify({})
+#     # Sql may fail. In that case abandon the change.
+#     configSource = ""
+#     if not configuration:
+#         print("Failed to update config; SQL failed. Using values passed from frontEnd instead.")
+
+#         memcacheConfig['capacity'] = int(capacity)
+
+#         memcacheConfig['policy'] = "LRU" if policy == 1 else "Random"
+
+#         configSource = "Failed to update config; SQL failed. Using values passed from frontEnd instead."
+
+#     else:
+#         print("Using Sql config data.")
+#         configSource = "Using Sql config data."
+#         print(configuration, configuration[0][0], configuration[0][1])
+
+#         memcacheConfig['capacity'] = configuration[0][0]
+
+#         memcacheConfig['policy'] = "LRU" if configuration[0][1] == 1 else "Random"
+
+#     # Need to check if current Capacity is still enough
+
+#     checkSize = True
+
+#     if memcacheStatistics.totalSize > memcacheConfig['capacity']:
+
+#         if(not memcache):
+#             # memcache is empty but folder is not. Calling _clrcache()
+#             _clrCache(folderPath=Config.MEMCACHE_FOLDER)
+#         else:
+#             checkSize = False
+
+#     while (checkSize == False):
+#         # Check Replacement policy, LRU or Random Replacement
+
+#         if(not memcache):
+#             # memcache is empty but folder is not. Calling _clrcache()
+#             _clrCache(folderPath=Config.MEMCACHE_FOLDER)
+
+#         if memcacheConfig['policy'] == "LRU":
+#             # delete the oldest
+
+#             # loop through memcache and check datetime, pop the oldest one
+#             oldestTimeStamp = min([d['timestamp']
+#                                    for d in memcache.values()])
+
+#             oldestKey = ""
+#             for keys in memcache.keys():
+#                 if memcache[keys]['timestamp'] == oldestTimeStamp:
+#                     oldestKey = keys
+#             # delete the file in cacheImageFolder as well
+#             if(oldestKey):
+#                 _delCache(oldestKey, folderPath=Config.MEMCACHE_FOLDER)
+#             else:
+#                 print("how can this happen to me?")
+
+#         elif memcacheConfig['policy'] == "Random":
+
+#             # delete a random one
+#             _delCache(random.choice(list(memcache)),
+#                       folderPath=Config.MEMCACHE_FOLDER)
+
+#         # Check if size is now sufficient
+
+#         if memcacheStatistics.totalSize > memcacheConfig['capacity']:
+#             checkSize = False
+#         else:
+#             checkSize = True
+
+#     message = "Updated: " + \
+#         str(memcacheConfig['capacity']) + \
+#         ", " + str(memcacheConfig["policy"])
+#     returnjson = jsonify({"success": "true",
+#                           "statusCode": 200,
+#                           "configSource": configSource,
+#                           "message": message})
+#     return returnjson
+
+
 @ webapp.route('/refreshConfiguration/<capacity>/<policy>')
-def refreshConfiguration(capacity, policy):
-    """API Function call to read mem-cache related details from the database
-    and reconfigure it with default values
+def refreshConfigurationManagerApp(capacity, policy):
+    """API Function call to read mem-cache related details from the managerApp
+    and reconfigure it
     """
 
-    cnx = mysql.connector.connect(user=Config.db_config['user'],
-                                  password=Config.db_config['password'],
-                                  host=Config.db_config['host'],
-                                  database=Config.db_config['database'])
+    memcacheConfig['capacity'] = int(capacity)
 
-    cursor = cnx.cursor()
-    query = "SELECT capacityB, replacepolicy FROM configuration WHERE id = 0"
-    cursor.execute(query)
-    cnx.close()
-
-    configuration = cursor.fetchall()
-
-    returnjson = jsonify({})
-    # Sql may fail. In that case abandon the change.
-    configSource = ""
-    if not configuration:
-        print("Failed to update config; SQL failed. Using values passed from frontEnd instead.")
-
-        memcacheConfig['capacity'] = int(capacity)
-
-        memcacheConfig['policy'] = "LRU" if policy == 1 else "Random"
-
-        configSource = "Failed to update config; SQL failed. Using values passed from frontEnd instead."
-
-    else:
-        print("Using Sql config data.")
-        configSource = "Using Sql config data."
-        print(configuration, configuration[0][0], configuration[0][1])
-
-        memcacheConfig['capacity'] = configuration[0][0]
-
-        memcacheConfig['policy'] = "LRU" if configuration[0][1] == 1 else "Random"
+    memcacheConfig['policy'] = "LRU" if policy == "1" else "Random"
 
     # Need to check if current Capacity is still enough
 
@@ -578,7 +649,7 @@ def refreshConfiguration(capacity, policy):
         ", " + str(memcacheConfig["policy"])
     returnjson = jsonify({"success": "true",
                           "statusCode": 200,
-                          "configSource": configSource,
+                          "configSource": "managerApp",
                           "message": message})
     return returnjson
 
@@ -674,7 +745,58 @@ def init():
 @webapp.before_first_request
 def _run_on_start():
     init()
-    refreshConfiguration(400000, 'LRU')
+    refreshConfigurationManagerApp(1000000, 'LRU')
+
+    # start thread to update to cloudwatch every 5s.
+    x = threading.Thread(target=cloudWatchUpdateMonitor)
+    x.start()
+
+    y = threading.Thread(target=databaseUpdateMonitor)
+    y.start()
+
+
+def cloudWatchUpdateMonitor():
+    """_summary_ call cloudWatchUpdate() every 5s.
+    """
+    while True:
+        cloudWatchUpdate()
+        time.sleep(5)
+
+
+def databaseUpdateMonitor():
+    """_summary_ call databaseUpdate() every 60s.
+    """
+    while True:
+        databaseUpdate()
+        time.sleep(60)
+
+
+def databaseUpdate():
+    index, missRate, hitRate, numOfItemsInCache, totalSize, totalRequestsInAMin, currentTime = memcacheStatistics.getOneMinStats()
+
+    # @Haozhe
+
+
+def cloudWatchUpdate():
+    """ Give statistics to frontEnd to store in cloudWatch every 5s
+    """
+
+    index, missRate, hitRate, numOfItemsInCache, totalSize, totalRequestsInAMin, currentTime = memcacheStatistics.getOneMinStats()
+
+    # Call boto3 cloudwatch
+    # @Haocheng
+    # Use (index, missRate)
+
+
+@webapp.route('/updateIndex/<id>')
+def updateIndex(id):
+    """Update id
+    """
+
+    memcacheStatistics.index = id
+
+    return jsonify({"success": "true",
+                    "statusCode": 200})
 
 
 @webapp.route('/listKeys')

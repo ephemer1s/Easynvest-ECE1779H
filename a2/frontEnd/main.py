@@ -10,6 +10,9 @@ import http.client
 import requests
 import time
 import threading
+from tools.credential import ConfigAWS
+import boto3
+from tools.awsS3 import S3_Class
 
 import os
 TEMPLATE_DIR = os.path.abspath("./templates")
@@ -46,6 +49,8 @@ def _run_on_start():
     """
 
     makeAPI_Call("http://127.0.0.1:5000/managerApp/wakeUp", "get", 20)
+
+    Config.s3.initialize_bucket()
 
     # initialize backend memcache
     # makeAPI_Call(
@@ -196,6 +201,17 @@ def configs():
 
     return render_template("configs.html")
 
+
+@webapp.route('/memcachePoolUpdated/<capacity>', methods=['GET'])
+def memcachePoolUpdated(capacity):
+    """called from managerApp to signal change in memcache pool size
+    """
+
+    print("Memcache Pool size changed to " + str(capacity) + "!")
+
+    # do stuff TBD (No longer need this)
+
+    return
 
 # @webapp.route('/configsUpdate', methods=['POST'])
 # #  Update memcache parameters in database when confirmed
@@ -352,7 +368,7 @@ def MD5checker(key):
 
 @webapp.route('/api/key/<key_value>', methods=['POST', 'GET'])
 def api_Retreive_Image(key_value):
-    """Get the path of the image given a key. Will first try to get from cache, then try to get from database if cache miss.
+    """Get the content of the image given a key. Will first try to get from cache, then try to get from database if cache miss.
 
     Returns:
         the file contents
@@ -429,30 +445,14 @@ def api_Retreive_Image(key_value):
         elif(RDBMS_Data):
             # RDBMS has path; Need to save file to memcache
 
-            # Seperate filepath into name and extension
-
-            # OS independence
             filepath = RDBMS_Data[0][0]
-            filepath = filepath.replace('\\', '/')
 
             filenameWithExtension = os.path.basename(filepath)
 
-            print("filenameWithExtension: ", filenameWithExtension)
+            # # Must upload the entire image in base64 to memcache
 
-            # Must upload the entire image in base64 to memcache
 
-            # check if file exist
-
-            if not os.path.isfile(filepath):
-                return jsonify({"success": "false",
-                                "error": {
-                                    "code": 400,
-                                    "message": "File not found."
-                                }})
-
-            image = open(filepath, 'rb')
-            image_Binary = image.read()
-            content = base64.b64encode(image_Binary).decode()
+            content = Config.s3.get_file_in_base64(filepath)
 
             dataDict = {"imgContent": content}
 
@@ -503,7 +503,7 @@ def api_Retreive_Image(key_value):
             # )
 
             # return response
-            filepath = pathToImage.replace('\\', '/')
+            # filepath = pathToImage.replace('\\', '/')
 
             filenameWithExtension = os.path.basename(filepath)
 
@@ -514,7 +514,7 @@ def api_Retreive_Image(key_value):
 
 @webapp.route('/get', methods=['GET', 'POST'])
 def get():
-    """Get the path of the image given a key. Will first try to get from cache, then try to get from database if cache miss.
+    """Get the contents of the image given a key. Will first try to get from cache, then try to get from database if cache miss.
 
     Returns:
         the file contents
@@ -591,15 +591,15 @@ def get():
         elif(RDBMS_Data):
             # RDBMS has path; Need to save file to memcache
 
-            # Seperate filepath into name and extension
-
-            # OS independence
             filepath = RDBMS_Data[0][0]
-            filepath = filepath.replace('\\', '/')
 
             filenameWithExtension = os.path.basename(filepath)
 
-            print("filenameWithExtension: ", filenameWithExtension)
+            # # Must upload the entire image in base64 to memcache
+
+            content = Config.s3.get_file_in_base64(filepath)
+
+            dataDict = {"imgContent": content}
 
             # Must upload the entire image in base64 to memcache
 
@@ -665,7 +665,7 @@ def get():
             # )
 
             # return response
-            filepath = pathToImage.replace('\\', '/')
+            # filepath = pathToImage.replace('\\', '/')
 
             filenameWithExtension = os.path.basename(filepath)
 
@@ -676,7 +676,7 @@ def get():
 
 @webapp.route('/api/upload', methods=['POST'])
 def apiUpload():
-    """Upload key image pair. image is stored in local filesystem, and its path is sent to database for storage. 
+    """Upload key image pair. image is stored in S3, and its name is sent to database for storage. 
     invalidateKey() is called on memcache. Has logic that deals with missing or repeated filename.
 
     Alternative route to put()
@@ -686,6 +686,14 @@ def apiUpload():
     """
     key = request.form.get('key')
     file = request.files['file']
+
+    if not key:  # If key not given, quit
+        return ({"success": "false",
+                 "error": {
+                     "code": 400,
+                     "message": "No key given"
+                 }
+                 })
 
     if file.filename == '':  # If file not given, quit
         return ({"success": "false",
@@ -710,31 +718,33 @@ def apiUpload():
 
     if file:
         print(type(file))
-        upload_folder = webapp.config['UPLOAD_FOLDER']
-        if not os.path.isdir(upload_folder):
-            os.mkdir(upload_folder)
-        filename = os.path.join(upload_folder, file.filename)
-        print("filename : ", filename)
-        filename = filename.replace('\\', '/')
-        print("filename : ", filename)
-        if RDBMS_Data:
-            # use path to delete from local filesystem
-            if os.path.isfile(RDBMS_Data[0][0]):
-                os.remove(RDBMS_Data[0][0])
+        # upload_folder = webapp.config['UPLOAD_FOLDER']
+        # if not os.path.isdir(upload_folder):
+        #     os.mkdir(upload_folder)
+        # filename = os.path.join(upload_folder, file.filename)
+        # print("filename : ", filename)
+        # filename = filename.replace('\\', '/')
+        # print("filename : ", filename)
+        # if RDBMS_Data:
+        #     # use path to delete from local filesystem
+        #     if os.path.isfile(RDBMS_Data[0][0]):
+        #         os.remove(RDBMS_Data[0][0])
 
         # Check if filename already exists in folder
         fileExists = True
         currentFileName = file.filename
         while (fileExists):
-            if not os.path.isfile(filename):
+            if not Config.s3.check_if_file_exist(currentFileName):
                 fileExists = False
             else:
                 split_tup = os.path.splitext(currentFileName)
                 currentFileName = split_tup[0] + "_copy_" + split_tup[1]
-                filename = os.path.join(
-                    upload_folder, currentFileName)
+                # filename = os.path.join(
+                #     upload_folder, currentFileName)
 
-        file.save(filename)
+        Config.s3.upload_public_inner_file(
+            file, _object_name=currentFileName)
+        # file.save(filename)
         # return redirect(url_for('download_file', name=file.filename))
         uploadedFile = True
 
@@ -742,7 +752,7 @@ def apiUpload():
             print("Database does not have this key.")
             # push to db
             cursor.execute("INSERT INTO keylist (keyID, path) VALUES (%s, %s)",
-                           (key, filename,))
+                           (key, currentFileName,))
             cnx.commit()
 
         elif RDBMS_Data:
@@ -750,16 +760,10 @@ def apiUpload():
 
             # drop from db
             cursor.execute("UPDATE keylist SET path = %s WHERE keyID = %s",
-                           (filename, key,))
+                           (currentFileName, key,))
             cnx.commit()
 
     cnx.close()
-
-    # old_memcache[key] = file
-
-    if file is not None:
-        # base64_data = base64.b64encode(file)
-        pass
 
     if uploadedFile:
         # Call backEnd to invalidateKey
@@ -848,31 +852,33 @@ def put():
 
     if file:
         print(type(file))
-        upload_folder = webapp.config['UPLOAD_FOLDER']
-        if not os.path.isdir(upload_folder):
-            os.mkdir(upload_folder)
-        filename = os.path.join(upload_folder, file.filename)
-        print("filename : ", filename)
-        filename = filename.replace('\\', '/')
-        print("filename : ", filename)
-        if RDBMS_Data:
-            # use path to delete from local filesystem
-            if os.path.isfile(RDBMS_Data[0][0]):
-                os.remove(RDBMS_Data[0][0])
+        # upload_folder = webapp.config['UPLOAD_FOLDER']
+        # if not os.path.isdir(upload_folder):
+        #     os.mkdir(upload_folder)
+        # filename = os.path.join(upload_folder, file.filename)
+        # print("filename : ", filename)
+        # filename = filename.replace('\\', '/')
+        # print("filename : ", filename)
+        # if RDBMS_Data:
+        #     # use path to delete from local filesystem
+        #     if os.path.isfile(RDBMS_Data[0][0]):
+        #         os.remove(RDBMS_Data[0][0])
 
         # Check if filename already exists in folder
         fileExists = True
         currentFileName = file.filename
         while (fileExists):
-            if not os.path.isfile(filename):
+            if not Config.s3.check_if_file_exist(currentFileName):
                 fileExists = False
             else:
                 split_tup = os.path.splitext(currentFileName)
                 currentFileName = split_tup[0] + "_copy_" + split_tup[1]
-                filename = os.path.join(
-                    upload_folder, currentFileName)
+                # filename = os.path.join(
+                #     upload_folder, currentFileName)
 
-        file.save(filename)
+        Config.s3.upload_public_inner_file(
+            file, _object_name=currentFileName)
+        # file.save(filename)
         # return redirect(url_for('download_file', name=file.filename))
         uploadedFile = True
 
@@ -880,7 +886,7 @@ def put():
             print("Database does not have this key.")
             # push to db
             cursor.execute("INSERT INTO keylist (keyID, path) VALUES (%s, %s)",
-                           (key, filename,))
+                           (key, currentFileName,))
             cnx.commit()
 
         elif RDBMS_Data:
@@ -888,11 +894,10 @@ def put():
 
             # drop from db
             cursor.execute("UPDATE keylist SET path = %s WHERE keyID = %s",
-                           (filename, key,))
+                           (currentFileName, key,))
             cnx.commit()
 
     cnx.close()
-
     # old_memcache[key] = file
 
     # if file is not None:
