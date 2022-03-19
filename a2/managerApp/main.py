@@ -346,7 +346,7 @@ def autoScalerMonitor():
 
 
 def publicIPUpdater():
-    """Update current running memcache EC2 public ip to fronEnd update_IP_List API
+    """Update current running memcache EC2 public ip to frontEnd update_IP_List API
     """
     # ATTENTION: Please remember to add publicIPUpdater() after every terminate_ec2_instance(), otherwise potential bug could exist
     ec2_client = boto3.client('ec2',
@@ -364,8 +364,8 @@ def publicIPUpdater():
     for eachIP in ipList:
 
         try:
-            returnDict = makeAPI_Call("http://" + eachIP + ":5001/updateIndex" +
-                                      "/" + str(id), "get", 5)
+            returnDict = makeAPI_Call_Not_Json("http://" + eachIP + ":5001/updateIndex" +
+                                               "/" + str(id), "get", 5)
             id = id + 1
 
         except requests.exceptions.RequestException as e:
