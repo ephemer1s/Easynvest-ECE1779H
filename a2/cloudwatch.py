@@ -1,11 +1,13 @@
+import time
 from datetime import datetime, timedelta
 
 import boto3
 from tools.credential import ConfigAWS
 
 
-def newCloudwatch(aws_access_key_id, aws_secret_access_key):
+def createCloudwatchClient(aws_access_key_id, aws_secret_access_key):
     '''
+    Generate a cloudwatch client.
     '''
     return boto3.client('cloudwatch', 
                         region_name='us-east-1',
@@ -21,7 +23,7 @@ def putCacheMissRate(missrate, instance_name):
     instance_name: current memcache instance identifier (could be anything based on your implementation)
     '''
     print('Sending Cache Miss Rate to Cloudwatch')
-    cloudwatch = newCloudwatch(ConfigAWS.aws_access_key_id, ConfigAWS.aws_secret_access_key)
+    cloudwatch = createCloudwatchClient(ConfigAWS.aws_access_key_id, ConfigAWS.aws_secret_access_key)
     response = cloudwatch.put_metric_data(
         MetricData = [{
                 'MetricName': 'miss_rate',
@@ -39,21 +41,39 @@ def putCacheMissRate(missrate, instance_name):
 # Get list metrics through the pagination interface
 def getCacheMissRateData(instances: list):
     '''
-    Get miss rate from a specified server from cloudwatch. return a dict containing responses.
+    Get miss rate DATA from a specified server from cloudwatch. return a dict containing responses.
+    This function is bad, and I no longer maintenance it.
+    use this one below instead. -> getCacheMissRateStatistics(instances: list, interval=60, period=60)
     '''
-    cloudwatch = newCloudwatch(ConfigAWS.aws_access_key_id, ConfigAWS.aws_secret_access_key)
+    cloudwatch = createCloudwatchClient(ConfigAWS.aws_access_key_id, ConfigAWS.aws_secret_access_key)
     responses = []
     for i in instances:
         responses.append(
             # TODO: Add responses
+            cloudwatch.get_metric_data(
+                MetricDataQueries=[
+                    {}
+                ],
+                StartTime = datetime.utcnow() - timedelta(seconds = interval),
+                EndTime = datetime.utcnow(),
+                NextToken='string',
+                ScanBy='TimestampDescending'|'TimestampAscending',
+                MaxDatapoints=123
+            )
         )
     return responses
 
 
-def getCacheMissRateStatistics(instances: list):
+def getCacheMissRateStatistics(instances: list, interval=60, period=60):
     '''
+    Get miss rate STATISTICS from a specified server from cloudwatch. return a dict containing responses.
+    retrieve the average missrate value in responses[i]['Datapoints'][-1]['Average']
+    instances: List of instance names used to specify the dimension of metrics
+    interval:  Starttime = Endtime - interval
+    period:    of which to be calculated together as average. 
+               len(responses[i]['Datapoints']) == interval // periods
     '''
-    cloudwatch = newCloudwatch(ConfigAWS.aws_access_key_id, ConfigAWS.aws_secret_access_key)
+    cloudwatch = createCloudwatchClient(ConfigAWS.aws_access_key_id, ConfigAWS.aws_secret_access_key)
     responses = []
     for i in instances:
         responses.append(
@@ -64,9 +84,9 @@ def getCacheMissRateStatistics(instances: list):
                         "Name": "instance",
                         "Value": i
                     }],
-                StartTime = datetime.utcnow() - timedelta(seconds = 3600),
+                StartTime = datetime.utcnow() - timedelta(seconds = interval),
                 EndTime = datetime.utcnow(),
-                Period=60,
+                Period=period,
                 Statistics=['Average'],
                 Unit='Percent',
             )
@@ -76,5 +96,13 @@ def getCacheMissRateStatistics(instances: list):
 
 if __name__ == '__main__':
     print('Testing Cloudwatch APIs...........')
+    for i in range(60):
+        print(str(i) + '.................')
+        putCacheMissRate(i * 0.01, 'test2')
+        time.sleep(10)
+    response = getCacheMissRateStatistics(['test2'], interval=600, period=60)
+    print(response)
 
+    with open("./logs/cloudwatch.log", 'a') as f:
+        f.write(str(response))
     print('Finished')
