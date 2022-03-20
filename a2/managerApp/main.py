@@ -106,6 +106,10 @@ def _run_on_start():
     autoScalerThreading = threading.Thread(target=autoScalerMonitor)
     autoScalerThreading.start()
 
+    # Thread for chartUpdater starts
+    chartUpdaterThreading = threading.Thread(target=chartUpdater)
+    chartUpdaterThreading.start()
+
 
 @webapp.route('/')
 def main():
