@@ -627,7 +627,7 @@ def getNumOfWorkers():
                                           database=ConfigManager.db_config['database'])
 
     cursor = cnx.cursor()
-    cursor.execute("SELECT DATE_FORMAT(currentTime, '%Y-%m-%d %H:%i') AS time, count(memcacheIndex) AS workersNum FROM memcachestatlog GROUP BY DATE_FORMAT(currentTime, '%Y-%m-%d %H:%i')")
+    cursor.execute("SELECT DATE_FORMAT(currentTime, '%Y-%m-%d %H:%i') AS time, count(DISTINCT memcacheIndex) AS workersNum FROM memcachestatlog GROUP BY DATE_FORMAT(currentTime, '%Y-%m-%d %H:%i')")
     workersNum = cursor.fetchall()
     cnx.close()
 
