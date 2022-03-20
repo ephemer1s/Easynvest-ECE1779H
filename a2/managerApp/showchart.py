@@ -43,7 +43,7 @@ class Chart(object):
     
     def __init__(self, name,
                  savepath='static/',
-                 figsize=(16, 9),
+                 figsize=(20, 6),
                  ):
         '''
         Init the Chart object
@@ -103,7 +103,7 @@ class Chart(object):
             sns.scatterplot(x=self.x, y=self.y, markers='.', ax=self.ax)
 
         else:
-            raise Exception('Failed to plot: X and Y not loaded')
+            raise Warning('Failed to plot: X and Y not loaded')
 
         self.ax.set(xlim=(self.x[-1] - dt.timedelta(minutes=30), self.x[-1]),
                     title=self.style[self.name]['title'], 
