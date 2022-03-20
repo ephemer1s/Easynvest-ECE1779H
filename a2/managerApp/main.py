@@ -6,14 +6,15 @@ import http.client
 from re import TEMPLATE
 import requests
 import mysql.connector
-import boto3
 from flask import json, render_template, url_for, request, g, flash, redirect, send_file, jsonify
+import boto3
+from botocore.exceptions import ClientError
 
 # custom imports
 import managerApp
 from managerApp import webapp
 from managerApp.config import ConfigManager
-from botocore.exceptions import ClientError
+from managerApp.showchart import Chart
 import tools
 from tools.awsS3 import S3_Class
 from tools.awsEC2 import MemcacheEC2
@@ -607,6 +608,42 @@ def getTotalSize():
     cnx.close()
 
     return totalSizeLog
+
+
+def getNumOfWorkers():
+    '''
+    TODO: @haozhe
+    '''
+    pass
+
+
+def chartUpdater():
+    '''
+    Loops every 60s, caller to updateChart()
+    '''
+    while True:
+        updateChart()
+        time.sleep(60)
+    pass
+
+
+def updateChart():
+    '''
+    Update the chart via data retrieved from db. Called every 60s.
+    '''
+    dataset = {
+        'missrate': getMissRateLog(),
+        'hitrate': getHitRateLog(),
+        'totalrequest': getTotalRequestsInAMin(),
+        'numofitems': getNumOfItemsInCache(),
+        'totalsize': getTotalSize(),
+        'numofworkers': getNumOfWorkers(),  # Require a getNumOfWorkers() func @haozhe
+    }
+    for name in dataset:
+        data = dataset[name]
+        print('chartUpdater(): updating {}'.format(name))
+        Chart(name).load(data).plot().save().close()
+    pass
 
 
 @webapp.route('/clearDatabase', methods=['POST'])
