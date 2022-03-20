@@ -287,6 +287,16 @@ def backHome():
     return render_template("index.html")
 
 
+@webapp.route('/managerAppJump')
+def managerAppJump():
+    """Redirect to manager app main page
+
+    Returns:
+        url call to manager app main Page
+    """
+    return redirect("http://192.168.0.15:5000/managerApp", code=302)
+
+
 @webapp.errorhandler(404)
 def page_not_found(e):
     return render_template('404.html'), 404

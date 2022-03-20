@@ -5,24 +5,26 @@
     <title>Browse Image by key</title>
   </head>
   <body>
-    <form action="{{ url_for('get')}}" method="post">
-      <label>key:</label>
-      <input type="text" name="key" />
-      <input type="submit" value="get" />
-    </form>
-    {% if content and extension %}
-    <div>
-      <img
-        id="imgContent"
-        src="data:image/{{extension}};base64,{{ content }}"
-      />
+    <div class="browse-center"><style>.browse-center{width:1000px; margin: 0 auto;}</style>
+      <h1>Image Browser</h1>
+      <form action="{{ url_for('get')}}" method="post">
+        <label>key:</label>
+        <input type="text" name="key" />
+        <input type="submit" value="get" />
+      </form>
+      {% if content and extension %}
+      <div>
+        <img
+          id="imgContent"
+          src="data:image/{{extension}};base64,{{ content }}"
+        />
+      </div>
+      {% endif %}
+
+      <br>
+      <form action="{{url_for('backHome')}}" method="get">
+        <input type='submit' value='Home' />
+      </form>
     </div>
-    {% endif %}
-
-    <br>
-    <form action="{{url_for('backHome')}}" method="get">
-      <input type='submit' value='Back' />
-    </form>
-
   </body>
 </html>
