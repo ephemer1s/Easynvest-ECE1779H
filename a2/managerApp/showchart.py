@@ -99,6 +99,8 @@ class Chart(object):
         Plot a lineplot and a scatterplot with input data.
         '''
         if self.x is not None and self.y is not None:
+            if self.name == 'missrate' or self.name == 'hitrate':
+                self.y = self.y * 100
             sns.lineplot(x=self.x, y=self.y, ax=self.ax)
             sns.scatterplot(x=self.x, y=self.y, markers='.', ax=self.ax)
 
