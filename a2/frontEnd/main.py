@@ -451,7 +451,6 @@ def api_Retreive_Image(key_value):
 
             # # Must upload the entire image in base64 to memcache
 
-
             content = Config.s3.get_file_in_base64(filepath)
 
             dataDict = {"imgContent": content}
@@ -598,23 +597,6 @@ def get():
             # # Must upload the entire image in base64 to memcache
 
             content = Config.s3.get_file_in_base64(filepath)
-
-            dataDict = {"imgContent": content}
-
-            # Must upload the entire image in base64 to memcache
-
-            # check if file exist
-
-            if not os.path.isfile(filepath):
-                return jsonify({"success": "false",
-                                "error": {
-                                    "code": 400,
-                                    "message": "File not found."
-                                }})
-
-            image = open(filepath, 'rb')
-            image_Binary = image.read()
-            content = base64.b64encode(image_Binary).decode()
 
             dataDict = {"imgContent": content}
 

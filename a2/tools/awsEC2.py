@@ -8,7 +8,7 @@ except:
 
 
 class ConfigAWS_ami():
-    ami = "ami-0a61262af00d0834d"  # Change this to our own AMI ID!
+    ami = "ami-0653b159b5801ab9c"  # Change this to our own AMI ID!
 
 # Create a credential.py in tools/ with the code as following format:
 
@@ -642,9 +642,9 @@ class MemcacheEC2(object):
 if __name__ == '__main__':
     try:
         ec2_client = boto3.client('ec2',
-                                "us-east-1",
-                                aws_access_key_id=ConfigAWS.aws_access_key_id,
-                                aws_secret_access_key=ConfigAWS.aws_secret_access_key)
+                                  "us-east-1",
+                                  aws_access_key_id=ConfigAWS.aws_access_key_id,
+                                  aws_secret_access_key=ConfigAWS.aws_secret_access_key)
         call_obj = MemcacheEC2(ec2_client)
 
     #     call_obj.get_live_ec2_instance_id()
