@@ -680,14 +680,41 @@ def clearMemcache():
     return response
 
 
-@webapp.route('/home')
-def backHome():
-    """Home Page: Call to go back to home page "/"
+@webapp.route('/homeJump')
+def homeJump():
+    """Redirect to frontEnd home page
 
     Returns:
-        html of Home Page
+        url call to  frontEnd home page
     """
-    return render_template("managerApp.html")
+    return redirect("http://192.168.0.15:5000", code=302)
+
+@webapp.route('/uploadJump')
+def uploadJump():
+    """Redirect to frontEnd upload page
+
+    Returns:
+        url call to frontEnd upload page
+    """
+    return redirect("http://192.168.0.15:5000/upload", code=302)
+
+@webapp.route('/browseJump')
+def browseJump():
+    """Redirect to frontEnd browse page
+
+    Returns:
+        url call to frontEnd browse page
+    """
+    return redirect("http://192.168.0.15:5000/browse", code=302)
+
+@webapp.route('/keylistJump')
+def keylistJump():
+    """Redirect to frontEnd keylist page
+
+    Returns:
+        url call to frontEnd keylist page
+    """
+    return redirect("http://192.168.0.15:5000/keylist", code=302)
 
 
 @webapp.route('/wakeUp')
