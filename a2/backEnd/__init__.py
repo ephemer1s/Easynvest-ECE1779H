@@ -135,7 +135,7 @@ class Stats:
         hit = 0
 
         currentTime = datetime.datetime.now()
-        oneMinAgo = currentTime - datetime.timedelta(seconds=5)  # 1 minutes
+        oneMinAgo = currentTime - datetime.timedelta(seconds=5)  ##### 5 Seconds!!!!!!!!!!!!!
 
         for stat in self.list:
             if currentTime >= stat.timestamp and oneMinAgo <= stat.timestamp:
