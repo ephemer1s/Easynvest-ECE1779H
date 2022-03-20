@@ -6,14 +6,15 @@ import http.client
 from re import TEMPLATE
 import requests
 import mysql.connector
-import boto3
 from flask import json, render_template, url_for, request, g, flash, redirect, send_file, jsonify
+import boto3
+from botocore.exceptions import ClientError
 
 # custom imports
 import managerApp
 from managerApp import webapp
 from managerApp.config import ConfigManager
-from botocore.exceptions import ClientError
+from managerApp.showchart import Chart
 import tools
 from tools.awsS3 import S3_Class
 from tools.awsEC2 import MemcacheEC2
@@ -105,6 +106,10 @@ def _run_on_start():
     autoScalerThreading = threading.Thread(target=autoScalerMonitor)
     autoScalerThreading.start()
 
+    # Thread for chartUpdater starts
+    chartUpdaterThreading = threading.Thread(target=chartUpdater)
+    chartUpdaterThreading.start()
+
 
 @webapp.route('/')
 def main():
@@ -113,13 +118,97 @@ def main():
     Returns:
         html of Main Page
     """
+    # Display memcache work log charts
+    # Workers Num Image 
+    image1Path = "./managerApp/static/numofworkers.png"
+    image1FileNameWithExtension = os.path.basename(image1Path)
+    if not os.path.isfile(image1Path):
+                return jsonify({"success": "false",
+                                "error": {
+                                    "code": 400,
+                                    "message": "Image numofworkers.png not found."
+                                }})
+    image1 = open(image1Path, 'rb')
+    image1Binary = image1.read()
+    content1 = base64.b64encode(image1Binary).decode()
+    extension1 = os.path.splitext(image1FileNameWithExtension)[1]
 
+    # MissRate Image 
+    image2Path = "./managerApp/static/missrate.png"
+    image2FileNameWithExtension = os.path.basename(image2Path)
+    if not os.path.isfile(image2Path):
+                return jsonify({"success": "false",
+                                "error": {
+                                    "code": 400,
+                                    "message": "Image missrate.png not found."
+                                }})
+    image2 = open(image2Path, 'rb')
+    image2Binary = image2.read()
+    content2 = base64.b64encode(image2Binary).decode()
+    extension2 = os.path.splitext(image2FileNameWithExtension)[1]
+
+    # HitRate Image 
+    image3Path = "./managerApp/static/hitrate.png"
+    image3FileNameWithExtension = os.path.basename(image3Path)
+    if not os.path.isfile(image3Path):
+                return jsonify({"success": "false",
+                                "error": {
+                                    "code": 400,
+                                    "message": "Image hitrate.png not found."
+                                }})
+    image3 = open(image3Path, 'rb')
+    image3Binary = image3.read()
+    content3 = base64.b64encode(image3Binary).decode()
+    extension3 = os.path.splitext(image3FileNameWithExtension)[1]
+
+    # Total Request Image 
+    image4Path = "./managerApp/static/totalrequest.png"
+    image4FileNameWithExtension = os.path.basename(image4Path)
+    if not os.path.isfile(image4Path):
+                return jsonify({"success": "false",
+                                "error": {
+                                    "code": 400,
+                                    "message": "Image totalrequest.png not found."
+                                }})
+    image4 = open(image4Path, 'rb')
+    image4Binary = image4.read()
+    content4 = base64.b64encode(image4Binary).decode()
+    extension4 = os.path.splitext(image4FileNameWithExtension)[1]
+
+    # Items Num Image 
+    image5Path = "./managerApp/static/numofitems.png"
+    image5FileNameWithExtension = os.path.basename(image5Path)
+    if not os.path.isfile(image5Path):
+                return jsonify({"success": "false",
+                                "error": {
+                                    "code": 400,
+                                    "message": "Image numofitems.png not found."
+                                }})
+    image5 = open(image5Path, 'rb')
+    image5Binary = image5.read()
+    content5 = base64.b64encode(image5Binary).decode()
+    extension5 = os.path.splitext(image5FileNameWithExtension)[1]
+
+    # Total Size Image 
+    image6Path = "./managerApp/static/totalsize.png"
+    image6FileNameWithExtension = os.path.basename(image6Path)
+    if not os.path.isfile(image6Path):
+                return jsonify({"success": "false",
+                                "error": {
+                                    "code": 400,
+                                    "message": "Image totalsize.png not found."
+                                }})
+    image6 = open(image6Path, 'rb')
+    image6Binary = image6.read()
+    content6 = base64.b64encode(image6Binary).decode()
+    extension6 = os.path.splitext(image6FileNameWithExtension)[1]
+
+    # Display memcache status table
     ec2_client = boto3.client('ec2',
                               "us-east-1",
                               aws_access_key_id=ConfigAWS.aws_access_key_id,
                               aws_secret_access_key=ConfigAWS.aws_secret_access_key)
     call_obj = MemcacheEC2(ec2_client)
-
     instanceAmount = len(call_obj.whoAreExisting())
 
     cnx = mysql.connector.connect(user=ConfigManager.db_config['user'],
@@ -131,10 +220,12 @@ def main():
     query = "SELECT TRUNCATE(SUM(totalSize)/1048574, 3), SUM(numOfItemsInCache), SUM(totalRequestsInAMin), TRUNCATE(AVG(missRate)*100, 3), TRUNCATE(AVG(hitRate)*100, 3) FROM memcachestatlog GROUP BY DATE_FORMAT(currentTime, '%Y-%m-%d %H:%i') ORDER BY DATE_FORMAT(currentTime, '%Y-%m-%d %H:%i') DESC LIMIT 1"
     cursor.execute(query)
     memCacheStatistics = cursor.fetchall()
-
-    view = render_template(
-        "managerApp.html", instanceAmount=instanceAmount, cursor=memCacheStatistics)
     cnx.close()
+
+    # Display the webpage
+    view = render_template(
+        "managerApp.html", content1=content1, extension1=extension1, content2=content2, extension2=extension2, content3=content3, extension3=extension3, 
+        content4=content4, extension4=extension4, content5=content5, extension5=extension5, content6=content6, extension6=extension6, instanceAmount=instanceAmount, cursor=memCacheStatistics)
     return view
 
 
@@ -608,6 +699,54 @@ def getTotalSize():
     cnx.close()
 
     return totalSizeLog
+
+
+def getNumOfWorkers():
+    """API function to get past num of active workers log data from database
+
+    Returns:
+        Array of timestamp and past 30 min num of workers data
+    """
+    cnx = mysql.connector.connect(user=ConfigManager.db_config['user'],
+                                          password=ConfigManager.db_config['password'],
+                                          host=ConfigManager.db_config['host'],
+                                          database=ConfigManager.db_config['database'])
+
+    cursor = cnx.cursor()
+    cursor.execute("SELECT DATE_FORMAT(currentTime, '%Y-%m-%d %H:%i') AS time, count(DISTINCT memcacheIndex) AS workersNum FROM memcachestatlog GROUP BY DATE_FORMAT(currentTime, '%Y-%m-%d %H:%i')")
+    workersNum = cursor.fetchall()
+    cnx.close()
+
+    return workersNum
+
+
+def chartUpdater():
+    '''
+    Loops every 60s, caller to updateChart()
+    '''
+    while True:
+        updateChart()
+        time.sleep(60)
+    pass
+
+
+def updateChart():
+    '''
+    Update the chart via data retrieved from db. Called every 60s.
+    '''
+    dataset = {
+        'missrate': getMissRateLog(),
+        'hitrate': getHitRateLog(),
+        'totalrequest': getTotalRequestsInAMin(),
+        'numofitems': getNumOfItemsInCache(),
+        'totalsize': getTotalSize(),
+        'numofworkers': getNumOfWorkers(),  # Require a getNumOfWorkers() func @haozhe
+    }
+    for name in dataset:
+        data = dataset[name]
+        print('chartUpdater(): updating {}'.format(name))
+        Chart(name).load(data).plot().save().close()
+    pass
 
 
 @webapp.route('/clearDatabase', methods=['POST'])

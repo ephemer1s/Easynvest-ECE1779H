@@ -60,6 +60,7 @@
       </div>
     </header>
 
+
     <!-- Statistics Subtitle -->
     <section class="u-clearfix u-grey-5 u-section-1" id="sec-eff3">
       <div class="u-clearfix u-sheet u-valign-middle u-sheet-1">
@@ -72,18 +73,77 @@
       </div>
     </section>
 
+
     <!-- Statistics Section -->
-    <!-- Waiting for function complement -->
     <section class="u-clearfix u-white u-section-2" id="sec-e33e">
 
       <!-- Monitor Chart for past 30 minute -->
+      <!-- Workers Num Image  -->
+      <div class="u-clearfix u-sheet u-sheet-1">
+        {% if content1 and extension1 %}
+          <img
+            id="imgContent"
+            src="data:image/{{ extension1 }};base64,{{ content1 }}"
+            width="100%"
+          />
+        {% endif %}
+      </div>
 
-        <!-- ATTENTION: Charts shoud be displayed here @Haocheng -->
+      <!-- MissRate Image -->
+      <div class="u-clearfix u-sheet u-sheet-1">
+        {% if content2 and extension2 %}
+          <img
+            id="imgContent"
+            src="data:image/{{ extension2 }};base64,{{ content2 }}"
+            width="100%"
+          />
+        {% endif %}
+      </div>
 
-      <!-- Under Construction -->
+      <!-- HitRate Image -->
+      <div class="u-clearfix u-sheet u-sheet-1">
+        {% if content3 and extension3 %}
+          <img
+            id="imgContent"
+            src="data:image/{{ extension3 }};base64,{{ content3 }}"
+            width="100%"
+          />
+        {% endif %}
+      </div>
 
+      <!-- Total Request Image -->
+      <div class="u-clearfix u-sheet u-sheet-1">
+        {% if content4 and extension4 %}
+          <img
+            id="imgContent"
+            src="data:image/{{ extension4 }};base64,{{ content4 }}"
+            width="100%"
+          />
+        {% endif %}
+      </div>
+
+      <!-- Items Num Image -->
+      <div class="u-clearfix u-sheet u-sheet-1">
+        {% if content5 and extension5 %}
+          <img
+            id="imgContent"
+            src="data:image/{{ extension5 }};base64,{{ content5 }}"
+            width="100%"
+          />
+        {% endif %}
+      </div>
+
+      <!-- Total Size Image -->
+      <div class="u-clearfix u-sheet u-sheet-1">
+        {% if content6 and extension6 %}
+          <img
+            id="imgContent"
+            src="data:image/{{ extension6 }};base64,{{ content6 }}"
+            width="100%"
+          />
+        {% endif %}
+      </div>
       
-
       <!-- Monitor Table showing the current statistics -->
       <div class="u-clearfix u-sheet u-sheet-1">
         <table class = "statisticsTable">
@@ -96,19 +156,18 @@
               <th>Hit Rate (%) </th>
           <tr>
 
-          <!-- Under Construction -->
-            <tr>
-                <td>{{ instanceAmount }}</td>
-                {% for row in cursor %}
-                <td>{{ row[0] }}</td>
-                <td>{{ row[1] }}</td>
-                <td>{{ row[2] }}</td>
-                <td>{{ row[3] }}</td>
-                <td>{{ row[4] }}</td>
-                {% endfor %}
-            </tr>
+          <tr>
+              <td>{{ instanceAmount }}</td>
+              {% for row in cursor %}
+              <td>{{ row[0] }}</td>
+              <td>{{ row[1] }}</td>
+              <td>{{ row[2] }}</td>
+              <td>{{ row[3] }}</td>
+              <td>{{ row[4] }}</td>
+              {% endfor %}
+          </tr>
 
-        </table><br>
+        </table>
       </div>
     </section>
 
@@ -131,6 +190,7 @@
         }
     </style>
 
+
     <!-- Configuration Subtitle -->
     <section class="u-clearfix u-grey-5 u-section-3" id="sec-2e39">
       <div class="u-clearfix u-sheet u-valign-middle u-sheet-1">
@@ -148,13 +208,12 @@
       </div>
     </section>
 
+
     <!-- Configuration Section -->
     <section class="u-clearfix u-white u-section-4" id="sec-7ee8">
 
       <!-- Memcache Capacity & Replacement Policy Setting-->
-      <!-- Waiting for function complement -->
       <div class="u-clearfix u-sheet u-sheet-1">
-        <!-- check if this url still works before deployment -->
         <form class="configsform" action="{{ url_for('replacePolicyUpdate')}}" method="post">
           <label><b>Memcache Capacity</b> (4096 max):</label>
           <input type="number" name="capacityMB" min="1" max="4096" value="1" required/>
@@ -202,7 +261,6 @@
             <p class="u-text u-text-default u-text-3">Configure a simple auto-scaling policy by setting parameters below.</p><br>
             <!-- functionable url required before deployment -->
             <form class="poolResizeAutoForm" action="{{ url_for('poolResizeAuto')}}" method="post">
-              <!-- check max > min required -->
               <label><b>Max Miss Rate</b> (%):</label>
               <input type="number" name="maxMissRate" min="1" max="99" value="75" required/>
               <label><b>Min Miss Rate</b> (%):</label>
@@ -348,6 +406,7 @@
       </div>
     </section>
 
+
     <!-- File Remove Section  -->
     <section class="u-clearfix u-white u-section-6" id="sec-e560">
       <div class="u-clearfix u-sheet u-sheet-1">
@@ -427,6 +486,7 @@
 
     </section>
 
+
     <!-- Cute Poka Bird. just for fun.  -->
     <div class="poka">
       <a class="poka"><img src="https://cdn.hinatazaka46.com/files/14/hinata/pages/hinachri2020/assets/images/poka.gif" height="120" width="120"></a>
@@ -439,6 +499,7 @@
     }
     </style>
     
+
     <!-- Footer Section  -->
     <footer class="u-align-center u-clearfix u-footer u-palette-1-light-3 u-footer" id="sec-5d25"><div class="u-clearfix u-sheet u-valign-middle u-sheet-1">
         <lt-highlighter style="display: none; z-index: 1 !important; width: 1100px; margin-right: auto; margin-left: auto;">
