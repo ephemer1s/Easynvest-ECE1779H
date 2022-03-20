@@ -128,7 +128,7 @@ def main():
                                   database=ConfigManager.db_config['database'])
 
     cursor = cnx.cursor()
-    query = "SELECT itemTotalSize, itemNum, requestNum, missRate, hitRate FROM statistics WHERE id = 0"
+    query = "SELECT TRUNCATE(SUM(totalSize)/1048574, 3), SUM(numOfItemsInCache), SUM(totalRequestsInAMin), TRUNCATE(AVG(missRate)*100, 3), TRUNCATE(AVG(hitRate)*100, 3) FROM memcachestatlog GROUP BY DATE_FORMAT(currentTime, '%Y-%m-%d %H:%i') ORDER BY DATE_FORMAT(currentTime, '%Y-%m-%d %H:%i') DESC LIMIT 1"
     cursor.execute(query)
     memCacheStatistics = cursor.fetchall()
 
@@ -513,7 +513,102 @@ def autoScaler():
             print("AutoScaler Status 1: Steady")
 
 
-# Under Construction
+def getMissRateLog():
+    """API function to get past miss rate log data from database
+
+    Returns:
+        Array of timestamp and past 30 min missrate data
+    """
+    cnx = mysql.connector.connect(user=ConfigManager.db_config['user'],
+                                          password=ConfigManager.db_config['password'],
+                                          host=ConfigManager.db_config['host'],
+                                          database=ConfigManager.db_config['database'])
+
+    cursor = cnx.cursor()
+    cursor.execute("SELECT DATE_FORMAT(currentTime, '%Y-%m-%d %H:%i') AS time, TRUNCATE(AVG(missRate), 6) AS missRateAvg FROM memcachestatlog GROUP BY DATE_FORMAT(currentTime, '%Y-%m-%d %H:%i')")
+    missRateLog = cursor.fetchall()
+    cnx.close()
+
+    return missRateLog
+
+
+def getHitRateLog():
+    """API function to get past hit rate log data from database
+
+    Returns:
+        Array of timestamp and past 30 min hit rate data
+    """
+    cnx = mysql.connector.connect(user=ConfigManager.db_config['user'],
+                                          password=ConfigManager.db_config['password'],
+                                          host=ConfigManager.db_config['host'],
+                                          database=ConfigManager.db_config['database'])
+
+    cursor = cnx.cursor()
+    cursor.execute("SELECT DATE_FORMAT(currentTime, '%Y-%m-%d %H:%i') AS time, TRUNCATE(AVG(hitRate), 6) AS hitRateAvg FROM memcachestatlog GROUP BY DATE_FORMAT(currentTime, '%Y-%m-%d %H:%i')")
+    hitRateLog = cursor.fetchall()
+    cnx.close()
+
+    return hitRateLog
+
+
+def getTotalRequestsInAMin():
+    """API function to get past total requests log data from database
+
+    Returns:
+        Array of timestamp and past 30 min totalRequestsInAMin data
+    """
+    cnx = mysql.connector.connect(user=ConfigManager.db_config['user'],
+                                          password=ConfigManager.db_config['password'],
+                                          host=ConfigManager.db_config['host'],
+                                          database=ConfigManager.db_config['database'])
+
+    cursor = cnx.cursor()
+    cursor.execute("SELECT DATE_FORMAT(currentTime, '%Y-%m-%d %H:%i') AS time, SUM(totalRequestsInAMin) AS totalRequestsSum FROM memcachestatlog GROUP BY DATE_FORMAT(currentTime, '%Y-%m-%d %H:%i')")
+    totalRequestsLog = cursor.fetchall()
+    cnx.close()
+
+    return totalRequestsLog
+
+
+def getNumOfItemsInCache():
+    """API function to get past num of items log data from database
+
+    Returns:
+        Array of timestamp and past 30 min numOfItemsInCache data
+    """
+    cnx = mysql.connector.connect(user=ConfigManager.db_config['user'],
+                                          password=ConfigManager.db_config['password'],
+                                          host=ConfigManager.db_config['host'],
+                                          database=ConfigManager.db_config['database'])
+
+    cursor = cnx.cursor()
+    cursor.execute("SELECT DATE_FORMAT(currentTime, '%Y-%m-%d %H:%i') AS time, SUM(numOfItemsInCache) AS numOfItemsSum FROM memcachestatlog GROUP BY DATE_FORMAT(currentTime, '%Y-%m-%d %H:%i')")
+    numOfItemsLog = cursor.fetchall()
+    cnx.close()
+
+    return numOfItemsLog
+
+
+def getTotalSize():
+    """API function to get past total size log data from database
+
+    Returns:
+        Array of timestamp and past 30 min total size data
+        Please note that total size is in MB form with 3 decimal places
+    """
+    cnx = mysql.connector.connect(user=ConfigManager.db_config['user'],
+                                          password=ConfigManager.db_config['password'],
+                                          host=ConfigManager.db_config['host'],
+                                          database=ConfigManager.db_config['database'])
+
+    cursor = cnx.cursor()
+    cursor.execute("SELECT DATE_FORMAT(currentTime, '%Y-%m-%d %H:%i') AS time, TRUNCATE(SUM(totalSize)/1048574, 3) AS totalSizeSum FROM memcachestatlog GROUP BY DATE_FORMAT(currentTime, '%Y-%m-%d %H:%i')")
+    totalSizeLog = cursor.fetchall()
+    cnx.close()
+
+    return totalSizeLog
+
+
 @webapp.route('/clearDatabase', methods=['POST'])
 def clearDatabase():
     """Delete image path data stored in the database and all image files stored in S3
@@ -534,16 +629,12 @@ def clearDatabase():
     cnx.close()
 
     # Delete all the image file in S3
-    # ATTENTION: Require S3 clear code here
-
     s3_client = boto3.client('s3',
                              "us-east-1",
                              aws_access_key_id=ConfigAWS.aws_access_key_id,
                              aws_secret_access_key=ConfigAWS.aws_secret_access_key)
     call_obj = S3_Class(s3_client)
     call_obj.delete_all()
-
-    # Under Construction
 
     response = webapp.response_class(
         response=json.dumps(
@@ -553,8 +644,6 @@ def clearDatabase():
     )
     print(response)
     return response
-
-# Under Construction
 
 
 @webapp.route('/clearMemcache', methods=['POST'])
