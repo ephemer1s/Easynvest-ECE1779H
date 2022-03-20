@@ -19,3 +19,4 @@ a2/**/credential.py
 
 a2/logs/
 *.log
+*.png
