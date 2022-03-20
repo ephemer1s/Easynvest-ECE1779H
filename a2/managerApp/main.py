@@ -616,10 +616,22 @@ def getTotalSize():
 
 
 def getNumOfWorkers():
-    '''
-    TODO: @haozhe
-    '''
-    pass
+    """API function to get past num of active workers log data from database
+
+    Returns:
+        Array of timestamp and past 30 min num of workers data
+    """
+    cnx = mysql.connector.connect(user=ConfigManager.db_config['user'],
+                                          password=ConfigManager.db_config['password'],
+                                          host=ConfigManager.db_config['host'],
+                                          database=ConfigManager.db_config['database'])
+
+    cursor = cnx.cursor()
+    cursor.execute("SELECT DATE_FORMAT(currentTime, '%Y-%m-%d %H:%i') AS time, count(DISTINCT memcacheIndex) AS workersNum FROM memcachestatlog GROUP BY DATE_FORMAT(currentTime, '%Y-%m-%d %H:%i')")
+    workersNum = cursor.fetchall()
+    cnx.close()
+
+    return workersNum
 
 
 def chartUpdater():
