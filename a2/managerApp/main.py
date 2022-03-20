@@ -1,4 +1,7 @@
-import math, threading, time, base64
+import math
+import threading
+import time
+import base64
 import http.client
 from re import TEMPLATE
 import requests
@@ -408,21 +411,21 @@ def autoScaler():
                                       database=ConfigManager.db_config['database'])
         cursor = cnx.cursor()
 
-        ######## Old code for fetching missrate using SQL cursor
+        # Old code for fetching missrate using SQL cursor
         # cursor.execute("SELECT missRate FROM statistics WHERE id = 0")
         # memcacheStatics = cursor.fetchall()
         # missRate = memcacheStatics[0][0]
 
-
-        ######## New code for fetching missrate from cloudwatch by @Haocheng
+        # New code for fetching missrate from cloudwatch by @Haocheng
         # Check this @ Haozhe
         # TODO: modify this index list.
         index_list = [str(i) for i in range(8)]
-        cloudwatch = CloudwatchAPI(ConfigAWS.aws_access_key_id, ConfigAWS.aws_secret_access_key)
-        response = cloudwatch.getCacheMissRateStatistics(index_list, intervals=60, periods=5)
-        print([str(i['Datapoints']) for i in response]) # test prints
+        cloudwatch = CloudwatchAPI(
+            ConfigAWS.aws_access_key_id, ConfigAWS.aws_secret_access_key)
+        response = cloudwatch.getCacheMissRateStatistics(
+            index_list, intervals=60, period=5)
+        print([str(i['Datapoints']) for i in response])  # test prints
         missRate = cloudwatch.getLastMeanMissRate(response)
-        
 
         cursor.execute(
             "SELECT maxMissRate, minMissRate, poolExpandRatio, poolShrinkRatio FROM autoscalerconfigs WHERE id = 0")
