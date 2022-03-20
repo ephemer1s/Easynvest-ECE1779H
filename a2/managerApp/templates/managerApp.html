@@ -10,8 +10,8 @@
     <link rel="stylesheet" href="{{url_for('static', filename='nicepage.css')}}" media="screen">
     <link rel="stylesheet" href="{{url_for('static', filename='managerApp.css')}}" media="screen">
     <script class="u-script" type="text/javascript" src="{{url_for('static', filename='nicepage.js')}}" defer=""></script>
-    <script class="u-script" type="text/javascript" src="{{url_for('static', filename='jquery-1.9.1.min.js')}}" defer=""></script>
-    <meta name="generator" content="Nicepage 4.6.6, nicepage.com">
+    <script class="u-script" type="text/javascript" src="{{url_for('static', filename='jquery.js')}}" defer=""></script>
+    <meta name="generator" content="Nicepage 4.6.5, nicepage.com">
     <link id="u-theme-google-font" rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:100,100i,300,300i,400,400i,500,500i,700,700i,900,900i|Open+Sans:300,300i,400,400i,500,500i,600,600i,700,700i,800,800i">
     
     
@@ -27,49 +27,37 @@
   </head>
 
 
-  <!-- ManagerApp Subtitle -->
+  <!-- ManagerApp Title -->
   <body class="u-body u-xl-mode">
-    <header class="u-clearfix u-header u-palette-1-light-3 u-sticky u-sticky-1972" id="sec-5b77" data-animation-name="" data-animation-duration="0" data-animation-delay="0" data-animation-direction=""><style class="u-sticky-style" data-style-id="1972">
-      </style>
-        <div class="u-clearfix u-sheet u-sheet-1">
-            <h2 class="u-text u-text-default u-text-palette-1-dark-2 u-text-1">Memcache M<span style="font-weight: 400;"></span>anager
-            </h2>
-            <nav class="u-menu u-menu-dropdown u-offcanvas u-menu-1">
-              <div class="menu-collapse u-custom-font u-font-georgia" style="font-size: 1rem; letter-spacing: 0px;">
-                <a class="u-button-style u-custom-active-border-color u-custom-active-color u-custom-border u-custom-border-color u-custom-border-radius u-custom-borders u-custom-hover-border-color u-custom-hover-color u-custom-left-right-menu-spacing u-custom-padding-bottom u-custom-text-active-color u-custom-text-color u-custom-text-hover-color u-custom-top-bottom-menu-spacing u-nav-link u-text-active-palette-1-base u-text-hover-palette-2-base" href="#">
-                  <svg class="u-svg-link" viewBox="0 0 24 24"><use xlink:href="#menu-hamburger"></use></svg>
-                  <svg class="u-svg-content" version="1.1" id="menu-hamburger" viewBox="0 0 16 16" x="0px" y="0px" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg"><g><rect y="1" width="16" height="2"></rect><rect y="7" width="16" height="2"></rect><rect y="13" width="16" height="2"></rect>
-                </g></svg>
-                </a>
+    <header class="u-clearfix u-header u-palette-1-light-3 u-sticky u-sticky-1972" id="sec-5b77" data-animation-name="" data-animation-duration="0" data-animation-delay="0" data-animation-direction="">
+      <div class="u-clearfix u-sheet u-sheet-1">
+        <div class="managerapp-title-left"><style>.managerapp-title-left{float:left}</style>
+          <h2 class="u-text u-text-default u-text-palette-1-dark-2 u-text-1">Memcache M<span style="font-weight: 400;"></span>anager</h2>
+        </div> 
+        <div class="managerapp-menu-right"><style>.managerapp-menu-right{float:right}</style>
+          <div class="u-custom-menu u-nav-container">
+            <ul class="u-custom-font u-font-georgia u-nav u-spacing-30 u-unstyled u-nav-1">
+              <li class="u-nav-item"><a class="u-border-2 u-border-active-palette-1-base u-border-hover-palette-1-base u-border-no-left u-border-no-right u-border-no-top u-button-style u-nav-link u-text-active-palette-1-light-1 u-text-hover-palette-2-light-1 u-text-palette-1-dark-1" style="padding: 10px 0px;" href="{{url_for('homeJump')}}">Home</a></li>
+              <li class="u-nav-item"><a class="u-border-2 u-border-active-palette-1-base u-border-hover-palette-1-base u-border-no-left u-border-no-right u-border-no-top u-button-style u-nav-link u-text-active-palette-1-light-1 u-text-hover-palette-2-light-1 u-text-palette-1-dark-1" style="padding: 10px 0px;" href="{{url_for('uploadJump')}}">Upload</a></li>
+              <li class="u-nav-item"><a class="u-border-2 u-border-active-palette-1-base u-border-hover-palette-1-base u-border-no-left u-border-no-right u-border-no-top u-button-style u-nav-link u-text-active-palette-1-light-1 u-text-hover-palette-2-light-1 u-text-palette-1-dark-1" style="padding: 10px 0px;" href="{{url_for('browseJump')}}">Browse</a></li>
+              <li class="u-nav-item"><a class="u-border-2 u-border-active-palette-1-base u-border-hover-palette-1-base u-border-no-left u-border-no-right u-border-no-top u-button-style u-nav-link u-text-active-palette-1-light-1 u-text-hover-palette-2-light-1 u-text-palette-1-dark-1" style="padding: 10px 0px;" href="{{url_for('keylistJump')}}">Key List</a></li>
+            </ul>
+          </div>
+          <div class="u-custom-menu u-nav-container-collapse">
+            <div class="u-black u-container-style u-inner-container-layout u-opacity u-opacity-95 u-sidenav">
+              <div class="u-inner-container-layout u-sidenav-overflow">
+                <div class="u-menu-close"></div>
+                <ul class="u-align-center u-nav u-popupmenu-items u-unstyled u-nav-2">
+                  <li class="u-nav-item"><a class="u-button-style u-nav-link" style="padding: 10px 0px;" href="{{url_for('homeJump')}}">Home</a></li>
+                  <li class="u-nav-item"><a class="u-button-style u-nav-link" style="padding: 10px 0px;" href="{{url_for('uploadJump')}}">Upload</a></li>
+                  <li class="u-nav-item"><a class="u-button-style u-nav-link" style="padding: 10px 0px;" href="{{url_for('browseJump')}}">Browse</a></li>
+                  <li class="u-nav-item"><a class="u-button-style u-nav-link" style="padding: 10px 0px;" href="{{url_for('keylistJump')}}">Key List</a></li>
+                </ul>
               </div>
-              <div class="u-custom-menu u-nav-container">
-                <ul class="u-custom-font u-font-georgia u-nav u-spacing-30 u-unstyled u-nav-1"><li class="u-nav-item"><a class="u-border-2 u-border-active-palette-1-base u-border-hover-palette-1-base u-border-no-left u-border-no-right u-border-no-top u-button-style u-nav-link u-text-active-palette-1-light-1 u-text-hover-palette-2-light-1 u-text-palette-1-dark-1" style="padding: 10px 0px;">Home</a>
-                  </li><li class="u-nav-item"><a class="u-border-2 u-border-active-palette-1-base u-border-hover-palette-1-base u-border-no-left u-border-no-right u-border-no-top u-button-style u-nav-link u-text-active-palette-1-light-1 u-text-hover-palette-2-light-1 u-text-palette-1-dark-1" style="padding: 10px 0px;">Upload</a>
-                  </li><li class="u-nav-item"><a class="u-border-2 u-border-active-palette-1-base u-border-hover-palette-1-base u-border-no-left u-border-no-right u-border-no-top u-button-style u-nav-link u-text-active-palette-1-light-1 u-text-hover-palette-2-light-1 u-text-palette-1-dark-1" href="Browse.html" style="padding: 10px 0px;">Browse</a>
-                  </li><li class="u-nav-item"><a class="u-border-2 u-border-active-palette-1-base u-border-hover-palette-1-base u-border-no-left u-border-no-right u-border-no-top u-button-style u-nav-link u-text-active-palette-1-light-1 u-text-hover-palette-2-light-1 u-text-palette-1-dark-1" style="padding: 10px 0px;">Key List</a>
-                  </li><li class="u-nav-item"><a class="u-border-2 u-border-active-palette-1-base u-border-hover-palette-1-base u-border-no-left u-border-no-right u-border-no-top u-button-style u-nav-link u-text-active-palette-1-light-1 u-text-hover-palette-2-light-1 u-text-palette-1-dark-1" style="padding: 10px 0px;">Manager</a>
-                  </li></ul>
-              </div>
-
-              <!-- Web Page Jump Link -->
-              <!-- Waiting for url link -->
-              <!-- Under Construction -->
-              <div class="u-custom-menu u-nav-container-collapse">
-                <div class="u-black u-container-style u-inner-container-layout u-opacity u-opacity-95 u-sidenav">
-                  <div class="u-inner-container-layout u-sidenav-overflow">
-                    <div class="u-menu-close"></div>
-                    <ul class="u-align-center u-nav u-popupmenu-items u-unstyled u-nav-2"><li class="u-nav-item"><a class="u-button-style u-nav-link" style="padding: 10px 0px;">Home</a>
-                      </li><li class="u-nav-item"><a class="u-button-style u-nav-link" style="padding: 10px 0px;">Upload</a>
-                      </li><li class="u-nav-item"><a class="u-button-style u-nav-link" href="Browse.html" style="padding: 10px 0px;">Browse</a>
-                      </li><li class="u-nav-item"><a class="u-button-style u-nav-link" style="padding: 10px 0px;">Key List</a>
-                      </li><li class="u-nav-item"><a class="u-button-style u-nav-link" style="padding: 10px 0px;">Manager</a>
-                      </li></ul>
-                  </div>
-                </div>
-                <div class="u-black u-menu-overlay u-opacity u-opacity-70"></div>
-              </div>
-            </nav>
+            </div>
+          </div>
         </div>
+      </div>
     </header>
 
     <!-- Statistics Subtitle -->
