@@ -423,7 +423,8 @@ def autoScaler():
         cloudwatch = CloudwatchAPI(
             ConfigAWS.aws_access_key_id, ConfigAWS.aws_secret_access_key)
         response = cloudwatch.getCacheMissRateStatistics(
-            index_list, intervals=60, period=5)
+            index_list, intervals=60, period=60)
+            # index_list, intervals=60, period=5)  # Use period == 5 if Use getOneMinStats()
         print([str(i['Datapoints']) for i in response])  # test prints
         missRate = cloudwatch.getLastMeanMissRate(response)
 
