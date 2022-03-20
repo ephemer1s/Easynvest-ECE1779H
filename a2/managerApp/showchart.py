@@ -49,21 +49,26 @@ class Chart(object):
         Init the Chart object
         name: (str) choose from 'missrate' | 'hitrate' | 'totalrequest' | 'numofitems' | 'totalsize' | 'numofworkers'
         '''
-        self.fig = plt.figure(figsize=figsize)  # init figure
-        self.ax = self.fig.subplot(1, 1)
-
-        sns.set_style('whitegrid')  # define sns style
-        sns.set_context('poster')
-
-        if not os.path.exists(savepath):  # Load save path
-            savepath = './managerApp/' + savepath
-        print('Using path ' + savepath)
-        self.savepath = savepath
+        with sns.axes_style('darkgrid'):
+            sns.set_context('poster')
+            self.fig = plt.figure(figsize=figsize)  # init figure
+            self.ax = self.fig.subplots(1, 1)
 
         if name in self.style:
             self.name = name
         else:
             raise Exception('Unsupported Metric Name: {}'.format(name))
+
+        if not os.path.exists(savepath):  # Load save path
+            if not os.path.isdir('./managerApp'):
+                os.mkdir('managerApp')
+            savepath = './managerApp/' + savepath
+            if not os.path.isdir(savepath):
+                os.mkdir(savepath)
+        print('Drawing plot of {} using path {}'.format(name, savepath))
+        self.savepath = savepath
+
+
 
 
     def load(self, raw_data):
@@ -72,7 +77,7 @@ class Chart(object):
         '''
         x, y = [], []
         for i in raw_data:
-            if len(i) is not 2:
+            if len(i) != 2:
                 raise Exception('Raw data have less than 2 elements in one of its datapoints')
             else:
                 x.append(i[0])
@@ -85,7 +90,7 @@ class Chart(object):
 
 
     def percentage(self):
-        self.x = self.x * 100
+        self.y = self.y * 100
         return self
 
 
@@ -94,13 +99,13 @@ class Chart(object):
         Plot a lineplot and a scatterplot with input data.
         '''
         if self.x is not None and self.y is not None:
-            sns.lineplot(self.x, self.y, ax=self.ax)
-            sns.scatterplot(self.x, self.y, markers='.', ax=self.ax)
+            sns.lineplot(x=self.x, y=self.y, ax=self.ax)
+            sns.scatterplot(x=self.x, y=self.y, markers='.', ax=self.ax)
 
         else:
             raise Exception('Failed to plot: X and Y not loaded')
 
-        self.ax.set(xlim=(x[-1] - dt.timedelta(minutes=30), x[-1]),
+        self.ax.set(xlim=(self.x[-1] - dt.timedelta(minutes=30), self.x[-1]),
                     title=self.style[self.name]['title'], 
                     ylabel=self.style[self.name]['ylabel'])
 
@@ -115,6 +120,9 @@ class Chart(object):
         Save figure drawed in self.fig
         '''
         path = self.savepath + self.name + '.png'
+
+        self.fig.savefig(path)
+        print('File saved at {}'.format(path))
         return self
 
 
@@ -128,4 +136,4 @@ class Chart(object):
 # Usage:
 if __name__ == '__main__':
     data = [('2022-03-19 06:03', 0.15), ('2022-03-19 06:04', 0.29647), ('2022-03-19 06:05', 0.39)]
-    Chart('missrate').load(data).percentage().plot().save()
+    Chart('missrate', figsize=(20, 6)).load(data).percentage().plot().save()
