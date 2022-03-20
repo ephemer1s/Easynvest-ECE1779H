@@ -294,7 +294,7 @@ def managerAppJump():
     Returns:
         url call to manager app main Page
     """
-    return redirect("http://192.168.0.15:5000/managerApp", code=302)
+    return redirect("http://localhost:5000/managerApp", code=302)
 
 
 @webapp.errorhandler(404)

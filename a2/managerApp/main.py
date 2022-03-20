@@ -687,7 +687,7 @@ def homeJump():
     Returns:
         url call to  frontEnd home page
     """
-    return redirect("http://192.168.0.15:5000", code=302)
+    return redirect("http://localhost:5000", code=302)
 
 @webapp.route('/uploadJump')
 def uploadJump():
@@ -696,7 +696,7 @@ def uploadJump():
     Returns:
         url call to frontEnd upload page
     """
-    return redirect("http://192.168.0.15:5000/upload", code=302)
+    return redirect("http://localhost:5000/upload", code=302)
 
 @webapp.route('/browseJump')
 def browseJump():
@@ -705,7 +705,7 @@ def browseJump():
     Returns:
         url call to frontEnd browse page
     """
-    return redirect("http://192.168.0.15:5000/browse", code=302)
+    return redirect("http://localhost:5000/browse", code=302)
 
 @webapp.route('/keylistJump')
 def keylistJump():
@@ -714,7 +714,7 @@ def keylistJump():
     Returns:
         url call to frontEnd keylist page
     """
-    return redirect("http://192.168.0.15:5000/keylist", code=302)
+    return redirect("http://localhost:5000/keylist", code=302)
 
 
 @webapp.route('/wakeUp')
