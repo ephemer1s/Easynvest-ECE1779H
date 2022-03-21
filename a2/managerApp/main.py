@@ -778,8 +778,8 @@ def updateChart():
         'totalsize': getTotalSize(),
         'numofworkers': getNumOfWorkers(),  # Require a getNumOfWorkers() func @haozhe
     }
-    print('chartUpdater(): debug info - showing retrieved dataset')
-    print(dataset)
+    # print('chartUpdater(): debug info - showing retrieved dataset')
+    # print(dataset)
     for name in dataset:
         data = dataset[name]
         print('chartUpdater(): updating {}'.format(name))
