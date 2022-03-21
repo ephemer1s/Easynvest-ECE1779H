@@ -40,28 +40,28 @@ class CloudwatchAPI(object):
         return response
 
 
-    def getCacheMissRateData(instances: list):
-        '''
-        Get miss rate DATA from a specified server from cloudwatch. return a dict containing responses.
-        This function is bad, and I no longer maintenance it.
-        use this one below instead. -> getCacheMissRateStatistics(instances: list, intervals=60, period=60)
-        '''
-        responses = []
-        for i in instances:
-            responses.append(
-                # TODO: Add responses
-                self.client.get_metric_data(
-                    MetricDataQueries=[
-                        {}
-                    ],
-                    StartTime = datetime.datetime.utcnow() - datetime.timedelta(seconds = 60),
-                    EndTime = datetime.datetime.utcnow(),
-                    NextToken='string',
-                    ScanBy='TimestampDescending'|'TimestampAscending',
-                    MaxDatapoints=123
-                )
-            )
-        return responses
+    # def getCacheMissRateData(instances: list):
+    #     '''
+    #     Get miss rate DATA from a specified server from cloudwatch. return a dict containing responses.
+    #     This function is bad, and I no longer maintenance it.
+    #     use this one below instead. -> getCacheMissRateStatistics(instances: list, intervals=60, period=60)
+    #     '''
+    #     responses = []
+    #     for i in instances:
+    #         responses.append(
+    #             # TODO: Add responses
+    #             self.client.get_metric_data(
+    #                 MetricDataQueries=[
+    #                     {}
+    #                 ],
+    #                 StartTime = datetime.datetime.utcnow() - datetime.timedelta(seconds = 60),
+    #                 EndTime = datetime.datetime.utcnow(),
+    #                 NextToken='string',
+    #                 ScanBy='TimestampDescending'|'TimestampAscending',
+    #                 MaxDatapoints=123
+    #             )
+    #         )
+    #     return responses
 
 
     def getCacheMissRateStatistics(self, instances: list, intervals=60, period=60):
