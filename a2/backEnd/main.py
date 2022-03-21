@@ -821,7 +821,7 @@ def updateIndex(id):
     """Update id
     """
 
-    memcacheStatistics.index = id
+    memcacheStatistics.index = int(id)
 
     return jsonify({"success": "true",
                     "statusCode": 200})
