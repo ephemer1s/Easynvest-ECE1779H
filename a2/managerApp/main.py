@@ -437,6 +437,7 @@ def autoScalerMonitor():
     while True:
         autoScaler()
         publicIPUpdater()
+        replacePolicyUpdate()
         time.sleep(60)  # It could be something like 5s when testing
 
 
