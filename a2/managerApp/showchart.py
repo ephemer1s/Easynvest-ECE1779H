@@ -73,7 +73,6 @@ class Chart(object):
         print('Drawing plot of {} using path {}'.format(name, savepath))
         self.savepath = savepath
 
-
     def timeascend(self, x, y):
         '''
         sort the data with time ascend.
@@ -82,7 +81,6 @@ class Chart(object):
         x = x[args]
         y = y[args]
         return x, y
-
 
     def ascend(self):
         '''
@@ -94,13 +92,11 @@ class Chart(object):
             self.y = self.y[args]
         return self
 
-
     # def percentage(self, y):
     #     '''
     #     make self.y percentile
     #     '''
     #     return y * 100
-
 
     def load(self, raw_data):
         '''
@@ -121,9 +117,8 @@ class Chart(object):
         if self.x is not None and self.y is not None:
             if self.name == 'missrate' or self.name == 'hitrate':
                 self.y = self.y * 100
-        
-        return self
 
+        return self
 
     def plot(self):
         '''
