@@ -783,7 +783,7 @@ def updateChart():
     for name in dataset:
         data = dataset[name]
         print('chartUpdater(): updating {}'.format(name))
-        Chart(name).load(data).plot().save().close()
+        Chart(name).load(data).ascend().plot().save().close()
     pass
 
 
