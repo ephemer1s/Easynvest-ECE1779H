@@ -115,6 +115,8 @@ class Chart(object):
 
         if self.style[self.name]['ylim'] is not None:
             self.ax.set(ylim=self.style[self.name]['ylim'])
+        else:
+            self.ax.set(ylim=(0, max(self.y) * 1.2))
 
         return self
 
