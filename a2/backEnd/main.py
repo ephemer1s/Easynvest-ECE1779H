@@ -814,8 +814,8 @@ def cloudWatchUpdate():
     """ Give statistics to frontEnd to store in cloudWatch every 5s
     """
     # index, missRate, hitRate, totalNumOfRequests, numOfItemsInCache, totalSize, totalRequestsInAMin, currentTime = memcacheStatistics.getOneMinStats()
-    # index, missRate, _, _, _, _, _, _ = memcacheStatistics.getOneMinStats()
-    index, missRate, _, _, _, _, _ = memcacheStatistics.get5SecStats()
+    index, missRate, _, _, _, _, _, _ = memcacheStatistics.getOneMinStats()
+    # index, missRate, _, _, _, _, _ = memcacheStatistics.get5SecStats()
 
     # TODO: Can we get 5s stats here?
     # Call boto3 cloudwatch @Haocheng

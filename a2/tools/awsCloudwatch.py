@@ -86,7 +86,8 @@ class CloudwatchAPI(object):
                     StartTime = datetime.datetime.utcnow() - datetime.timedelta(seconds=intervals),
                     EndTime = datetime.datetime.utcnow(),
                     Period=period,
-                    Statistics=['Average'],
+                    # Statistics=['Average'],
+                    Statistics=['Maximum'],
                     Unit='Percent',
                 )
             )
