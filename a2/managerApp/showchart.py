@@ -73,6 +73,38 @@ class Chart(object):
         print('Drawing plot of {} using path {}'.format(name, savepath))
         self.savepath = savepath
 
+<<<<<<< HEAD
+=======
+
+    def timeascend(self, x, y):
+        '''
+        sort the data with time ascend.
+        '''
+        args = x.argsort()
+        x = x[args]
+        y = y[args]
+        return x, y
+
+
+    def ascend(self):
+        '''
+        sort the data with time ascend. return self.
+        '''
+        if self.x is not None and self.y is not None:
+            args = self.x.argsort()
+            self.x = self.x[args]
+            self.y = self.y[args]
+        return self
+
+
+    # def percentage(self, y):
+    #     '''
+    #     make self.y percentile
+    #     '''
+    #     return y * 100
+
+
+>>>>>>> f5b5d8e4fc0da5349862604f9f7eea678e15b91f
     def load(self, raw_data):
         '''
         Load and preprocess the data before drawing plot
@@ -89,10 +121,17 @@ class Chart(object):
              for t in x if isinstance(t, str)]  # force transform str -> timestamp only if str
         self.x = np.array(x)
         self.y = np.array(y)
+<<<<<<< HEAD
         return self
 
     def percentage(self):
         self.y = self.y * 100
+=======
+        if self.x is not None and self.y is not None:
+            if self.name == 'missrate' or self.name == 'hitrate':
+                self.y = self.y * 100
+        
+>>>>>>> f5b5d8e4fc0da5349862604f9f7eea678e15b91f
         return self
 
     def plot(self):
@@ -100,8 +139,8 @@ class Chart(object):
         Plot a lineplot and a scatterplot with input data.
         '''
         if self.x is not None and self.y is not None:
-            if self.name == 'missrate' or self.name == 'hitrate':
-                self.y = self.y * 100
+            # if self.name == 'missrate' or self.name == 'hitrate':   # re-implemented in self.load()
+            #     self.y = self.y * 100
             sns.lineplot(x=self.x, y=self.y, ax=self.ax)
             sns.scatterplot(x=self.x, y=self.y, markers='.', ax=self.ax)
 

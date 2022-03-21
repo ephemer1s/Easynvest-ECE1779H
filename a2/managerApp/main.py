@@ -653,7 +653,11 @@ def getMissRateLog():
                                   database=ConfigManager.db_config['database'])
 
     cursor = cnx.cursor()
+<<<<<<< HEAD
     cursor.execute("SELECT DATE_FORMAT(currentTime, '%Y-%m-%d %H:%i') AS time, TRUNCATE(AVG(missRate), 6) AS missRateAvg FROM memcachestatlog GROUP BY DATE_FORMAT(currentTime, '%Y-%m-%d %H:%i') ORDER BY DATE_FORMAT(currentTime, '%Y-%m-%d %H:%i') LIMIT 30")
+=======
+    cursor.execute("SELECT DATE_FORMAT(currentTime, '%Y-%m-%d %H:%i') AS time, TRUNCATE(AVG(missRate), 6) AS missRateAvg FROM memcachestatlog GROUP BY DATE_FORMAT(currentTime, '%Y-%m-%d %H:%i') ORDER BY DATE_FORMAT(currentTime, '%Y-%m-%d %H:%i') DESC LIMIT 30")
+>>>>>>> f5b5d8e4fc0da5349862604f9f7eea678e15b91f
     missRateLog = cursor.fetchall()
     cnx.close()
 
@@ -672,7 +676,11 @@ def getHitRateLog():
                                   database=ConfigManager.db_config['database'])
 
     cursor = cnx.cursor()
+<<<<<<< HEAD
     cursor.execute("SELECT DATE_FORMAT(currentTime, '%Y-%m-%d %H:%i') AS time, TRUNCATE(AVG(hitRate), 6) AS hitRateAvg FROM memcachestatlog GROUP BY DATE_FORMAT(currentTime, '%Y-%m-%d %H:%i') ORDER BY DATE_FORMAT(currentTime, '%Y-%m-%d %H:%i') LIMIT 30")
+=======
+    cursor.execute("SELECT DATE_FORMAT(currentTime, '%Y-%m-%d %H:%i') AS time, TRUNCATE(AVG(hitRate), 6) AS hitRateAvg FROM memcachestatlog GROUP BY DATE_FORMAT(currentTime, '%Y-%m-%d %H:%i') ORDER BY DATE_FORMAT(currentTime, '%Y-%m-%d %H:%i') DESC LIMIT 30")
+>>>>>>> f5b5d8e4fc0da5349862604f9f7eea678e15b91f
     hitRateLog = cursor.fetchall()
     cnx.close()
 
@@ -691,7 +699,11 @@ def getTotalRequestsInAMin():
                                   database=ConfigManager.db_config['database'])
 
     cursor = cnx.cursor()
+<<<<<<< HEAD
     cursor.execute("SELECT DATE_FORMAT(currentTime, '%Y-%m-%d %H:%i') AS time, SUM(totalRequestsInAMin) AS totalRequestsSum FROM memcachestatlog GROUP BY DATE_FORMAT(currentTime, '%Y-%m-%d %H:%i') ORDER BY DATE_FORMAT(currentTime, '%Y-%m-%d %H:%i') LIMIT 30")
+=======
+    cursor.execute("SELECT DATE_FORMAT(currentTime, '%Y-%m-%d %H:%i') AS time, SUM(totalRequestsInAMin) AS totalRequestsSum FROM memcachestatlog GROUP BY DATE_FORMAT(currentTime, '%Y-%m-%d %H:%i') ORDER BY DATE_FORMAT(currentTime, '%Y-%m-%d %H:%i') DESC LIMIT 30")
+>>>>>>> f5b5d8e4fc0da5349862604f9f7eea678e15b91f
     totalRequestsLog = cursor.fetchall()
     cnx.close()
 
@@ -710,7 +722,11 @@ def getNumOfItemsInCache():
                                   database=ConfigManager.db_config['database'])
 
     cursor = cnx.cursor()
+<<<<<<< HEAD
     cursor.execute("SELECT DATE_FORMAT(currentTime, '%Y-%m-%d %H:%i') AS time, SUM(numOfItemsInCache) AS numOfItemsSum FROM memcachestatlog GROUP BY DATE_FORMAT(currentTime, '%Y-%m-%d %H:%i') ORDER BY DATE_FORMAT(currentTime, '%Y-%m-%d %H:%i') LIMIT 30")
+=======
+    cursor.execute("SELECT DATE_FORMAT(currentTime, '%Y-%m-%d %H:%i') AS time, SUM(numOfItemsInCache) AS numOfItemsSum FROM memcachestatlog GROUP BY DATE_FORMAT(currentTime, '%Y-%m-%d %H:%i') ORDER BY DATE_FORMAT(currentTime, '%Y-%m-%d %H:%i') DESC LIMIT 30")
+>>>>>>> f5b5d8e4fc0da5349862604f9f7eea678e15b91f
     numOfItemsLog = cursor.fetchall()
     cnx.close()
 
@@ -730,7 +746,11 @@ def getTotalSize():
                                   database=ConfigManager.db_config['database'])
 
     cursor = cnx.cursor()
+<<<<<<< HEAD
     cursor.execute("SELECT DATE_FORMAT(currentTime, '%Y-%m-%d %H:%i') AS time, TRUNCATE(SUM(totalSize)/1048576, 3) AS totalSizeSum FROM memcachestatlog GROUP BY DATE_FORMAT(currentTime, '%Y-%m-%d %H:%i') ORDER BY DATE_FORMAT(currentTime, '%Y-%m-%d %H:%i') LIMIT 30")
+=======
+    cursor.execute("SELECT DATE_FORMAT(currentTime, '%Y-%m-%d %H:%i') AS time, TRUNCATE(SUM(totalSize)/1048576, 3) AS totalSizeSum FROM memcachestatlog GROUP BY DATE_FORMAT(currentTime, '%Y-%m-%d %H:%i') ORDER BY DATE_FORMAT(currentTime, '%Y-%m-%d %H:%i') DESC LIMIT 30")
+>>>>>>> f5b5d8e4fc0da5349862604f9f7eea678e15b91f
     totalSizeLog = cursor.fetchall()
     cnx.close()
 
@@ -749,7 +769,11 @@ def getNumOfWorkers():
                                   database=ConfigManager.db_config['database'])
 
     cursor = cnx.cursor()
+<<<<<<< HEAD
     cursor.execute("SELECT DATE_FORMAT(currentTime, '%Y-%m-%d %H:%i') AS time, count(DISTINCT memcacheIndex) AS workersNum FROM memcachestatlog GROUP BY DATE_FORMAT(currentTime, '%Y-%m-%d %H:%i') ORDER BY DATE_FORMAT(currentTime, '%Y-%m-%d %H:%i') LIMIT 30")
+=======
+    cursor.execute("SELECT DATE_FORMAT(currentTime, '%Y-%m-%d %H:%i') AS time, count(DISTINCT memcacheIndex) AS workersNum FROM memcachestatlog GROUP BY DATE_FORMAT(currentTime, '%Y-%m-%d %H:%i') ORDER BY DATE_FORMAT(currentTime, '%Y-%m-%d %H:%i') DESC LIMIT 30")
+>>>>>>> f5b5d8e4fc0da5349862604f9f7eea678e15b91f
     workersNum = cursor.fetchall()
     cnx.close()
 
@@ -778,12 +802,12 @@ def updateChart():
         'totalsize': getTotalSize(),
         'numofworkers': getNumOfWorkers(),  # Require a getNumOfWorkers() func @haozhe
     }
-    print('chartUpdater(): debug info - showing retrieved dataset')
-    print(dataset)
+    # print('chartUpdater(): debug info - showing retrieved dataset')
+    # print(dataset)
     for name in dataset:
         data = dataset[name]
         print('chartUpdater(): updating {}'.format(name))
-        Chart(name).load(data).plot().save().close()
+        Chart(name).load(data).ascend().plot().save().close()
     pass
 
 
