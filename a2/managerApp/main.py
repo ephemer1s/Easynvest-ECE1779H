@@ -28,6 +28,8 @@ STATIC_DIR = os.path.abspath("./static")
 
 # Mode config for autoscaler. 0 = manual mode, 1 = auto mode.
 AUTOSCALER_MODE = 1
+CAPACITY_B = 1048576
+REPLACE_POLICY = 1
 
 
 def connect_to_database():
@@ -243,17 +245,10 @@ def replacePolicyUpdate():
     # convert MB form capacity into B form
     capacityB = int(capacityMB) * 1048576
 
-    # ATTENTION: Currently updating to the RDS databse. It should have been updating to Cloudwatch. Modify this part before deployment.
-    cnx = mysql.connector.connect(user=ConfigManager.db_config['user'],
-                                  password=ConfigManager.db_config['password'],
-                                  host=ConfigManager.db_config['host'],
-                                  database=ConfigManager.db_config['database'])
-
-    cursor = cnx.cursor()
-    cursor.execute("UPDATE configuration SET capacityB = %s, replacepolicy = %s WHERE id = 0",
-                   (capacityB, replacePolicy,))
-    cnx.commit()
-    cnx.close()
+    global CAPACITY_B
+    global REPLACE_POLICY
+    CAPACITY_B = capacityB
+    REPLACE_POLICY = replacePolicy
 
     # please note to add /backEnd to the API call url
     # update on 3/16/13:00 : removed /backend from makeAPICall
@@ -299,6 +294,46 @@ def replacePolicyUpdate():
     )
     print(response)
     return response
+
+def replacePolicyUpdater():
+    """Call memcache to update refreshConfigurations. It should be called by autoScalerMonitor() every 60s
+
+    Returns:
+        Response message if updating successfully
+    """
+    global CAPACITY_B
+    global REPLACE_POLICY
+    capacityB = CAPACITY_B
+    replacePolicy = REPLACE_POLICY
+
+    ec2_client = boto3.client('ec2',
+                              "us-east-1",
+                              aws_access_key_id=ConfigAWS.aws_access_key_id,
+                              aws_secret_access_key=ConfigAWS.aws_secret_access_key)
+    call_obj = MemcacheEC2(ec2_client)
+
+    ipList = call_obj.get_all_ip()
+
+    for eachIP in ipList:
+        # eachIP = '127.0.0.1'  # debug
+        try:
+            url = "http://" + eachIP + ":5001/refreshConfiguration" + \
+                "/" + str(capacityB) + "/" + str(replacePolicy)
+            print(url)
+            returnDict = makeAPI_Call(url, "get", 5)
+            print(returnDict)
+
+        except requests.exceptions.RequestException as e:
+            print("ERROR: ", e)
+    response = webapp.response_class(
+        response=json.dumps(
+            "Memcache Replacement Policy Configs Auto Update Successfully."),
+        status=200,
+        mimetype='application/json'
+    )
+    print("Memcache Replacement Policy Auto Update Successfully.")
+    return response
+
 
 
 @webapp.route('/poolSizeManualGrow', methods=['POST'])
@@ -437,7 +472,7 @@ def autoScalerMonitor():
     while True:
         autoScaler()
         publicIPUpdater()
-        replacePolicyUpdate()
+        replacePolicyUpdater()
         time.sleep(60)  # It could be something like 5s when testing
 
 
