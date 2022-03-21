@@ -1,12 +1,15 @@
-import os, time
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+import os
+import time
 import datetime as dt
 import matplotlib
 matplotlib.use('Agg')
-import matplotlib.pyplot as plt
-import seaborn as sns
-import numpy as np
 
-### Data Example: [('2022-03-19 06:03', 0.15), ('2022-03-19 06:04', 0.29647), ('2022-03-19 06:05', 0.39)]
+# Data Example: [('2022-03-19 06:03', 0.15), ('2022-03-19 06:04', 0.29647), ('2022-03-19 06:05', 0.39)]
+
+
 class Chart(object):
     x = None
     y = None
@@ -42,7 +45,7 @@ class Chart(object):
             'ylabel': 'worker num',
         },
     }
-    
+
     def __init__(self, name,
                  savepath='static/',
                  figsize=(20, 6),
@@ -71,6 +74,32 @@ class Chart(object):
         self.savepath = savepath
 
 
+    def timeascend(self, x, y):
+        '''
+        sort the data with time ascend.
+        '''
+        args = x.argsort()
+        x = x[args]
+        y = y[args]
+        return x, y
+
+
+    def ascend(self):
+        '''
+        sort the data with time ascend. return self.
+        '''
+        if self.x is not None and self.y is not None:
+            args = self.x.argsort()
+            self.x = self.x[args]
+            self.y = self.y[args]
+        return self
+
+
+    # def percentage(self, y):
+    #     '''
+    #     make self.y percentile
+    #     '''
+    #     return y * 100
 
 
     def load(self, raw_data):
@@ -80,19 +109,19 @@ class Chart(object):
         x, y = [], []
         for i in raw_data:
             if len(i) != 2:
-                raise Exception('Raw data have less than 2 elements in one of its datapoints')
+                raise Exception(
+                    'Raw data have less than 2 elements in one of its datapoints')
             else:
                 x.append(i[0])
                 y.append(i[1])
-        x = [dt.datetime.strptime(t, '%Y-%m-%d %H:%M') 
-                for t in x if isinstance(t, str)]  # force transform str -> timestamp only if str
+        x = [dt.datetime.strptime(t, '%Y-%m-%d %H:%M')
+             for t in x if isinstance(t, str)]  # force transform str -> timestamp only if str
         self.x = np.array(x)
         self.y = np.array(y)
-        return self
-
-
-    def percentage(self):
-        self.y = self.y * 100
+        if self.x is not None and self.y is not None:
+            if self.name == 'missrate' or self.name == 'hitrate':
+                self.y = self.y * 100
+        
         return self
 
 
@@ -101,8 +130,8 @@ class Chart(object):
         Plot a lineplot and a scatterplot with input data.
         '''
         if self.x is not None and self.y is not None:
-            if self.name == 'missrate' or self.name == 'hitrate':
-                self.y = self.y * 100
+            # if self.name == 'missrate' or self.name == 'hitrate':   # re-implemented in self.load()
+            #     self.y = self.y * 100
             sns.lineplot(x=self.x, y=self.y, ax=self.ax)
             sns.scatterplot(x=self.x, y=self.y, markers='.', ax=self.ax)
 
@@ -110,14 +139,15 @@ class Chart(object):
             raise Warning('Failed to plot: X and Y not loaded')
 
         self.ax.set(xlim=(self.x[-1] - dt.timedelta(minutes=30), self.x[-1]),
-                    title=self.style[self.name]['title'], 
+                    title=self.style[self.name]['title'],
                     ylabel=self.style[self.name]['ylabel'])
 
         if self.style[self.name]['ylim'] is not None:
             self.ax.set(ylim=self.style[self.name]['ylim'])
+        else:
+            self.ax.set(ylim=(0, float(max(self.y)) * 1.2))
 
         return self
-
 
     def save(self):
         '''
@@ -129,7 +159,6 @@ class Chart(object):
         print('File saved at {}'.format(path))
         return self
 
-
     def close(self):
         '''
         Close figure instance, release resources
@@ -137,7 +166,9 @@ class Chart(object):
         plt.close(self.fig)
         return
 
+
 # Usage:
 if __name__ == '__main__':
-    data = [('2022-03-19 06:03', 0.15), ('2022-03-19 06:04', 0.29647), ('2022-03-19 06:05', 0.39)]
+    data = [('2022-03-19 06:03', 0.15), ('2022-03-19 06:04',
+                                         0.29647), ('2022-03-19 06:05', 0.39)]
     Chart('missrate', figsize=(20, 6)).load(data).percentage().plot().save()
