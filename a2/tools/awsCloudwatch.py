@@ -103,7 +103,7 @@ class CloudwatchAPI(object):
         for i in responses:
             datapoints = i['Datapoints']
             if len(datapoints) == 0:
-                print('Current Instance have no datapoint in response, skipping.......')
+                # print('Current Instance have no datapoint in response, skipping.......')
                 continue
             elif len(datapoints) == 1:
                 latest_data = datapoints[0]
@@ -118,6 +118,7 @@ class CloudwatchAPI(object):
             if latest_data is None:
                 raise Exception('Error finding latest datapoint when processing responces')
             else:
+                print('Retrieve data from cloudwatch ......')
                 print(latest_data['Average'])
                 sum_mean += latest_data['Average']
         return sum_mean / numOfinstances
