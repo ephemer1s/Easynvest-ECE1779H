@@ -295,6 +295,7 @@ def replacePolicyUpdate():
     print(response)
     return response
 
+
 def replacePolicyUpdater():
     """Call memcache to update refreshConfigurations. It should be called by autoScalerMonitor() every 60s
 
@@ -325,15 +326,14 @@ def replacePolicyUpdater():
 
         except requests.exceptions.RequestException as e:
             print("ERROR: ", e)
-    response = webapp.response_class(
-        response=json.dumps(
-            "Memcache Replacement Policy Configs Auto Update Successfully."),
-        status=200,
-        mimetype='application/json'
-    )
+    # response = webapp.response_class(
+    #     response=json.dumps(
+    #         "Memcache Replacement Policy Configs Auto Update Successfully."),
+    #     status=200,
+    #     mimetype='application/json'
+    # )
     print("Memcache Replacement Policy Auto Update Successfully.")
-    return response
-
+    return
 
 
 @webapp.route('/poolSizeManualGrow', methods=['POST'])
