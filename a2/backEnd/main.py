@@ -1,4 +1,10 @@
-import os, datetime, random, json, base64, time, threading
+import os
+import datetime
+import random
+import json
+import base64
+import time
+import threading
 import shutil
 from markupsafe import escape
 import mysql.connector
@@ -9,6 +15,7 @@ from backEnd import webapp, memcache, memcacheStatistics, memcacheConfig, Stats,
 from backEnd.config import Config
 from tools.awsCloudwatch import CloudwatchAPI
 from tools.credential import ConfigAWS
+
 
 def _clrCache(folderPath=Config.MEMCACHE_FOLDER):
     """Drop all key pairs in memcache
@@ -764,36 +771,38 @@ def databaseUpdateMonitor():
     """
     while True:
         databaseUpdate()
-        time.sleep(60)   # It should have been 60s. Set to 3s for testing. 
+        time.sleep(60)   # It should have been 60s. Set to 3s for testing.
 
 
 def databaseUpdate():
     """ Update this memcache statistics log to database for ManagerApp charts to use
     """
-    index, missRate, hitRate, numOfItemsInCache, totalSize, totalRequestsInAMin, currentTime = memcacheStatistics.getOneMinStats()
+    index, missRate, hitRate, totalNumOfRequests, numOfItemsInCache, totalSize, totalRequestsInAMin, currentTime = memcacheStatistics.getOneMinStats()
     # totalSize in bytes
 
-    if index >=0:  #  Since index is set as -1 initially, you could set index != 99 or sth like that when testing 
+    if index >= 0:  # Since index is set as -1 initially, you could set index != 99 or sth like that when testing
         cnx = mysql.connector.connect(user=Config.db_config['user'],
-                                    password=Config.db_config['password'],
-                                    host=Config.db_config['host'],
-                                    database=Config.db_config['database'])
+                                      password=Config.db_config['password'],
+                                      host=Config.db_config['host'],
+                                      database=Config.db_config['database'])
 
         cursor = cnx.cursor()
 
         # Insert new log into database
         cursor.execute("INSERT INTO memcachestatlog VALUES (%s, %s, %s, %s, %s, %s, %s)",
-                    (index, currentTime, missRate, hitRate, totalRequestsInAMin, numOfItemsInCache, totalSize, ))
+                       (index, currentTime, missRate, hitRate, totalRequestsInAMin, numOfItemsInCache, totalSize, ))
         cnx.commit()
 
         # Delete old memcache log of more than 30 min ago in database
-        # I hate mysql. It makes things much harder :-(  
-        cursor.execute("SELECT memcacheIndex, MIN(currentTime) FROM memcachestatlog GROUP BY memcacheIndex HAVING COUNT(currentTime) >= 31")
+        # I hate mysql. It makes things much harder :-(
+        cursor.execute(
+            "SELECT memcacheIndex, MIN(currentTime) FROM memcachestatlog GROUP BY memcacheIndex HAVING COUNT(currentTime) >= 31")
         oldestLog = cursor.fetchall()
-        if oldestLog :
+        if oldestLog:
             oldestLogIndex = oldestLog[0][0]
             oldestLogTime = oldestLog[0][1]
-            cursor.execute("DELETE FROM memcachestatlog WHERE memcacheIndex = %s AND currentTime = %s", (oldestLogIndex, oldestLogTime, ))
+            cursor.execute("DELETE FROM memcachestatlog WHERE memcacheIndex = %s AND currentTime = %s",
+                           (oldestLogIndex, oldestLogTime, ))
             cnx.commit()
         cnx.close()
 
@@ -804,13 +813,14 @@ def databaseUpdate():
 def cloudWatchUpdate():
     """ Give statistics to frontEnd to store in cloudWatch every 5s
     """
-    # index, missRate, hitRate, numOfItemsInCache, totalSize, totalRequestsInAMin, currentTime = memcacheStatistics.getOneMinStats()
-    # index, missRate, _, _, _, _, _ = memcacheStatistics.getOneMinStats()
+    # index, missRate, hitRate, totalNumOfRequests, numOfItemsInCache, totalSize, totalRequestsInAMin, currentTime = memcacheStatistics.getOneMinStats()
+    # index, missRate, _, _, _, _, _, _ = memcacheStatistics.getOneMinStats()
     index, missRate, _, _, _, _, _ = memcacheStatistics.get5SecStats()
-    
+
     # TODO: Can we get 5s stats here?
     # Call boto3 cloudwatch @Haocheng
-    cloudwatch = CloudwatchAPI(ConfigAWS.aws_access_key_id, ConfigAWS.aws_secret_access_key)
+    cloudwatch = CloudwatchAPI(
+        ConfigAWS.aws_access_key_id, ConfigAWS.aws_secret_access_key)
     response = cloudwatch.putCacheMissRate(missRate, str(index))
     print('Missrate Pushed to Cloudwatch : ' + str(response))
     return response
