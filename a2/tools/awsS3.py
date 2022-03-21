@@ -96,7 +96,7 @@ class S3_Class(object):
             fileList = []
             for file in bucketList:
                 fileList.append(file['Key'])
-                print(file['Key'])
+                # print(file['Key'])
 
             filename = os.path.join(_download_folder, _filename)
             # print("filename : ", filename)
@@ -125,7 +125,7 @@ class S3_Class(object):
             fileList = []
             for file in bucketList:
                 fileList.append(file['Key'])
-                print(file['Key'])
+                # print(file['Key'])
 
             # check if _filename exist on S3:
             if _filename in fileList:
@@ -157,7 +157,7 @@ class S3_Class(object):
             fileList = []
             for file in bucketList:
                 fileList.append(file['Key'])
-                print(file['Key'])
+                # print(file['Key'])
 
             # check if _filename exist on S3:
             if _filename in fileList:
@@ -180,7 +180,7 @@ class S3_Class(object):
             fileList = []
             for file in bucketList:
                 fileList.append(file['Key'])
-                print(file['Key'])
+                # print(file['Key'])
 
             # check if _filename exist on S3:
             if _filename in fileList:

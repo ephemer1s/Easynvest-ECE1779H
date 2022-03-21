@@ -119,85 +119,85 @@ def main():
         html of Main Page
     """
     # Display memcache work log charts
-    # Workers Num Image 
+    # Workers Num Image
     image1Path = "./managerApp/static/numofworkers.png"
     image1FileNameWithExtension = os.path.basename(image1Path)
     if not os.path.isfile(image1Path):
-                return jsonify({"success": "false",
-                                "error": {
-                                    "code": 400,
-                                    "message": "Image numofworkers.png not found."
-                                }})
+        return jsonify({"success": "false",
+                        "error": {
+                            "code": 400,
+                            "message": "Image numofworkers.png not found."
+                        }})
     image1 = open(image1Path, 'rb')
     image1Binary = image1.read()
     content1 = base64.b64encode(image1Binary).decode()
     extension1 = os.path.splitext(image1FileNameWithExtension)[1]
 
-    # MissRate Image 
+    # MissRate Image
     image2Path = "./managerApp/static/missrate.png"
     image2FileNameWithExtension = os.path.basename(image2Path)
     if not os.path.isfile(image2Path):
-                return jsonify({"success": "false",
-                                "error": {
-                                    "code": 400,
-                                    "message": "Image missrate.png not found."
-                                }})
+        return jsonify({"success": "false",
+                        "error": {
+                            "code": 400,
+                            "message": "Image missrate.png not found."
+                        }})
     image2 = open(image2Path, 'rb')
     image2Binary = image2.read()
     content2 = base64.b64encode(image2Binary).decode()
     extension2 = os.path.splitext(image2FileNameWithExtension)[1]
 
-    # HitRate Image 
+    # HitRate Image
     image3Path = "./managerApp/static/hitrate.png"
     image3FileNameWithExtension = os.path.basename(image3Path)
     if not os.path.isfile(image3Path):
-                return jsonify({"success": "false",
-                                "error": {
-                                    "code": 400,
-                                    "message": "Image hitrate.png not found."
-                                }})
+        return jsonify({"success": "false",
+                        "error": {
+                            "code": 400,
+                            "message": "Image hitrate.png not found."
+                        }})
     image3 = open(image3Path, 'rb')
     image3Binary = image3.read()
     content3 = base64.b64encode(image3Binary).decode()
     extension3 = os.path.splitext(image3FileNameWithExtension)[1]
 
-    # Total Request Image 
+    # Total Request Image
     image4Path = "./managerApp/static/totalrequest.png"
     image4FileNameWithExtension = os.path.basename(image4Path)
     if not os.path.isfile(image4Path):
-                return jsonify({"success": "false",
-                                "error": {
-                                    "code": 400,
-                                    "message": "Image totalrequest.png not found."
-                                }})
+        return jsonify({"success": "false",
+                        "error": {
+                            "code": 400,
+                            "message": "Image totalrequest.png not found."
+                        }})
     image4 = open(image4Path, 'rb')
     image4Binary = image4.read()
     content4 = base64.b64encode(image4Binary).decode()
     extension4 = os.path.splitext(image4FileNameWithExtension)[1]
 
-    # Items Num Image 
+    # Items Num Image
     image5Path = "./managerApp/static/numofitems.png"
     image5FileNameWithExtension = os.path.basename(image5Path)
     if not os.path.isfile(image5Path):
-                return jsonify({"success": "false",
-                                "error": {
-                                    "code": 400,
-                                    "message": "Image numofitems.png not found."
-                                }})
+        return jsonify({"success": "false",
+                        "error": {
+                            "code": 400,
+                            "message": "Image numofitems.png not found."
+                        }})
     image5 = open(image5Path, 'rb')
     image5Binary = image5.read()
     content5 = base64.b64encode(image5Binary).decode()
     extension5 = os.path.splitext(image5FileNameWithExtension)[1]
 
-    # Total Size Image 
+    # Total Size Image
     image6Path = "./managerApp/static/totalsize.png"
     image6FileNameWithExtension = os.path.basename(image6Path)
     if not os.path.isfile(image6Path):
-                return jsonify({"success": "false",
-                                "error": {
-                                    "code": 400,
-                                    "message": "Image totalsize.png not found."
-                                }})
+        return jsonify({"success": "false",
+                        "error": {
+                            "code": 400,
+                            "message": "Image totalsize.png not found."
+                        }})
     image6 = open(image6Path, 'rb')
     image6Binary = image6.read()
     content6 = base64.b64encode(image6Binary).decode()
@@ -224,7 +224,7 @@ def main():
 
     # Display the webpage
     view = render_template(
-        "managerApp.html", content1=content1, extension1=extension1, content2=content2, extension2=extension2, content3=content3, extension3=extension3, 
+        "managerApp.html", content1=content1, extension1=extension1, content2=content2, extension2=extension2, content3=content3, extension3=extension3,
         content4=content4, extension4=extension4, content5=content5, extension5=extension5, content6=content6, extension6=extension6, instanceAmount=instanceAmount, cursor=memCacheStatistics)
     return view
 
@@ -515,7 +515,7 @@ def autoScaler():
             ConfigAWS.aws_access_key_id, ConfigAWS.aws_secret_access_key)
         response = cloudwatch.getCacheMissRateStatistics(
             index_list, intervals=60, period=60)
-            # index_list, intervals=60, period=5)  # Use period == 5 if Use getOneMinStats()
+        # index_list, intervals=60, period=5)  # Use period == 5 if Use getOneMinStats()
         print([str(i['Datapoints']) for i in response])  # test prints
         missRate = cloudwatch.getLastMeanMissRate(response)
 
@@ -612,9 +612,9 @@ def getMissRateLog():
         Array of timestamp and past 30 min missrate data
     """
     cnx = mysql.connector.connect(user=ConfigManager.db_config['user'],
-                                          password=ConfigManager.db_config['password'],
-                                          host=ConfigManager.db_config['host'],
-                                          database=ConfigManager.db_config['database'])
+                                  password=ConfigManager.db_config['password'],
+                                  host=ConfigManager.db_config['host'],
+                                  database=ConfigManager.db_config['database'])
 
     cursor = cnx.cursor()
     cursor.execute("SELECT DATE_FORMAT(currentTime, '%Y-%m-%d %H:%i') AS time, TRUNCATE(AVG(missRate), 6) AS missRateAvg FROM memcachestatlog GROUP BY DATE_FORMAT(currentTime, '%Y-%m-%d %H:%i')")
@@ -631,9 +631,9 @@ def getHitRateLog():
         Array of timestamp and past 30 min hit rate data
     """
     cnx = mysql.connector.connect(user=ConfigManager.db_config['user'],
-                                          password=ConfigManager.db_config['password'],
-                                          host=ConfigManager.db_config['host'],
-                                          database=ConfigManager.db_config['database'])
+                                  password=ConfigManager.db_config['password'],
+                                  host=ConfigManager.db_config['host'],
+                                  database=ConfigManager.db_config['database'])
 
     cursor = cnx.cursor()
     cursor.execute("SELECT DATE_FORMAT(currentTime, '%Y-%m-%d %H:%i') AS time, TRUNCATE(AVG(hitRate), 6) AS hitRateAvg FROM memcachestatlog GROUP BY DATE_FORMAT(currentTime, '%Y-%m-%d %H:%i')")
@@ -650,9 +650,9 @@ def getTotalRequestsInAMin():
         Array of timestamp and past 30 min totalRequestsInAMin data
     """
     cnx = mysql.connector.connect(user=ConfigManager.db_config['user'],
-                                          password=ConfigManager.db_config['password'],
-                                          host=ConfigManager.db_config['host'],
-                                          database=ConfigManager.db_config['database'])
+                                  password=ConfigManager.db_config['password'],
+                                  host=ConfigManager.db_config['host'],
+                                  database=ConfigManager.db_config['database'])
 
     cursor = cnx.cursor()
     cursor.execute("SELECT DATE_FORMAT(currentTime, '%Y-%m-%d %H:%i') AS time, SUM(totalRequestsInAMin) AS totalRequestsSum FROM memcachestatlog GROUP BY DATE_FORMAT(currentTime, '%Y-%m-%d %H:%i')")
@@ -669,9 +669,9 @@ def getNumOfItemsInCache():
         Array of timestamp and past 30 min numOfItemsInCache data
     """
     cnx = mysql.connector.connect(user=ConfigManager.db_config['user'],
-                                          password=ConfigManager.db_config['password'],
-                                          host=ConfigManager.db_config['host'],
-                                          database=ConfigManager.db_config['database'])
+                                  password=ConfigManager.db_config['password'],
+                                  host=ConfigManager.db_config['host'],
+                                  database=ConfigManager.db_config['database'])
 
     cursor = cnx.cursor()
     cursor.execute("SELECT DATE_FORMAT(currentTime, '%Y-%m-%d %H:%i') AS time, SUM(numOfItemsInCache) AS numOfItemsSum FROM memcachestatlog GROUP BY DATE_FORMAT(currentTime, '%Y-%m-%d %H:%i')")
@@ -689,9 +689,9 @@ def getTotalSize():
         Please note that total size is in MB form with 3 decimal places
     """
     cnx = mysql.connector.connect(user=ConfigManager.db_config['user'],
-                                          password=ConfigManager.db_config['password'],
-                                          host=ConfigManager.db_config['host'],
-                                          database=ConfigManager.db_config['database'])
+                                  password=ConfigManager.db_config['password'],
+                                  host=ConfigManager.db_config['host'],
+                                  database=ConfigManager.db_config['database'])
 
     cursor = cnx.cursor()
     cursor.execute("SELECT DATE_FORMAT(currentTime, '%Y-%m-%d %H:%i') AS time, TRUNCATE(SUM(totalSize)/1048574, 3) AS totalSizeSum FROM memcachestatlog GROUP BY DATE_FORMAT(currentTime, '%Y-%m-%d %H:%i')")
@@ -708,9 +708,9 @@ def getNumOfWorkers():
         Array of timestamp and past 30 min num of workers data
     """
     cnx = mysql.connector.connect(user=ConfigManager.db_config['user'],
-                                          password=ConfigManager.db_config['password'],
-                                          host=ConfigManager.db_config['host'],
-                                          database=ConfigManager.db_config['database'])
+                                  password=ConfigManager.db_config['password'],
+                                  host=ConfigManager.db_config['host'],
+                                  database=ConfigManager.db_config['database'])
 
     cursor = cnx.cursor()
     cursor.execute("SELECT DATE_FORMAT(currentTime, '%Y-%m-%d %H:%i') AS time, count(DISTINCT memcacheIndex) AS workersNum FROM memcachestatlog GROUP BY DATE_FORMAT(currentTime, '%Y-%m-%d %H:%i')")
@@ -828,6 +828,7 @@ def homeJump():
     """
     return redirect("http://localhost:5000", code=302)
 
+
 @webapp.route('/uploadJump')
 def uploadJump():
     """Redirect to frontEnd upload page
@@ -837,6 +838,7 @@ def uploadJump():
     """
     return redirect("http://localhost:5000/upload", code=302)
 
+
 @webapp.route('/browseJump')
 def browseJump():
     """Redirect to frontEnd browse page
@@ -845,6 +847,7 @@ def browseJump():
         url call to frontEnd browse page
     """
     return redirect("http://localhost:5000/browse", code=302)
+
 
 @webapp.route('/keylistJump')
 def keylistJump():
