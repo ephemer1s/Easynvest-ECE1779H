@@ -40,7 +40,7 @@ class CloudwatchAPI(object):
         return response
 
 
-    def putCacheHitRate(self, missrate, instance_name):
+    def putCacheHitRate(self, hitrate, instance_name):
         '''
         Send Memcache Miss Rate to AWS Cloudwatch. Return a response message.
         missrate: value to send
@@ -48,7 +48,7 @@ class CloudwatchAPI(object):
         '''
         response = self.client.put_metric_data(
             MetricData = [{
-                    'MetricName': 'miss_rate',
+                    'MetricName': 'hit_rate',
                     'Dimensions': [{
                             'Name': 'instance',
                             'Value': instance_name
@@ -105,7 +105,6 @@ class CloudwatchAPI(object):
                     StartTime = datetime.datetime.utcnow() - datetime.timedelta(seconds=intervals),
                     EndTime = datetime.datetime.utcnow(),
                     Period=period,
-                    # Statistics=['Average'],
                     Statistics=[stat],
                     Unit='Percent',
                 )
@@ -126,7 +125,7 @@ class CloudwatchAPI(object):
         for i in instances:
             responses.append(
                 self.client.get_metric_statistics(
-                    Namespace='ece1779/memcache',
+                    Namespace='ece1779/memcache-1',
                     MetricName='hit_rate',
                     Dimensions=[{
                             "Name": "instance",
@@ -135,7 +134,6 @@ class CloudwatchAPI(object):
                     StartTime = datetime.datetime.utcnow() - datetime.timedelta(seconds=intervals),
                     EndTime = datetime.datetime.utcnow(),
                     Period=period,
-                    # Statistics=['Average'],
                     Statistics=[stat],
                     Unit='Percent',
                 )

@@ -550,12 +550,12 @@ def autoScaler():
         cloudwatch = CloudwatchAPI(
             ConfigAWS.aws_access_key_id, ConfigAWS.aws_secret_access_key)
         response_m = cloudwatch.getCacheMissRateStatistics(
-            index_list, intervals=60, period=60)
+            index_list, intervals=60, period=60, stat='Maximum')
         # index_list, intervals=60, period=5)  # Use period == 5 if Use getOneMinStats()
         print('Cloudwatch Datapoints:' + str([str(i['Datapoints']) for i in response]))  # test prints
         missRate = cloudwatch.getLastMeanMissRate(response_m)
         response_h = cloudwatch.getCacheHitRateStatistics(
-            index_list, intervals=60, period=60)
+            index_list, intervals=60, period=60, stat='Minimum')
         hitRate = cloudwatch.getLastMeanMissRate(response_h)
 
         cursor.execute(
@@ -578,12 +578,11 @@ def autoScaler():
         curInstanceNum = len(call_obj.whoAreExisting())
 
         if missRate == 0 and hitrate == 0:
-            # do something
-            # steady
-            print('Autoscaler: steady')
+            # do nothing
+            print("AutoScaler Status 1: Steady")
 
         # Status 2 Miss Rate too low : shrinking pool size
-        if missRate <= minMissRate:
+        elif missRate <= minMissRate:
             # When shrinking, floor targetInstanceNum
             # e.g: 8 * 0.95 = 7.6 → 7
             targetInstanceNum = int(float(curInstanceNum) * poolShrinkRatio)

@@ -814,16 +814,20 @@ def cloudWatchUpdate():
     """ Give statistics to frontEnd to store in cloudWatch every 5s
     """
     # index, missRate, hitRate, totalNumOfRequests, numOfItemsInCache, totalSize, totalRequestsInAMin, currentTime = memcacheStatistics.getOneMinStats()
-    index, missRate, _, _, _, _, _, _ = memcacheStatistics.getOneMinStats()
+    index, missRate, hitRate, reqnum, _, _, _, _ = memcacheStatistics.getOneMinStats()
     # index, missRate, _, _, _, _, _ = memcacheStatistics.get5SecStats()
 
-    # TODO: Can we get 5s stats here?
     # Call boto3 cloudwatch @Haocheng
     cloudwatch = CloudwatchAPI(
         ConfigAWS.aws_access_key_id, ConfigAWS.aws_secret_access_key)
+
     response = cloudwatch.putCacheMissRate(missRate, str(index))
     print('Missrate Pushed to Cloudwatch : ' + str(response))
-    return response
+
+    response = cloudwatch.putCacheHitRate(hitRate, str(index))
+    print('Missrate Pushed to Cloudwatch : ' + str(response))
+    
+    return
 
 
 @webapp.route('/updateIndex/<id>')
