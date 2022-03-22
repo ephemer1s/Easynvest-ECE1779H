@@ -40,6 +40,25 @@ class CloudwatchAPI(object):
         return response
 
 
+    def putCacheHitRate(self, missrate, instance_name):
+        '''
+        Send Memcache Miss Rate to AWS Cloudwatch. Return a response message.
+        missrate: value to send
+        instance_name: current memcache instance identifier (could be anything based on your implementation)
+        '''
+        response = self.client.put_metric_data(
+            MetricData = [{
+                    'MetricName': 'miss_rate',
+                    'Dimensions': [{
+                            'Name': 'instance',
+                            'Value': instance_name
+                        }],
+                    'Unit': 'Percent',
+                    'Value': hitrate}],
+            Namespace = 'ece1779/memcache-1')
+        return response
+
+
     # def getCacheMissRateData(instances: list):
     #     '''
     #     Get miss rate DATA from a specified server from cloudwatch. return a dict containing responses.
@@ -64,7 +83,7 @@ class CloudwatchAPI(object):
     #     return responses
 
 
-    def getCacheMissRateStatistics(self, instances: list, intervals=60, period=60):
+    def getCacheMissRateStatistics(self, instances: list, intervals=60, period=60, stat='Average'):
         '''
         Get miss rate STATISTICS from a specified server from cloudwatch. return a dict containing responses.
         retrieve the average missrate value in responses[i]['Datapoints'][-1]['Average']
@@ -87,7 +106,37 @@ class CloudwatchAPI(object):
                     EndTime = datetime.datetime.utcnow(),
                     Period=period,
                     # Statistics=['Average'],
-                    Statistics=['Maximum'],
+                    Statistics=[stat],
+                    Unit='Percent',
+                )
+            )
+        return responses
+
+
+    def getCacheHitRateStatistics(self, instances: list, intervals=60, period=60, stat='Average'):
+        '''
+        Get hit rate STATISTICS from a specified server from cloudwatch. return a dict containing responses.
+        retrieve the average hitrate value in responses[i]['Datapoints'][-1]['Average']
+        instances: List of instance names used to specify the dimension of metrics
+        intervals:  Starttime = Endtime - intervals
+        period:    of which to be calculated together as average. 
+                len(responses[i]['Datapoints']) == intervals // periods
+        '''
+        responses = []
+        for i in instances:
+            responses.append(
+                self.client.get_metric_statistics(
+                    Namespace='ece1779/memcache',
+                    MetricName='hit_rate',
+                    Dimensions=[{
+                            "Name": "instance",
+                            "Value": i
+                        }],
+                    StartTime = datetime.datetime.utcnow() - datetime.timedelta(seconds=intervals),
+                    EndTime = datetime.datetime.utcnow(),
+                    Period=period,
+                    # Statistics=['Average'],
+                    Statistics=[stat],
                     Unit='Percent',
                 )
             )
@@ -100,7 +149,7 @@ class CloudwatchAPI(object):
         responses: responses returned by getCacheMissRateStatistics(self, instances: list, intervals=60, period=60)
         '''
         sum_mean = 0
-        numOfinstances = len(responses)
+        numOfinstances = 0  # responses is always in 8
         for i in responses:
             datapoints = i['Datapoints']
             if len(datapoints) == 0:
@@ -108,7 +157,9 @@ class CloudwatchAPI(object):
                 continue
             elif len(datapoints) == 1:
                 latest_data = datapoints[0]
+                numOfinstances += 1
             else: # len(datapoints) > 1
+                numOfinstances += 1
                 timestamps = [j['Timestamp'] for j in datapoints]
                 timestamps.sort()
                 latest_data = None
@@ -119,9 +170,11 @@ class CloudwatchAPI(object):
             if latest_data is None:
                 raise Exception('Error finding latest datapoint when processing responces')
             else:
-                print('Retrieve data from cloudwatch ......')
-                print(latest_data['Average'])
-                sum_mean += latest_data['Average']
+                # print('Retrieve data from cloudwatch ......')
+                # print(latest_data['Average'])
+                # sum_mean += latest_data['Average']                
+                print(latest_data['Maximum'])
+                sum_mean += latest_data['Maximum']
         return sum_mean / numOfinstances
 
 

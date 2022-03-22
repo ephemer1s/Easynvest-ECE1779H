@@ -549,11 +549,14 @@ def autoScaler():
         index_list = [str(i) for i in range(8)]
         cloudwatch = CloudwatchAPI(
             ConfigAWS.aws_access_key_id, ConfigAWS.aws_secret_access_key)
-        response = cloudwatch.getCacheMissRateStatistics(
+        response_m = cloudwatch.getCacheMissRateStatistics(
             index_list, intervals=60, period=60)
         # index_list, intervals=60, period=5)  # Use period == 5 if Use getOneMinStats()
         print('Cloudwatch Datapoints:' + str([str(i['Datapoints']) for i in response]))  # test prints
-        missRate = cloudwatch.getLastMeanMissRate(response)
+        missRate = cloudwatch.getLastMeanMissRate(response_m)
+        response_h = cloudwatch.getCacheHitRateStatistics(
+            index_list, intervals=60, period=60)
+        hitRate = cloudwatch.getLastMeanMissRate(response_h)
 
         cursor.execute(
             "SELECT maxMissRate, minMissRate, poolExpandRatio, poolShrinkRatio FROM autoscalerconfigs WHERE id = 0")
@@ -573,6 +576,11 @@ def autoScaler():
         call_obj = MemcacheEC2(ec2_client)
 
         curInstanceNum = len(call_obj.whoAreExisting())
+
+        if missRate == 0 and hitrate == 0:
+            # do something
+            # steady
+            print('Autoscaler: steady')
 
         # Status 2 Miss Rate too low : shrinking pool size
         if missRate <= minMissRate:
