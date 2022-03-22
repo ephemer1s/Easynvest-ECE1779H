@@ -100,7 +100,7 @@ class CloudwatchAPI(object):
         responses: responses returned by getCacheMissRateStatistics(self, instances: list, intervals=60, period=60)
         '''
         sum_mean = 0
-        numOfinstances = len(responses)
+        numOfinstances = 0
         for i in responses:
             datapoints = i['Datapoints']
             if len(datapoints) == 0:
@@ -108,7 +108,9 @@ class CloudwatchAPI(object):
                 continue
             elif len(datapoints) == 1:
                 latest_data = datapoints[0]
+                numOfinstances += 1
             else: # len(datapoints) > 1
+                numOfinstances += 1
                 timestamps = [j['Timestamp'] for j in datapoints]
                 timestamps.sort()
                 latest_data = None
@@ -120,8 +122,8 @@ class CloudwatchAPI(object):
                 raise Exception('Error finding latest datapoint when processing responces')
             else:
                 print('Retrieve data from cloudwatch ......')
-                print(latest_data['Average'])
-                sum_mean += latest_data['Average']
+                print(latest_data['Maximum'])
+                sum_mean += latest_data['Maximum']
         return sum_mean / numOfinstances
 
 
