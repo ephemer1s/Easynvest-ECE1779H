@@ -473,7 +473,7 @@ def autoScalerMonitor():
         autoScaler()
         publicIPUpdater()
         replacePolicyUpdater()
-        time.sleep(60)  # It could be something like 5s when testing
+        time.sleep(59)  # It could be something like 5s when testing
 
 
 def publicIPUpdater():
@@ -586,16 +586,16 @@ def autoScaler():
 
             # Set miss rate to a safe value temporarily otherwise autoscaler may stuck
             # ATTENTION: Currently acquiring statics from RDS databse. It should have been fetched from Cloudwatch. Modify this part before deployment.
-            cnx = mysql.connector.connect(user=ConfigManager.db_config['user'],
-                                          password=ConfigManager.db_config['password'],
-                                          host=ConfigManager.db_config['host'],
-                                          database=ConfigManager.db_config['database'])
+            # cnx = mysql.connector.connect(user=ConfigManager.db_config['user'],
+            #                               password=ConfigManager.db_config['password'],
+            #                               host=ConfigManager.db_config['host'],
+            #                               database=ConfigManager.db_config['database'])
 
-            cursor = cnx.cursor()
-            cursor.execute("UPDATE statistics SET missRate = %s, hitRate = %s WHERE id = 0",
-                           (minMissRate+0.01, 0.99-minMissRate,))
-            cnx.commit()
-            cnx.close()
+            # cursor = cnx.cursor()
+            # cursor.execute("UPDATE statistics SET missRate = %s, hitRate = %s WHERE id = 0",
+            #                (minMissRate+0.01, 0.99-minMissRate,))
+            # cnx.commit()
+            # cnx.close()
 
             # ATTENTION: Currently we have to terminate instance one by one, since a second terminate call would not actually work if there is already an instance under termination
             # Maybe we could consider using _terminate_ec2_instance() to terminate multiple instances at the same time
@@ -620,16 +620,16 @@ def autoScaler():
 
             # Set miss rate to a safe value temporarily otherwise autoscaler may stuck
             # ATTENTION: Currently acquiring statics from RDS databse. It should have been fetched from Cloudwatch. Modify this part before deployment.
-            cnx = mysql.connector.connect(user=ConfigManager.db_config['user'],
-                                          password=ConfigManager.db_config['password'],
-                                          host=ConfigManager.db_config['host'],
-                                          database=ConfigManager.db_config['database'])
+            # cnx = mysql.connector.connect(user=ConfigManager.db_config['user'],
+            #                               password=ConfigManager.db_config['password'],
+            #                               host=ConfigManager.db_config['host'],
+            #                               database=ConfigManager.db_config['database'])
 
-            cursor = cnx.cursor()
-            cursor.execute("UPDATE statistics SET missRate = %s, hitRate = %s WHERE id = 0",
-                           (maxMissRate-0.01, 1.01-maxMissRate,))
-            cnx.commit()
-            cnx.close()
+            # cursor = cnx.cursor()
+            # cursor.execute("UPDATE statistics SET missRate = %s, hitRate = %s WHERE id = 0",
+            #                (maxMissRate-0.01, 1.01-maxMissRate,))
+            # cnx.commit()
+            # cnx.close()
 
             for i in range(targetInstanceNum - curInstanceNum):
                 print("AutoScaler Status 3: Growing...")
