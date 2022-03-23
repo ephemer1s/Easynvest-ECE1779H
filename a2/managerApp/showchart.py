@@ -30,17 +30,17 @@ class Chart(object):
             'ylabel': 'requests',
         },
         'numofitems': {
-            'title': 'total number of items in MemCache',
+            'title': 'Total Number of Items in MemCache',
             'ylim': None,
             'ylabel': 'items',
         },
         'totalsize': {
-            'title': 'total size of items in MemCache',
+            'title': 'Total Size of Items in MemCache',
             'ylim': None,
             'ylabel': 'size (MB)',
         },
         'numofworkers': {
-            'title': 'number of workers',
+            'title': 'Number of Workers',
             'ylim': (0, 10),
             'ylabel': 'worker num',
         },
