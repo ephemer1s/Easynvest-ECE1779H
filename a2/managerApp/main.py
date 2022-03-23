@@ -870,7 +870,7 @@ def homeJump():
     Returns:
         url call to  frontEnd home page
     """
-    localhostIP = urllib.request.urlopen("http://169.254.169.254/latest/meta-data/public-ipv4").read()
+    localhostIP = urllib.request.urlopen("http://169.254.169.254/latest/meta-data/public-ipv4").read().decode('UTF-8')
     return redirect("http://" + localhostIP + ":5000", code=302)
 
 
@@ -881,7 +881,7 @@ def uploadJump():
     Returns:
         url call to frontEnd upload page
     """
-    localhostIP = urllib.request.urlopen("http://169.254.169.254/latest/meta-data/public-ipv4").read()
+    localhostIP = urllib.request.urlopen("http://169.254.169.254/latest/meta-data/public-ipv4").read().decode('UTF-8')
     return redirect("http://" + localhostIP + ":5000/upload", code=302)
 
 
@@ -892,7 +892,7 @@ def browseJump():
     Returns:
         url call to frontEnd browse page
     """
-    localhostIP = urllib.request.urlopen("http://169.254.169.254/latest/meta-data/public-ipv4").read()
+    localhostIP = urllib.request.urlopen("http://169.254.169.254/latest/meta-data/public-ipv4").read().decode('UTF-8')
     return redirect("http://" + localhostIP + ":5000/browse", code=302)
 
 
@@ -903,7 +903,7 @@ def keylistJump():
     Returns:
         url call to frontEnd keylist page
     """
-    localhostIP = urllib.request.urlopen("http://169.254.169.254/latest/meta-data/public-ipv4").read()
+    localhostIP = urllib.request.urlopen("http://169.254.169.254/latest/meta-data/public-ipv4").read().decode('UTF-8')
     return redirect("http://" + localhostIP + ":5000/keylist", code=302)
 
 

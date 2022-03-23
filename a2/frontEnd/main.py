@@ -296,7 +296,7 @@ def managerAppJump():
         url call to manager app main Page
     """
 
-    localhostIP = urllib.request.urlopen("http://169.254.169.254/latest/meta-data/public-ipv4").read()
+    localhostIP = urllib.request.urlopen("http://169.254.169.254/latest/meta-data/public-ipv4").read().decode('UTF-8')
     return redirect("http://" + localhostIP + ":5000/managerApp", code=302)
 
 
