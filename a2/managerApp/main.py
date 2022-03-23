@@ -20,6 +20,7 @@ from tools.awsS3 import S3_Class
 from tools.awsEC2 import MemcacheEC2
 from tools.awsCloudwatch import CloudwatchAPI
 from tools.credential import ConfigAWS
+import urllib.request
 
 
 import os
@@ -869,7 +870,8 @@ def homeJump():
     Returns:
         url call to  frontEnd home page
     """
-    return redirect("http://localhost:5000", code=302)
+    localhostIP = urllib.request.urlopen("http://169.254.169.254/latest/meta-data/public-ipv4").read().decode('UTF-8')
+    return redirect("http://" + localhostIP + ":5000", code=302)
 
 
 @webapp.route('/uploadJump')
@@ -879,7 +881,8 @@ def uploadJump():
     Returns:
         url call to frontEnd upload page
     """
-    return redirect("http://localhost:5000/upload", code=302)
+    localhostIP = urllib.request.urlopen("http://169.254.169.254/latest/meta-data/public-ipv4").read().decode('UTF-8')
+    return redirect("http://" + localhostIP + ":5000/upload", code=302)
 
 
 @webapp.route('/browseJump')
@@ -889,7 +892,8 @@ def browseJump():
     Returns:
         url call to frontEnd browse page
     """
-    return redirect("http://localhost:5000/browse", code=302)
+    localhostIP = urllib.request.urlopen("http://169.254.169.254/latest/meta-data/public-ipv4").read().decode('UTF-8')
+    return redirect("http://" + localhostIP + ":5000/browse", code=302)
 
 
 @webapp.route('/keylistJump')
@@ -899,7 +903,8 @@ def keylistJump():
     Returns:
         url call to frontEnd keylist page
     """
-    return redirect("http://localhost:5000/keylist", code=302)
+    localhostIP = urllib.request.urlopen("http://169.254.169.254/latest/meta-data/public-ipv4").read().decode('UTF-8')
+    return redirect("http://" + localhostIP + ":5000/keylist", code=302)
 
 
 @webapp.route('/wakeUp')

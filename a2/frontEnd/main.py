@@ -13,6 +13,7 @@ import threading
 from tools.credential import ConfigAWS
 import boto3
 from tools.awsS3 import S3_Class
+import urllib.request
 
 import os
 TEMPLATE_DIR = os.path.abspath("./templates")
@@ -294,7 +295,9 @@ def managerAppJump():
     Returns:
         url call to manager app main Page
     """
-    return redirect("http://localhost:5000/managerApp", code=302)
+
+    localhostIP = urllib.request.urlopen("http://169.254.169.254/latest/meta-data/public-ipv4").read().decode('UTF-8')
+    return redirect("http://" + localhostIP + ":5000/managerApp", code=302)
 
 
 @webapp.errorhandler(404)
