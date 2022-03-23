@@ -492,6 +492,7 @@ def publicIPUpdater():
 
     returnDict = {}
     id = 0
+    aliveMemcache = []
     for eachIP in ipList:
 
         try:
@@ -499,13 +500,16 @@ def publicIPUpdater():
                                                "/" + str(id), "get", 5)
             id = id + 1
 
+            if returnDict:
+                aliveMemcache.append(eachIP)
+
         except requests.exceptions.RequestException as e:
             print("ERROR: ", e)
             id = id + 1
 
     ipStr = ''
 
-    for i in range(len(ipList)):
+    for i in range(len(aliveMemcache)):
         if i == 0:
             ipStr += ipList[i]
         else:
@@ -552,7 +556,8 @@ def autoScaler():
         response = cloudwatch.getCacheMissRateStatistics(
             index_list, intervals=60, period=60)
         # index_list, intervals=60, period=5)  # Use period == 5 if Use getOneMinStats()
-        print('Cloudwatch Datapoints:' + str([str(i['Datapoints']) for i in response]))  # test prints
+        print('Cloudwatch Datapoints:' +
+              str([str(i['Datapoints']) for i in response]))  # test prints
         missRate = cloudwatch.getLastMeanMissRate(response)
 
         cursor.execute(
