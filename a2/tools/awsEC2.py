@@ -8,7 +8,9 @@ except:
 
 
 class ConfigAWS_ami():
-    ami = "ami-00f0a8b292d26e550"  # Change this to our own AMI ID!
+
+    ami = "ami-0ae617dbb46aa3938"  # Change this to our own AMI ID!
+
 
 # Create a credential.py in tools/ with the code as following format:
 

@@ -40,28 +40,28 @@ class CloudwatchAPI(object):
         return response
 
 
-    def getCacheMissRateData(instances: list):
-        '''
-        Get miss rate DATA from a specified server from cloudwatch. return a dict containing responses.
-        This function is bad, and I no longer maintenance it.
-        use this one below instead. -> getCacheMissRateStatistics(instances: list, intervals=60, period=60)
-        '''
-        responses = []
-        for i in instances:
-            responses.append(
-                # TODO: Add responses
-                self.client.get_metric_data(
-                    MetricDataQueries=[
-                        {}
-                    ],
-                    StartTime = datetime.datetime.utcnow() - datetime.timedelta(seconds = 60),
-                    EndTime = datetime.datetime.utcnow(),
-                    NextToken='string',
-                    ScanBy='TimestampDescending'|'TimestampAscending',
-                    MaxDatapoints=123
-                )
-            )
-        return responses
+    # def getCacheMissRateData(instances: list):
+    #     '''
+    #     Get miss rate DATA from a specified server from cloudwatch. return a dict containing responses.
+    #     This function is bad, and I no longer maintenance it.
+    #     use this one below instead. -> getCacheMissRateStatistics(instances: list, intervals=60, period=60)
+    #     '''
+    #     responses = []
+    #     for i in instances:
+    #         responses.append(
+    #             # TODO: Add responses
+    #             self.client.get_metric_data(
+    #                 MetricDataQueries=[
+    #                     {}
+    #                 ],
+    #                 StartTime = datetime.datetime.utcnow() - datetime.timedelta(seconds = 60),
+    #                 EndTime = datetime.datetime.utcnow(),
+    #                 NextToken='string',
+    #                 ScanBy='TimestampDescending'|'TimestampAscending',
+    #                 MaxDatapoints=123
+    #             )
+    #         )
+    #     return responses
 
 
     def getCacheMissRateStatistics(self, instances: list, intervals=60, period=60):
@@ -86,7 +86,8 @@ class CloudwatchAPI(object):
                     StartTime = datetime.datetime.utcnow() - datetime.timedelta(seconds=intervals),
                     EndTime = datetime.datetime.utcnow(),
                     Period=period,
-                    Statistics=['Average'],
+                    # Statistics=['Average'],
+                    Statistics=['Maximum'],
                     Unit='Percent',
                 )
             )
@@ -99,7 +100,7 @@ class CloudwatchAPI(object):
         responses: responses returned by getCacheMissRateStatistics(self, instances: list, intervals=60, period=60)
         '''
         sum_mean = 0
-        numOfinstances = len(responses)
+        numOfinstances = 0
         for i in responses:
             datapoints = i['Datapoints']
             if len(datapoints) == 0:
@@ -107,7 +108,9 @@ class CloudwatchAPI(object):
                 continue
             elif len(datapoints) == 1:
                 latest_data = datapoints[0]
+                numOfinstances += 1
             else: # len(datapoints) > 1
+                numOfinstances += 1
                 timestamps = [j['Timestamp'] for j in datapoints]
                 timestamps.sort()
                 latest_data = None
@@ -119,8 +122,8 @@ class CloudwatchAPI(object):
                 raise Exception('Error finding latest datapoint when processing responces')
             else:
                 print('Retrieve data from cloudwatch ......')
-                print(latest_data['Average'])
-                sum_mean += latest_data['Average']
+                print(latest_data['Maximum'])
+                sum_mean += latest_data['Maximum']
         return sum_mean / numOfinstances
 
 
