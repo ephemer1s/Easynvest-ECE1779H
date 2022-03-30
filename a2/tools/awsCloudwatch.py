@@ -124,7 +124,10 @@ class CloudwatchAPI(object):
                 print('Retrieve data from cloudwatch ......')
                 print(latest_data['Maximum'])
                 sum_mean += latest_data['Maximum']
-        return sum_mean / numOfinstances
+        if numOfinstances == 0:
+            return 0.0
+        else:
+            return sum_mean / numOfinstances
 
 
 if __name__ == '__main__':
