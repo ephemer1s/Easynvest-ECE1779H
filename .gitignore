@@ -7,6 +7,7 @@ __pycache__/
 .idea/
 Paxheader/
 *.DS_Store
+node_modules/
 
 # a2
 a2/images/
@@ -21,4 +22,5 @@ a2/logs/
 
 # a3
 a3/tools/credential.py
-
+a3/package-lock.json
+a3/package.json
