@@ -14,23 +14,24 @@ try:
 except:
     from credential import ConfigDB
 
+class Database():
 
-def connect_to_database():
-    return mysql.connector.connect(user=ConfigDB.user,
-                                   password=ConfigDB.password,
-                                   host=ConfigDB.host,
-                                   database=ConfigDB.database,)
-
-
-def get_db():
-    db = getattr(g, '_database', None)
-    if db is None:
-        db = g._database = connect_to_database()
-    return db
+    def connect_to_database(self):
+        return mysql.connector.connect(user=ConfigDB.user,
+                                    password=ConfigDB.password,
+                                    host=ConfigDB.host,
+                                    database=ConfigDB.database,)
 
 
-# @webapp.teardown_appcontext
-def teardown_db(exception):
-    db = getattr(g, '_database', None)
-    if db is not None:
-        db.close()
+    def get_db(self):
+        db = getattr(g, '_database', None)
+        if db is None:
+            db = g._database = self.connect_to_database()
+        return db
+
+
+    # @webapp.teardown_appcontext
+    def teardown_db(self):
+        db = getattr(g, '_database', None)
+        if db is not None:
+            db.close()
