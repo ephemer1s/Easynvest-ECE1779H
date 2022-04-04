@@ -16,23 +16,42 @@
         const labels = {{xlabels|tojson}};
       
         const data = {
-          labels: labels,
-          datasets: [{
-            label: 'My First dataset',
-            backgroundColor: 'rgb(255, 99, 132)',
-            borderColor: 'rgb(255, 99, 132)',
-            data: {{price|tojson}},
-          }]
+            labels: labels,
+            datasets: [{
+                label: 'Price',
+                backgroundColor: 'rgb(255, 99, 132)',
+                borderColor: 'rgb(255, 99, 132)',
+                data: {{price|tojson}},
+                order: 0
+            },{
+                label: 'Action',
+                backgroundColor: 'rgb(132, 99, 198)',
+                borderColor: 'rgb(132, 99, 198)',
+                data: {{action|tojson}},
+                type: 'bar',
+                order: 1
+            }]
         };
       
         const config = {
-          type: 'line',
-          data: data,
-          options: {}
+            type: 'line',
+            data: data,
+            options: {
+                responsive: true,
+                plugins: {
+                legend: {
+                    position: 'top',
+                },
+                title: {
+                    display: true,
+                    text: 'Chart.js Combined Line/Bar Chart'
+                }
+                }
+            },
         };
         const myChart = new Chart(
-          document.getElementById('stockChart'),
-          config
+            document.getElementById('stockChart'),
+            config
         );
     </script>
 </body>
