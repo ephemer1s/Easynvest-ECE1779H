@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <title>Main Page</title>
+    </head>
+    <body>
+        <form action="{{ url_for('browseStock') }}" method="post">
+            <!-- @webapp.route('/stock/<ticker>') -->
+            <label>Find your ticker:</label>
+            <input type="text" name="key" />
+            <input type="submit" value="Search" />
+        </form>
+        <br>
+    </body>
+</html>

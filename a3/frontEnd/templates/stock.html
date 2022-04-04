@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="UTF-8" />
+    <title>{{ name }}</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div>
+        Showing Stock {{ name }}
+        <br />
+    </div>
+    <div>
+        <canvas id="stockChart"></canvas>
+    </div>
+    <script>
+        const labels = {{xlabels|tojson}};
+      
+        const data = {
+          labels: labels,
+          datasets: [{
+            label: 'My First dataset',
+            backgroundColor: 'rgb(255, 99, 132)',
+            borderColor: 'rgb(255, 99, 132)',
+            data: {{price|tojson}},
+          }]
+        };
+      
+        const config = {
+          type: 'line',
+          data: data,
+          options: {}
+        };
+        const myChart = new Chart(
+          document.getElementById('stockChart'),
+          config
+        );
+    </script>
+</body>
