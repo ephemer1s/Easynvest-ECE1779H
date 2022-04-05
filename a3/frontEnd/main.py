@@ -33,29 +33,39 @@ def stock(ticker):
      - ticker: str, 3-5 letter company name abbreviation
     Returns: stock.html of specific company rendered by flask
     """
-    # ==================== Test data ========================
-    # length = 60
-    # pricedata = np.random.random(length)
-    # pricedata = (pricedata * 10).tolist()
-    # actiondata = np.random.random(length).tolist()
-    # xlabels = np.arange(length).tolist()
-    # ==================== End Test ====================
+
     length = 390
-    df = Config.stockAPI.dailyQuote(ticker)
-    closeData = df.loc[:, "close"]
-    timeData = df.index
-    volumeData = df.loc[:, "volume"]
+    df, valid = Config.stockAPI.dailyQuote(ticker)
 
-    pricedata = closeData.to_list()
-    xlabels = timeData.to_list()
-    actiondata = volumeData.to_list()
+    if valid:
+        closeData = df.loc[:, "close"]
+        timeData = df.index
+        volumeData = df.loc[:, "volume"]
 
-    return render_template("stock.html",
-                           xlabels=xlabels,
-                           price=pricedata,
-                           action=actiondata,
-                           name=ticker
-                           )
+        pricedata = closeData.to_list()
+        xlabels = timeData.to_list()
+        actiondata = volumeData.to_list()
+
+        return render_template("stock.html",
+                               xlabels=xlabels,
+                               price=pricedata,
+                               action=actiondata,
+                               name=ticker
+                               )
+    else:  # ticker DNE
+        # ==================== Test data ========================
+        length = 60
+        pricedata = np.random.random(length)
+        pricedata = (pricedata * 10).tolist()
+        actiondata = np.random.random(length).tolist()
+        xlabels = np.arange(length).tolist()
+        # ==================== End Test ====================
+        return render_template("stock.html",
+                               xlabels=xlabels,
+                               price=pricedata,
+                               action=actiondata,
+                               name=ticker
+                               )
 
 
 @webapp.route('/stock', methods=['POST'])
@@ -65,26 +75,35 @@ def browseStock():
     Same as @webapp.route('/stock/<ticker>'), but different method
     """
     ticker = request.form.get('key')
-    # ==================== Test data ========================
-    # length = 60
-    # pricedata = np.random.random(length)
-    # pricedata = (pricedata * 10).tolist()
-    # actiondata = np.random.random(length).tolist()
-    # xlabels = np.arange(length).tolist()
-    # ==================== End Test ====================
     length = 390
-    df = Config.stockAPI.dailyQuote(ticker)
-    closeData = df.loc[:, "close"]
-    timeData = df.index
-    volumeData = df.loc[:, "volume"]
+    df, valid = Config.stockAPI.dailyQuote(ticker)
 
-    pricedata = closeData.to_list()
-    xlabels = timeData.to_list()
-    actiondata = volumeData.to_list()
+    if valid:
+        closeData = df.loc[:, "close"]
+        timeData = df.index
+        volumeData = df.loc[:, "volume"]
 
-    return render_template("stock.html",
-                           xlabels=xlabels,
-                           price=pricedata,
-                           action=actiondata,
-                           name=ticker
-                           )
+        pricedata = closeData.to_list()
+        xlabels = timeData.to_list()
+        actiondata = volumeData.to_list()
+
+        return render_template("stock.html",
+                               xlabels=xlabels,
+                               price=pricedata,
+                               action=actiondata,
+                               name=ticker
+                               )
+    else:  # ticker DNE
+        # ==================== Test data ========================
+        length = 60
+        pricedata = np.random.random(length)
+        pricedata = (pricedata * 10).tolist()
+        actiondata = np.random.random(length).tolist()
+        xlabels = np.arange(length).tolist()
+        # ==================== End Test ====================
+        return render_template("stock.html",
+                               xlabels=xlabels,
+                               price=pricedata,
+                               action=actiondata,
+                               name=ticker
+                               )
