@@ -46,7 +46,8 @@ class StockData(object):
             interval="1min",
             outputsize=1000,
             timezone="Exchange",
-            date="today"
+            date="today",
+            order='ASC'
         )
 
         # Returns pandas.DataFrame
@@ -93,7 +94,7 @@ class StockData(object):
 
 # TESTING -----------------------------
 if __name__ == '__main__':
-    # print(stock("daily", "AAPL"))
+
     stockAPI = StockData()
 
     r, url = stockAPI.getLogo("V")
@@ -102,4 +103,4 @@ if __name__ == '__main__':
     print(liveQuote)
     print(df.to_string(), url)
     pass
-# --------------------------------------
+    # --------------------------------------
