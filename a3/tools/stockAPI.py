@@ -15,6 +15,7 @@ import requests
 
 # 12 API Key: 7a0f20e13dd14cc89645d8c47c02e181
 
+
 class Config_StockAPI():
 
     API_KEY = "7a0f20e13dd14cc89645d8c47c02e181"  # Change this to our own API KEY!
@@ -32,6 +33,14 @@ class StockData(object):
         self.td = TDClient(apikey=self.API_KEY)
 
     def dailyQuote(self, ticker):
+        """
+
+        Args:
+            ticker (string): Ticker of stock
+
+        Returns:
+            df: Panda Dataframe of daily quote
+        """
         ts = self.td.time_series(
             symbol=ticker,
             interval="1min",
@@ -46,6 +55,15 @@ class StockData(object):
         return df
 
     def getLogo(self, ticker):
+        """Get logo of the ticker; Ideally should store in S3 to avoid calling too many times
+
+        Args:
+            ticker (string): Ticker of stock
+
+        Returns:
+            response(Bytes?): The image itself
+            string: url of the logo
+        """
         logo = self.td.get_logo(symbol=ticker,)
 
         url = logo.as_json()["url"]
@@ -55,14 +73,22 @@ class StockData(object):
         return r, url
 
     def liveQuote(self, ticker):
+        """live Quote of the stock
+
+        Args:
+            ticker (string): Ticker of stock
+
+        Returns:
+            float: The price opf the stock
+        """
         ts = self.td.price(
             symbol=ticker,
         )
 
         # Returns pandas.DataFrame
-        df = ts.as_json()["price"]
+        liveQuote = ts.as_json()["price"]
 
-        return df
+        return liveQuote
 
 
 # TESTING -----------------------------
