@@ -87,11 +87,11 @@ class StockData(object):
             validBool = False
         return r, url, validBool
 
-    def liveQuote(self, ticker):
-        """live Quote of the stock
+    def liveQuotes(self, tickers):
+        """live Quotes of the stock
 
         Args:
-            ticker (string): Ticker of stock
+            tickers (list): Tickers of stocks
 
         Returns:
             float: The price opf the stock
@@ -99,18 +99,22 @@ class StockData(object):
 
         validBool = False
         ts = self.td.price(
-            symbol=ticker,
+            symbol=tickers,
         )
 
         # Returns pandas.DataFrame
+        liveQuotes = []
         try:
-            liveQuote = ts.as_json()["price"]
+            liveQuote = ts.as_json()
+
+            for i in liveQuote:
+                liveQuotes.append(liveQuote[i]["price"])
             validBool = True
         except:
-            liveQuote = ""
+            liveQuotes = []
             validBool = False
 
-        return liveQuote, validBool
+        return liveQuotes, validBool
 
 
 # TESTING -----------------------------
@@ -120,8 +124,10 @@ if __name__ == '__main__':
 
     r, url, _ = stockAPI.getLogo("V")
     df, _ = stockAPI.dailyQuote("V")
-    liveQuote, _ = stockAPI.liveQuote("V")
-    print(liveQuote)
+    # liveQuote, _ = stockAPI.liveQuote("V")
+    liveQuotes, _ = stockAPI.liveQuotes("V", "MGA", "AAPL")
+    print(_)
+    print(liveQuotes)
     print(df.to_string(), url)
     pass
     # --------------------------------------
