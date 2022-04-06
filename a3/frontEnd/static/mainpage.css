@@ -1,4 +1,4 @@
-/* Statistics Subtitle */
+/* 1st Subtitle */
 .u-section-1 .u-sheet-1 {
   min-height: 42px;
 }
@@ -8,12 +8,12 @@
   margin: 7px auto 7px 0;
 }
 
-/* Statistics Section */
+/* 1st Section */
 .u-section-2 .u-sheet-1 {
   min-height: 800px;
 }
 
-/* Configuration Subtitle */
+/* 2nd Subtitle */
 .u-section-3 .u-sheet-1 {
   min-height: 43px;
 }
@@ -23,65 +23,7 @@
   margin: 7px auto 7px 0;
 }
 
-/* Configuration Section */
+/* 2nd Section */
 .u-section-4 .u-sheet-1 {
   min-height: 100px;
-}
-
-/* Configuration Apply Button */
-/* Test button that would be removed in the future.
-    So just let this be there. Never mind */
-.u-section-4 .u-btn-1 {
-  border-style: none;
-  font-weight: 700;
-  text-transform: uppercase;
-  font-size: 0.875rem;
-  letter-spacing: 1px;
-  background-image: none;
-  margin: 40px auto 10px 0;
-  padding: 4px 18px 6px 16px;
-}
-
-/* File Remove Subtitle */
-.u-section-5 .u-sheet-1 {
-  min-height: 43px;
-}
-
-.u-section-5 .u-text-1 {
-  font-weight: 400;
-  margin: 7px auto 7px 0;
-}
-/* File Remove Section */
-.u-section-6 .u-sheet-1 {
-  min-height: 100px;
-}
-
-/* File Remove Button */
-/* These button could be useful. Please dont delete this part. */
-.u-section-6 .u-btn-1 {
-  border-style: none;
-  font-weight: 700;
-  font-size: 0.875rem;
-  letter-spacing: 1px;
-  background-image: none;
-  text-transform: none;
-  margin: 17px auto 0 0;
-  padding: 4px 29px 5px 27px;
-}
-
-.u-section-6 .u-btn-2 {
-  border-style: none;
-  font-weight: 700;
-  font-size: 0.875rem;
-  letter-spacing: 1px;
-  background-image: none;
-  margin: -32px auto 27px 223px;
-  padding: 4px 29px 5px 27px;
-}
-
-@media (max-width: 1199px) {
-  .u-section-6 .u-btn-2 {
-    margin-top: 20px;
-    margin-left: 0;
-  }
 }
