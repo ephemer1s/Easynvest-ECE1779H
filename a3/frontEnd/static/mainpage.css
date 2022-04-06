@@ -1,0 +1,29 @@
+/* 1st Subtitle */
+.u-section-1 .u-sheet-1 {
+  min-height: 42px;
+}
+
+.u-section-1 .u-text-1 {
+  font-weight: 400;
+  margin: 7px auto 7px 0;
+}
+
+/* 1st Section */
+.u-section-2 .u-sheet-1 {
+  min-height: 800px;
+}
+
+/* 2nd Subtitle */
+.u-section-3 .u-sheet-1 {
+  min-height: 43px;
+}
+
+.u-section-3 .u-text-1 {
+  font-weight: 400;
+  margin: 7px auto 7px 0;
+}
+
+/* 2nd Section */
+.u-section-4 .u-sheet-1 {
+  min-height: 100px;
+}

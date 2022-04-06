@@ -6,14 +6,13 @@
     <meta name="keywords" content="Main Page">
     <meta name="description" content="">
     <meta name="page_type" content="np-template-header-footer-from-plugin">
-    <title>Stock View</title>
+    <title>Main Page</title>
     <link rel="stylesheet" href="{{url_for('static', filename='nicepage.css')}}" media="screen">
     <link rel="stylesheet" href="{{url_for('static', filename='mainpage.css')}}" media="screen">
     <script class="u-script" type="text/javascript" src="{{url_for('static', filename='nicepage.js')}}" defer=""></script>
     <script class="u-script" type="text/javascript" src="{{url_for('static', filename='jquery.js')}}" defer=""></script>
     <meta name="generator" content="Nicepage 4.6.5, nicepage.com">
     <link id="u-theme-google-font" rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:100,100i,300,300i,400,400i,500,500i,700,700i,900,900i|Open+Sans:300,300i,400,400i,500,500i,600,600i,700,700i,800,800i">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     
     <script type="application/ld+json">{
@@ -34,12 +33,12 @@
       <div class="u-clearfix u-sheet u-sheet-1">
         <div class="page-title"><style>.page-title{text-align: center; white-space: nowrap; overflow: hidden;}</style>
           <div class="page-title-left"><style>.page-title-left{float:left; vertical-align:middle;display: inline;}</style>
-            <h2 class="u-text u-text-default u-text-palette-1-dark-2 u-text-1">Stock V<span style="font-weight: 400;"></span>iew</h2>
+            <h2 class="u-text u-text-default u-text-palette-1-dark-2 u-text-1">Main P<span style="font-weight: 400;"></span>age</h2>
           </div> 
 
           <!-- Ticker Search Bar -->
           <div class="searchBarDiv">
-            <form action="{{url_for('stockRedirect')}}" method="post">
+            <form action="{{ url_for('stockRedirect')}}" method="post">
               <input class="searchBar" type="text" name="stockTicker" placeholder="  Enter Stock Ticker" required/>
               <button class="searchButton" style="vertical-align:middle"><span>Search</span></button>
             </form>
@@ -123,7 +122,7 @@
                   <div class="u-menu-close"></div>
                   <ul class="u-align-center u-nav u-popupmenu-items u-unstyled u-nav-2">
                     <li class="u-nav-item"><a class="u-button-style u-nav-link" style="padding: 10px 0px;" href="">MyPortfolio</a></li>
-                    <li class="u-nav-item"><a class="u-button-style u-nav-link" style="padding: 10px 0px;" href="">Home</a></li>
+                    <li class="u-nav-item"><a class="u-button-style u-nav-link" style="padding: 10px 0px;" href="{{url_for('home')}}">Home</a></li>
                   </ul>
                 </div>
               </div>
@@ -134,7 +133,7 @@
     </header>
 
 
-    <!-- Stock Subtitle -->
+    <!-- Nasdaq Subtitle -->
     <section class="u-clearfix u-grey-5 u-section-1" id="sec-eff3">
       <div class="u-clearfix u-sheet u-valign-middle u-sheet-1">
         <lt-highlighter style="display: none; z-index: 1 !important;">
@@ -142,84 +141,33 @@
             <lt-div class="lt-highlighter__scroll-element" style="top: 0px; left: 0px; width: 144px; height: 40px;"></lt-div>
           </lt-div>
         </lt-highlighter>
-        <h4 class="u-custom-font u-font-georgia u-text u-text-default u-text-palette-1-dark-2 u-text-1">{{stockTicker}}</h4>
+        <h4 class="u-custom-font u-font-georgia u-text u-text-default u-text-palette-1-dark-2 u-text-1">NASDAQ</h4>
       </div>
     </section>
 
 
-    <!-- Stock Section -->
+    <!-- Nasdaq Section -->
     <section class="u-clearfix u-white u-section-2" id="sec-e33e">
       
-      <!-- Stock Price Chart -->
+      <!-- Nasdaq Index Chart -->
       <div class="u-clearfix u-sheet u-sheet-1">
-        <!-- Under Construction -->
-        <!-- Tab need to be built -->
         <div id="container">
-            <!-- Under Construction -->
-            <!-- Put chart here @Haocheng -->
-            <div>
-                <canvas id="stockChart">
-                </canvas>
-            </div>
+          <!-- Under Construction -->
+          <!-- Put Nasdaq chart here @Haocheng -->
 
-            <script>
-                const labels = {{xlabels|tojson}};
-            
-                const data = {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Price',
-                        backgroundColor: 'rgb(255, 99, 132)',
-                        borderColor: 'rgb(255, 99, 132)',
-                        data: {{price|tojson}},
-                        order: 0
-                    },{
-                        label: 'Action',
-                        backgroundColor: 'rgb(132, 99, 198)',
-                        borderColor: 'rgb(132, 99, 198)',
-                        data: {{action|tojson}},
-                        type: 'bar',
-                        order: 1
-                    }]
-                };
-            
-                const config = {
-                    type: 'line',
-                    data: data,
-                    options: {
-                        responsive: true,
-                        plugins: {
-                        legend: {
-                            position: 'top',
-                        },
-                        title: {
-                            display: true,
-                            text: 'Chart.js Combined Line/Bar Chart'
-                        }
-                        }
-                    },
-                };
-                const myChart = new Chart(
-                    document.getElementById('stockChart'),
-                    config
-                );
-            </script>
         </div>
 
       <!-- Under Construction -->
-      <!-- Put stock chart Javascript here @Haocheng -->
+      <!-- Put Nasdaq chart Javascript here @Haocheng -->
       <script>
 
 
       </script><br>
 
-        <!-- Stock Current Price -->
+        <!-- Nasdaq Current Price -->
         <div class="nasdaqPrice"><style>.nasdaqPrice{float:right;}</style>
-          <p class="u-text u-text-default u-text-3"><b>Current Price:   </b>{{stockCurrentPrice}}    {{stockCurrentInterest}} %</p>
+          <p class="u-text u-text-default u-text-3"><b>Current Price:   </b>{{nasdaqCurrentPrice}}    {{nasdaqCurrentInterest}} %</p>
         </div>
-
-        <!-- Under Construction -->
-        <!-- Here should be a table -->
 
       </div>
     </section>

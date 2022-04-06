@@ -20,10 +20,26 @@ from frontEnd.charts import Chart
 def index():
     """
     Main Page
-    Returns: index.html 'Main Page' rendered by flask
+    Returns: 'Main Page' rendered by flask
     """
-    return render_template("index.html")
+    # Under Construction
+    # Need to fill price & value before deployment
+    nasdaqCurrentPrice = 182
+    nasdaqCurrentInterest = -0.18
+    return render_template("mainpage.html", nasdaqCurrentPrice = nasdaqCurrentPrice, nasdaqCurrentInterest = nasdaqCurrentInterest)
 
+
+@webapp.route('/stockRedirect')
+def stockRedirect():
+    """
+    Get input client stock ticker fron ticker search bar and redirect to /stock/<ticker>
+    """
+    stockTicker = request.form.get('stockTicker', "")
+
+    # Under Construction
+    # localhostIP = urllib.request.urlopen("http://169.254.169.254/latest/meta-data/public-ipv4").read().decode('UTF-8')
+    # Not functionable right now (?)
+    return redirect("http://" + "127.0.0.1" + ":5000/stock/" + stockTicker)
 
 @webapp.route('/stock/<ticker>')
 def stock(ticker):
@@ -107,3 +123,12 @@ def browseStock():
                                action=actiondata,
                                name=ticker
                                )
+
+@webapp.route('/home')
+def home():
+    """Home Page: Call to go back to main page "/"
+
+    Returns:
+        html of Main Page
+    """
+    return render_template("mainpage.html")
