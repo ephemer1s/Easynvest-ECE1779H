@@ -13,6 +13,6 @@ if __name__ == "__main__":
     applications = DispatcherMiddleware(frontEnd, {'/backEnd': backEnd})
     run_simple('0.0.0.0', 5000, applications,
                use_reloader=True,
-               use_debugger=False,
+               use_debugger=True,
                use_evalex=True,
                threaded=True)

@@ -28,6 +28,14 @@ def index():
     nasdaqCurrentInterest = -0.18
     return render_template("mainpage.html", nasdaqCurrentPrice = nasdaqCurrentPrice, nasdaqCurrentInterest = nasdaqCurrentInterest)
 
+@webapp.route('/portfolio')
+def portfolio():
+    """
+    Portfolio Page
+    Returns: 'Portfolio Page' html
+    """
+    return render_template("portfolioLogin.html")
+
 
 @webapp.route('/stockRedirect')
 def stockRedirect():
@@ -40,6 +48,28 @@ def stockRedirect():
     # localhostIP = urllib.request.urlopen("http://169.254.169.254/latest/meta-data/public-ipv4").read().decode('UTF-8')
     # Not functionable right now (?)
     return redirect("http://" + "127.0.0.1" + ":5000/stock/" + stockTicker)
+
+
+@webapp.route('/portfolioParse')
+def portfolioParse():
+    """
+    Get uploaded csv credential from client and parse it for edit
+    """
+
+    # Under Construction
+    # Parse csv file, pass info and redirect to portfolioEditor.html
+    return render_template("portfolioEditor.html")
+
+
+@webapp.route('/portfolioEditor')
+def portfolioEditor():
+    """
+    Get uploaded csv credential from client and display for edit
+    Returns: 'Portfolio Editor Page' html
+    """
+
+    # Under Construction
+    return render_template("portfolioEditor.html")
 
 @webapp.route('/stock/<ticker>')
 def stock(ticker):
