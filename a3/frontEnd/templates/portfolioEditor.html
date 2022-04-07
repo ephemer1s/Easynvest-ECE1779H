@@ -6,7 +6,7 @@
     <meta name="keywords" content="Main Page">
     <meta name="description" content="">
     <meta name="page_type" content="np-template-header-footer-from-plugin">
-    <title>Main Page</title>
+    <title>Portfolio Editor</title>
     <link rel="stylesheet" href="{{url_for('static', filename='nicepage.css')}}" media="screen">
     <link rel="stylesheet" href="{{url_for('static', filename='mainpage.css')}}" media="screen">
     <script class="u-script" type="text/javascript" src="{{url_for('static', filename='nicepage.js')}}" defer=""></script>
@@ -110,10 +110,10 @@
           <!-- Manage Portfolio Menu -->
           <div class="page-menu-right"><style>.page-menu-right{float:right;vertical-align:middle; display: inline}</style>
             <div class="u-custom-menu u-nav-container">
-              <ul class="u-custom-font u-font-georgia u-nav u-spacing-30 u-unstyled u-nav-1">
-                <li class="u-nav-item"><a class="u-border-2 u-border-active-palette-1-base u-border-hover-palette-1-base u-border-no-left u-border-no-right u-border-no-top u-button-style u-nav-link u-text-active-palette-1-light-1 u-text-hover-palette-2-light-1 u-text-palette-1-dark-1" style="padding: 5px 0px;" href="{{url_for('portfolio')}}">MyPortfolio</a></li>
-                <li class="u-nav-item"><a class="u-border-2 u-border-active-palette-1-base u-border-hover-palette-1-base u-border-no-left u-border-no-right u-border-no-top u-button-style u-nav-link u-text-active-palette-1-light-1 u-text-hover-palette-2-light-1 u-text-palette-1-dark-1" style="padding: 5px 0px;" href="{{url_for('home')}}">Home</a></li>
-              </ul>
+                <ul class="u-custom-font u-font-georgia u-nav u-spacing-30 u-unstyled u-nav-1">
+                    <li class="u-nav-item"><a class="u-border-2 u-border-active-palette-1-base u-border-hover-palette-1-base u-border-no-left u-border-no-right u-border-no-top u-button-style u-nav-link u-text-active-palette-1-light-1 u-text-hover-palette-2-light-1 u-text-palette-1-dark-1" style="padding: 5px 0px;" href="{{url_for('portfolio')}}">MyPortfolio</a></li>
+                    <li class="u-nav-item"><a class="u-border-2 u-border-active-palette-1-base u-border-hover-palette-1-base u-border-no-left u-border-no-right u-border-no-top u-button-style u-nav-link u-text-active-palette-1-light-1 u-text-hover-palette-2-light-1 u-text-palette-1-dark-1" style="padding: 5px 0px;" href="{{url_for('home')}}">Home</a></li>
+                </ul>
             </div>
 
             <div class="u-custom-menu u-nav-container-collapse">
@@ -121,7 +121,7 @@
                 <div class="u-inner-container-layout u-sidenav-overflow">
                   <div class="u-menu-close"></div>
                   <ul class="u-align-center u-nav u-popupmenu-items u-unstyled u-nav-2">
-                    <li class="u-nav-item"><a class="u-button-style u-nav-link" style="padding: 10px 0px;" href="{{url_for('portfolio')}}">MyPortfolio</a></li>
+                    <li class="u-nav-item"><a class="u-button-style u-nav-link" style="padding: 10px 0px;" href="">MyPortfolio</a></li>
                     <li class="u-nav-item"><a class="u-button-style u-nav-link" style="padding: 10px 0px;" href="{{url_for('home')}}">Home</a></li>
                   </ul>
                 </div>
@@ -133,7 +133,7 @@
     </header>
 
 
-    <!-- Stock Index Subtitle -->
+    <!-- Portfolio Editor Subtitle -->
     <section class="u-clearfix u-grey-5 u-section-1" id="sec-eff3">
       <div class="u-clearfix u-sheet u-valign-middle u-sheet-1">
         <lt-highlighter style="display: none; z-index: 1 !important;">
@@ -141,49 +141,16 @@
             <lt-div class="lt-highlighter__scroll-element" style="top: 0px; left: 0px; width: 144px; height: 40px;"></lt-div>
           </lt-div>
         </lt-highlighter>
-        <h4 class="u-custom-font u-font-georgia u-text u-text-default u-text-palette-1-dark-2 u-text-1">Stock Index</h4>
+        <h4 class="u-custom-font u-font-georgia u-text u-text-default u-text-palette-1-dark-2 u-text-1">MyPortfolio</h4>
       </div>
     </section>
 
 
-    <!-- Stock Index Section -->
+    <!-- Portfolio Editor Section -->
     <section class="u-clearfix u-white u-section-2" id="sec-e33e">
-      
-      <!-- Nasdaq Index Chart -->
       <div class="u-clearfix u-sheet u-sheet-1">
-        <br>
-        <div class="nasdaqLogo"><style>.nasdaqLogo{float:left;}</style>
-          <!-- Nasdaq Logo -->
-          <!-- <img class="primary-nav__logo-normal" src="/themes/nsdq/dist/assets/images/logo.svg" alt="Nasdaq Logo" /> -->
-          <svg width="212" height="60" viewBox="0 0 106 30" fill="none" xmlns="http://www.w3.org/2000/svg" class="primary-nav__logo-normal">
-            <path fill-rule="evenodd" clip-rule="evenodd" d="M78.1281 22.8256C74.5111 22.8256 72.2639 20.7247 72.2639 17.3409C72.2639 13.8246 74.3374 11.6398 77.6759 11.6398L77.9581 11.6382C78.3755 11.6382 78.9524 11.6514 79.74 11.7517V7.50928H82.102V22.4441C82.102 22.4441 79.8589 22.8256 78.1281 22.8256ZM78.1076 13.5027C75.8219 13.5027 74.7106 14.7392 74.7106 17.2823C74.7106 19.5643 76.0503 20.9817 78.206 20.9817C78.6198 20.9817 79.0941 20.9559 79.74 20.8989V13.6537C79.0935 13.5508 78.5745 13.5027 78.1076 13.5027Z" fill="#404041"/>
-            <path fill-rule="evenodd" clip-rule="evenodd" d="M45.8108 22.485L39.4365 11.3324L39.4349 22.485H37.214V8.36816H40.3225L46.6968 19.421L46.6941 8.36816H48.9435V22.485H45.8108Z" fill="#404041"/>
-            <path fill-rule="evenodd" clip-rule="evenodd" d="M66.1111 22.7014C65.0383 22.7014 63.9186 22.5811 62.5857 22.3241L62.4441 22.2961V20.324L62.6552 20.3704C63.8286 20.6206 64.843 20.8369 65.8563 20.8369C66.677 20.8369 68.5858 20.706 68.5858 19.4975C68.5858 18.4827 67.2666 18.2289 66.2064 18.0257L66.1401 18.0125C65.9432 17.9735 65.7568 17.9365 65.5973 17.8964C64.0434 17.4916 62.3857 16.8847 62.3857 14.7965C62.3857 12.7605 63.9939 11.5927 66.7975 11.5927C68.1425 11.5927 69.1195 11.7383 69.9039 11.8555L70.2877 11.913V13.8244L70.0829 13.7891C69.1948 13.6249 68.1541 13.4566 67.1513 13.4566C66.04 13.4566 64.7161 13.6651 64.7161 14.6588C64.7161 15.482 65.7979 15.7179 67.0507 15.9908C68.8011 16.3728 70.9736 16.8483 70.9736 19.2426C70.9736 21.4406 69.2011 22.7014 66.1111 22.7014Z" fill="#404041"/>
-            <path fill-rule="evenodd" clip-rule="evenodd" d="M88.7257 22.7014C86.2811 22.7014 84.0196 22.2708 84.0196 19.1445C84.0196 15.7427 87.5176 15.7427 89.608 15.7427C89.817 15.7427 90.7993 15.7876 91.102 15.8013C91.0993 13.893 91.0735 13.4376 88.313 13.4376C87.2186 13.4376 86.0026 13.6556 84.9298 13.8476L84.725 13.8846V11.9995L84.865 11.971C86.1079 11.7167 87.3065 11.5927 88.5289 11.5927C91.2046 11.5927 93.4719 11.8634 93.4719 15.1902V22.4476L93.3087 22.4644C91.4557 22.6729 89.9833 22.7014 88.7257 22.7014ZM89.5485 17.4251C87.5334 17.4251 86.2848 17.7223 86.2848 19.2025C86.2848 20.915 87.8788 21.058 89.3727 21.058C89.9323 21.058 90.9362 20.9868 91.2431 20.9636V17.4832C90.8098 17.4668 89.6849 17.4251 89.5485 17.4251Z" fill="#404041"/>
-            <path fill-rule="evenodd" clip-rule="evenodd" d="M55.6178 22.7014C53.1731 22.7014 50.9117 22.2708 50.9117 19.1445C50.9117 15.7427 54.4097 15.7427 56.5001 15.7427C56.7085 15.7427 57.6913 15.7876 57.994 15.8013C57.9914 13.893 57.9656 13.4376 55.2051 13.4376C54.1107 13.4376 52.8952 13.6556 51.8218 13.8476L51.6171 13.8846V11.9995L51.7571 11.971C53.0005 11.7167 54.1986 11.5927 55.4209 11.5927C58.0967 11.5927 60.3639 11.8634 60.3639 15.1902V22.4476L60.2007 22.4644C58.3478 22.6729 56.8754 22.7014 55.6178 22.7014ZM56.4406 17.4251C54.4255 17.4251 53.1768 17.7223 53.1768 19.2025C53.1768 20.915 54.7708 21.058 56.2648 21.058C56.8243 21.058 57.8282 20.9868 58.1351 20.9636V17.4832C57.7019 17.4668 56.5769 17.4251 56.4406 17.4251Z" fill="#404041"/>
-            <path fill-rule="evenodd" clip-rule="evenodd" d="M102.868 27.2799V22.6501C101.946 22.7799 101.456 22.7799 101.061 22.7799C100.127 22.7799 99.0893 22.5762 98.2844 22.2342C96.4867 21.4859 95.4134 19.5808 95.4134 17.1374C95.4134 15.9157 95.7098 13.6861 97.6938 12.4844C98.6871 11.8881 99.8642 11.6332 101.63 11.6332C102.264 11.6332 103.118 11.6823 103.943 11.7303L105.283 11.7994V26.2081L102.868 27.2799ZM101.453 13.4966C99.0572 13.4966 97.8412 14.7215 97.8412 17.1374C97.8412 20.2447 99.6558 20.897 101.179 20.897C101.549 20.897 101.967 20.897 102.89 20.7803V13.5636C102.167 13.5145 101.835 13.4966 101.453 13.4966Z" fill="#404041"/>
-            <path fill-rule="evenodd" clip-rule="evenodd" d="M26.6726 0L18.8675 21.4961C18.6759 22.0265 18.1921 22.4138 17.612 22.4724V22.4851H25.8619C26.5089 22.4851 27.0616 22.0729 27.269 21.4961L35.0742 0H26.6726ZM16.9409 22.1567C17.4173 22.1567 17.8374 21.9203 18.0943 21.5593C18.1212 21.5218 18.2149 21.3899 18.2801 21.2099L21.1433 13.3225L19.4688 8.71643C19.255 8.20506 18.7502 7.84567 18.1622 7.84567C17.6863 7.84567 17.2657 8.08157 17.0088 8.44306C16.982 8.48001 16.8704 8.64835 16.823 8.79242L13.9609 16.6767L15.6423 21.3012C15.8602 21.8042 16.3587 22.1567 16.9409 22.1567ZM9.21221 7.51601H17.5522V7.52076C16.9326 7.54662 16.4077 7.94611 16.2066 8.50445L8.40206 30H0L7.80458 8.50445C8.01304 7.92764 8.56472 7.51601 9.21221 7.51601Z" fill="#0090BA"/>
-          </svg>
-        </div><br><br>
-
-        <div id="container">
-          <!-- Under Construction -->
-          <!-- Put Nasdaq chart here @Haocheng -->
-          <p><b>Under Construction: Nasdaq Index Price Chart </b></p>
-        </div>
-
-      <!-- Under Construction -->
-      <!-- Put Nasdaq chart Javascript here @Haocheng -->
-      <script>
-
-
-      </script><br>
-
-        <!-- Nasdaq Current Price Index -->
-        <div class="nasdaqIndex"><style>.nasdaqIndex{float:right;}</style>
-          <p class="nasdaqStat"><b>Current Price:   </b>{{nasdaqCurrentPrice}}    {{nasdaqCurrentInterest}} %</p><style>.nasdaqStat{float:right;}</style>
-        </div>
-
+          <!-- Under Construction: Portfolio Editor -->
+        <p><b>Under Construction: Portfolio Editor </b></p>
       </div>
     </section>
 
