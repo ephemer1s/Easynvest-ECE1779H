@@ -20,7 +20,7 @@ import base64
 class S3_Class(object):
     def __init__(self, s3_client):
         self.s3_client = s3_client
-        self.bucketName = "ece1779-assignment-2"
+        self.bucketName = "ece1779-assignment-3"
 
     def initialize_bucket(self):
         response = self.s3_client.list_buckets()['Buckets']
