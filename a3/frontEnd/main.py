@@ -8,6 +8,8 @@ import numpy as np
 from datetime import datetime
 from dateutil import tz
 from dateutil.relativedelta import relativedelta
+import requests
+import urllib.request
 
 
 # local import
@@ -37,17 +39,25 @@ def portfolio():
     return render_template("portfolioLogin.html")
 
 
-@webapp.route('/stockRedirect')
+@webapp.route('/stockRedirect', methods=['GET', 'POST'])
 def stockRedirect():
     """
     Get input client stock ticker fron ticker search bar and redirect to /stock/<ticker>
     """
     stockTicker = request.form.get('stockTicker', "")
 
+    if not stockTicker:  # If ticker is empty, raise error
+        response = webapp.response_class(
+            response=json.dumps("Ticker should not be empty."),
+            status=400,
+            mimetype='application/json'
+        )
+        print(response)
+        return response
+
     # Under Construction
-    # localhostIP = urllib.request.urlopen("http://169.254.169.254/latest/meta-data/public-ipv4").read().decode('UTF-8')
     # Not functionable right now (?)
-    return redirect("http://" + "127.0.0.1" + ":5000/stock/" + stockTicker)
+    return redirect("/stock/" + str(stockTicker))
 
 
 @webapp.route('/portfolioParse')
@@ -167,3 +177,58 @@ def createTestData(length=60):
         xlabels = np.arange(length).tolist()
         # ==================== End Test ====================
         return pricedata, actiondata, xlabels
+
+def makeAPI_Call(api_url: str, method: str, _timeout: int, _data={}):
+    """Helper function to call an API.
+
+    Args:
+        api_url (str): URL to the API function
+        method (str): get, post, delete, or put
+        _timeout (int): (in seconds) how long should the front end wait for a response
+
+    Returns:
+        <?>: response
+    """
+    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.76 Safari/537.36', "Upgrade-Insecure-Requests": "1",
+               "DNT": "1", "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8", "Accept-Language": "en-US,en;q=0.5", "Accept-Encoding": "gzip, deflate"}
+    method = method.lower()
+    if method == "get":
+        r = requests.get(api_url, timeout=_timeout, headers=headers)
+    if method == "post":
+        r = requests.post(api_url, data=_data,
+                          timeout=_timeout, headers=headers)
+    if method == "delete":
+        r = requests.delete(api_url, timeout=_timeout, headers=headers)
+    if method == "put":
+        r = requests.put(api_url, timeout=_timeout, headers=headers)
+
+    json_acceptable_string = r.json()
+
+    return json_acceptable_string
+
+
+def makeAPI_Call_Not_Json(api_url: str, method: str, _timeout: int, _data={}):
+    """Helper function to call an API.
+
+    Args:
+        api_url (str): URL to the API function
+        method (str): get, post, delete, or put
+        _timeout (int): (in seconds) how long should the front end wait for a response
+
+    Returns:
+        <?>: response
+    """
+    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.76 Safari/537.36', "Upgrade-Insecure-Requests": "1",
+               "DNT": "1", "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8", "Accept-Language": "en-US,en;q=0.5", "Accept-Encoding": "gzip, deflate"}
+    method = method.lower()
+    if method == "get":
+        r = requests.get(api_url, timeout=_timeout, headers=headers)
+    if method == "post":
+        r = requests.post(api_url, data=_data,
+                          timeout=_timeout, headers=headers)
+    if method == "delete":
+        r = requests.delete(api_url, timeout=_timeout, headers=headers)
+    if method == "put":
+        r = requests.put(api_url, timeout=_timeout, headers=headers)
+
+    return r
