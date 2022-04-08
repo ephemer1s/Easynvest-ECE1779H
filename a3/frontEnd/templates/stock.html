@@ -189,26 +189,26 @@
                   type: 'line',
                   data: data,
                   options: {
-                      responsive: true,
-                      plugins: {
-                        legend: {
-                            position: 'top',
-                        },
-                        title: {
-                            display: true,
-                            text: {{name}},
-                        },
-                        scales: {
-                          Price: {
-                            type: 'linear',
-                            position: 'left',
-                          },
-                          Action: {
-                            type: 'linear',
-                            position: 'right',
-                          }
-                        },
+                    responsive: true,
+                    plugins: {
+                      legend: {
+                          position: 'top',
                       },
+                      title: {
+                          display: true,
+                          text: "Title Here",
+                      },
+                      scales: {
+                        Price: {
+                          type: 'linear',
+                          position: 'left',
+                        },
+                        Action: {
+                          type: 'linear',
+                          position: 'right',
+                        }
+                      },
+                    },
                   },
                 };
                 const myChart = new Chart(
