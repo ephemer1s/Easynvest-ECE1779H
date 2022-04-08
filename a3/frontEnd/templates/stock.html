@@ -7,8 +7,8 @@
     <meta name="description" content="">
     <meta name="page_type" content="np-template-header-footer-from-plugin">
     <title>Stock View</title>
-    <link rel="stylesheet" href="{{url_for('static', filename='nicepage.css')}}" media="screen">
-    <link rel="stylesheet" href="{{url_for('static', filename='mainpage.css')}}" media="screen">
+    <link rel="stylesheet" href="{{url_for('static', filename='css/nicepage.css')}}" media="screen">
+    <link rel="stylesheet" href="{{url_for('static', filename='css/mainpage.css')}}" media="screen">
     <script class="u-script" type="text/javascript" src="{{url_for('static', filename='nicepage.js')}}" defer=""></script>
     <script class="u-script" type="text/javascript" src="{{url_for('static', filename='jquery.js')}}" defer=""></script>
     <meta name="generator" content="Nicepage 4.6.5, nicepage.com">
@@ -172,32 +172,44 @@
                         backgroundColor: 'rgb(255, 99, 132)',
                         borderColor: 'rgb(255, 99, 132)',
                         data: {{price|tojson}},
-                        order: 0
+                        order: 0,
+                        yAxisID: 'Price',
                     },{
                         label: 'Action',
                         backgroundColor: 'rgb(132, 99, 198)',
                         borderColor: 'rgb(132, 99, 198)',
                         data: {{action|tojson}},
                         type: 'bar',
-                        order: 1
+                        order: 1,
+                        yAxisID: 'Action',
                     }]
                 };
             
                 const config = {
-                    type: 'line',
-                    data: data,
-                    options: {
-                        responsive: true,
-                        plugins: {
-                        legend: {
-                            position: 'top',
+                  type: 'line',
+                  data: data,
+                  options: {
+                    responsive: true,
+                    plugins: {
+                      legend: {
+                          position: 'top',
+                      },
+                      title: {
+                          display: true,
+                          text: "Title Here",
+                      },
+                      scales: {
+                        Price: {
+                          type: 'linear',
+                          position: 'left',
                         },
-                        title: {
-                            display: true,
-                            text: 'Chart.js Combined Line/Bar Chart'
+                        Action: {
+                          type: 'linear',
+                          position: 'right',
                         }
-                        }
+                      },
                     },
+                  },
                 };
                 const myChart = new Chart(
                     document.getElementById('stockChart'),

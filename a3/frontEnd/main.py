@@ -99,13 +99,8 @@ def stock(ticker):
                                name=ticker
                                )
     else:  # ticker DNE
-        # ==================== Test data ========================
-        length = 60
-        pricedata = np.random.random(length)
-        pricedata = (pricedata * 10).tolist()
-        actiondata = np.random.random(length).tolist()
-        xlabels = np.arange(length).tolist()
-        # ==================== End Test ====================
+        pricedata, actiondata, xlabels = createTestData()
+        print("using test data")
         return render_template("stock.html",
                                xlabels=xlabels,
                                price=pricedata,
@@ -162,3 +157,13 @@ def home():
         html of Main Page
     """
     return render_template("mainpage.html")
+
+
+def createTestData(length=60):
+        # ==================== Test data ========================
+        pricedata = np.random.random(length)
+        pricedata = (pricedata * 10).tolist()
+        actiondata = np.random.random(length).tolist()
+        xlabels = np.arange(length).tolist()
+        # ==================== End Test ====================
+        return pricedata, actiondata, xlabels

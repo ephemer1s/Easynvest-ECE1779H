@@ -1,0 +1,61 @@
+<body>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<div>
+    <canvas id="stockChart">
+    </canvas>
+</div>
+<script>
+    const labels = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19];
+
+    const data = {
+        labels: labels,
+        datasets: [{
+            label: 'Price',
+            backgroundColor: 'rgb(255, 99, 132)',
+            borderColor: 'rgb(255, 99, 132)',
+            data: [1,4,6,3,4,5,6,7,2,23,4,5,6,5,2,1,12,16,21,9,5,7,8,9],
+            order: 0,
+            yAxisID: 'Price'
+        },{
+            label: 'Action',
+            backgroundColor: 'rgb(132, 99, 198)',
+            borderColor: 'rgb(132, 99, 198)',
+            data: [1,2,3,4,5,6,1,2,3,4,5,6,1,2,3,4,5,6,1,2,3,4,5,6,7,8,9],
+            type: 'bar',
+            order: 1,
+            yAxisID: 'Action'
+        }]
+    };
+
+    const config = {
+      type: 'line',
+      data: data,
+      options: {
+          responsive: true,
+          plugins: {
+            legend: {
+                position: 'top',
+            },
+            title: {
+                display: true,
+                text: 'A TTTTTTTTTTTTTTTTTTTTTitle',
+            },
+            scales: {
+                Price: {
+                type: 'linear',
+                position: 'left',
+                },
+                Action: {
+                type: 'linear',
+                position: 'right',
+                }
+            },
+          },
+        },
+    };
+    const myChart = new Chart(
+        document.getElementById('stockChart'),
+        config
+    );
+</script>
+</body>
