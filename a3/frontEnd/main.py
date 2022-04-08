@@ -56,7 +56,7 @@ def stockRedirect():
         return response
 
     # Under Construction
-    # Not functionable right now (?)
+    # Add ticker not found later
     return redirect("/stock/" + str(stockTicker))
 
 
