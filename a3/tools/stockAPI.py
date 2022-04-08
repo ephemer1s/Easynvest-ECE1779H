@@ -11,15 +11,10 @@ import pandas
 import http.client
 import requests
 
-# AlphaVantage API_key = RSZQ3NC9FB0HLZ1U
-# Rapid_API key = ea92b8480emshfbaf69ffd47e81ep1e77d1jsn4d6bc9940fd7
-
-# 12 API Key: 7a0f20e13dd14cc89645d8c47c02e181
-
-
-class Config_StockAPI():
-
-    API_KEY = "7a0f20e13dd14cc89645d8c47c02e181"  # Change this to our own API KEY!
+try:
+    from credential import Config_StockAPI
+except:
+    from tools.credential import Config_StockAPI
 
 
 class StockData(object):
@@ -125,7 +120,7 @@ if __name__ == '__main__':
     r, url, _ = stockAPI.getLogo("V")
     df, _ = stockAPI.dailyQuote("V")
     # liveQuote, _ = stockAPI.liveQuote("V")
-    liveQuotes, _ = stockAPI.liveQuotes("V", "MGA", "AAPL")
+    liveQuotes, _ = stockAPI.liveQuotes(["V", "MGA", "AAPL"])
     print(_)
     print(liveQuotes)
     print(df.to_string(), url)
