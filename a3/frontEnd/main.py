@@ -9,7 +9,11 @@ from datetime import datetime
 from dateutil import tz
 from dateutil.relativedelta import relativedelta
 import requests
-import urllib.request
+import csv
+import json
+import numpy
+import pandas
+import io
 
 
 # local import
@@ -39,10 +43,11 @@ def portfolio():
     return render_template("portfolioLogin.html")
 
 
-@webapp.route('/stockRedirect', methods=['GET', 'POST'])
+@webapp.route('/stockRedirect', methods=['POST'])
 def stockRedirect():
     """
     Get input client stock ticker fron ticker search bar and redirect to /stock/<ticker>
+    Returns: Redirect to stock view page
     """
     stockTicker = request.form.get('stockTicker', "")
 
@@ -60,26 +65,71 @@ def stockRedirect():
     return redirect("/stock/" + str(stockTicker))
 
 
-@webapp.route('/portfolioParse')
+@webapp.route('/portfolioParse', methods=['GET', 'POST'])
 def portfolioParse():
     """
     Get uploaded csv credential from client and parse it for edit
+    Returns: Passing client credential to portfolioEditor page
     """
-
     # Under Construction
     # Parse csv file, pass info and redirect to portfolioEditor.html
-    return render_template("portfolioEditor.html")
+    csvCredential = request.files['csvCredential']
+    clientIP = request.environ.get('HTTP_X_REAL_IP', request.remote_addr)
+
+    if csvCredential.filename == '':  # If file not given, quit
+        response = webapp.response_class(
+            response=json.dumps("Credential file not selected"),
+            status=400,
+            mimetype='application/json'
+        )
+        print(response)
+        return response
+
+    stream = io.StringIO(csvCredential.stream.read().decode("UTF8"), newline=None)
+    strCredential = csv.reader(stream)
+    print(strCredential)
+
+    # Need to convert csv to something else like dict or dataframe
+
+    # dictsCredential = [{k: v for k, v in row.items()} for row in csv.DictReader(strCredential, skipinitialspace=True)]
+    # print(dictsCredential)
+
+    return redirect("/portfolioEditor/" + str(clientIP))
 
 
-@webapp.route('/portfolioEditor')
-def portfolioEditor():
+@webapp.route('/portfolioScratch', methods=['GET', 'POST'])
+def portfolioScratch():
     """
-    Get uploaded csv credential from client and display for edit
+    Create an empty csv credential for new client and pass it to portfolioEditor
+    Returns: Passing empty credential to portfolioEditor page
+    """
+    # Under Construction
+    # Need to create an empty credential for new client
+    csvCredential = request.files['csvCredential']
+    clientIP = request.environ.get('HTTP_X_REAL_IP', request.remote_addr)
+
+    if csvCredential.filename == '':  # If file not given, quit
+        response = webapp.response_class(
+            response=json.dumps("Credential file not selected"),
+            status=400,
+            mimetype='application/json'
+        )
+        print(response)
+        return response
+    
+    return redirect("/portfolioEditor/" + str(clientIP))
+
+
+@webapp.route('/portfolioEditor/<clientIP>', methods=['GET', 'POST'])
+def portfolioEditor(clientIP):
+    """
+    Get uploaded csv credential and remote ip from client and display for edit
     Returns: 'Portfolio Editor Page' html
     """
-
     # Under Construction
+    # print(dictsCredential)
     return render_template("portfolioEditor.html")
+
 
 @webapp.route('/stock/<ticker>')
 def stock(ticker):

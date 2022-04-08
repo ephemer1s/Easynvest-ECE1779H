@@ -155,14 +155,14 @@
             <h4 class="loginSubTitle">Already have a portfolio? Login with your credential.</h4><br><br><br>
             <!-- Under Construction -->
             <!-- Need url for action -->
-            <form action="" method="post">
+            <form action="{{url_for('portfolioParse')}}" enctype='multipart/form-data' method="post">
                 <label class="loginText">Upload csv file here: </label>
-                <input type="file" name="file" id="file" accept="image/*"/>
+                <input type="file" name="csvCredential" accept=".csv" required/>
                 <button type="submit" class="searchButton" style="vertical-align:middle"><span>Login</span></button>
             </form><br>
 
             <h4 class="loginSubTitle">New to MyPortfolio?</h4><br>
-            <a class="scratchLink" href="{{url_for('portfolioParse')}}"> Start from Scratch</a>
+            <a class="scratchLink" href="{{url_for('portfolioScratch')}}"> Start from Scratch</a>
         </div>
 
         <style>
