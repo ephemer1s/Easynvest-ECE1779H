@@ -10,6 +10,7 @@ from twelvedata.exceptions import BadRequestError
 import pandas
 import http.client
 import requests
+import datetime
 
 try:
     from credential import Config_StockAPI
@@ -39,15 +40,29 @@ class StockData(object):
 
         validBool = False
 
+        # ts = self.td.time_series(
+        #     symbol=ticker,
+        #     interval="1min",
+        #     outputsize=1000,
+        #     timezone="Exchange",
+        #     date="today",
+        #     order='ASC'
+        # )
+
+        # Returns pandas.DataFrame
+
+        lastWeekday = datetime.datetime.today() - datetime.timedelta(days=(3, 1, 1, 1,
+                                                                           1, 1, 2)[datetime.datetime.today().weekday()])
+        lastWeekdayStr = lastWeekday.strftime('%m-%d-%y')
+
         ts = self.td.time_series(
             symbol=ticker,
             interval="1min",
             outputsize=1000,
             timezone="Exchange",
-            date="today",
+            date=lastWeekdayStr,
             order='ASC'
         )
-
         # Returns pandas.DataFrame
         try:
             df = ts.as_pandas()

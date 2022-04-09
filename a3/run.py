@@ -6,7 +6,6 @@ from frontEnd import webapp as frontEnd
 from backEnd import webapp as backEnd
 
 
-
 if __name__ == "__main__":
     """Two Flask instances are combine into a single object. Using "threaded = True", the function can call API within itself while dealing with user requests.
     """
