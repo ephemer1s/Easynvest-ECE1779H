@@ -6,6 +6,7 @@ import threading
 from flask import *
 import numpy as np
 from datetime import datetime
+from datetime import timedelta
 from dateutil import tz
 from dateutil.relativedelta import relativedelta
 import requests
@@ -28,7 +29,8 @@ def index():
     # Need to fill price & value before deployment
     nasdaqCurrentPrice = 182
     nasdaqCurrentInterest = -0.18
-    return render_template("mainpage.html", nasdaqCurrentPrice = nasdaqCurrentPrice, nasdaqCurrentInterest = nasdaqCurrentInterest)
+    return render_template("mainpage.html", nasdaqCurrentPrice=nasdaqCurrentPrice, nasdaqCurrentInterest=nasdaqCurrentInterest)
+
 
 @webapp.route('/portfolio')
 def portfolio():
@@ -81,17 +83,18 @@ def portfolioEditor():
     # Under Construction
     return render_template("portfolioEditor.html")
 
+
 @webapp.route('/stock/<ticker>')
 def stock(ticker):
     """
     Stock Page
     Input:
-     - ticker: str, 3-5 letter company name abbreviation
+     - ticker: str, 1-5 letter company name abbreviation
     Returns: stock.html of specific company rendered by flask
     """
 
     length = 390
-    df, valid = Config.stockAPI.dailyQuote(ticker)
+    df, valid = Config.stockAPI.allQuote(ticker)
 
     if valid:
         closeData = df.loc[:, "close"]
@@ -102,11 +105,69 @@ def stock(ticker):
         xlabels = timeData.to_list()
         actiondata = volumeData.to_list()
 
+        newXlabels = []
+
+        for i in xlabels:
+            newXlabels.append(i.strftime("%m/%d/%Y, %H:%M:%S"))
+
+        lastDaynewXlabels = []
+        lastDayPricedata = []
+        lastDayActiondata = []
+
+        lastWeekday = datetime.today() - timedelta(days=(0, 0, 0, 0,
+                                                         0, 1, 2)[datetime.today().weekday()])
+        if lastWeekday.strftime("%m/%d/%Y" + ", 09:30:00") in newXlabels:
+            # trim list so that it only displays today's data
+            trimIndex = newXlabels.index(
+                lastWeekday.strftime("%m/%d/%Y" + ", 09:30:00"))
+
+            lastDayNewXlabels = newXlabels[trimIndex:]
+            lastDayPricedata = pricedata[trimIndex:]
+            lastDayActiondata = actiondata[trimIndex:]
+
+        fiveDaysNewXlabels = []
+        fiveDaysPricedata = []
+        fiveDaysActiondata = []
+
+        fiveDaysEarlier = lastWeekday
+        for i in range(4):
+            fiveDaysEarlier = fiveDaysEarlier - timedelta(days=(3, 1, 1, 1,
+                                                                1, 1, 2)[fiveDaysEarlier.weekday()])
+
+        if fiveDaysEarlier.strftime("%m/%d/%Y" + ", 09:30:00") in newXlabels:
+            trimIndex = newXlabels.index(
+                fiveDaysEarlier.strftime("%m/%d/%Y" + ", 09:30:00"))
+
+            fiveDaysNewXlabels = newXlabels[trimIndex:]
+            fiveDaysPricedata = pricedata[trimIndex:]
+            fiveDaysActiondata = actiondata[trimIndex:]
+
+        tenDaysNewXlabels = []
+        tenDaysPricedata = []
+        tenDaysActiondata = []
+
+        tenDaysEarlier = lastWeekday
+        for i in range(9):
+            tenDaysEarlier = tenDaysEarlier - timedelta(days=(3, 1, 1, 1,
+                                                              1, 1, 2)[tenDaysEarlier.weekday()])
+
+        if tenDaysEarlier.strftime("%m/%d/%Y" + ", 09:30:00") in newXlabels:
+            trimIndex = newXlabels.index(
+                tenDaysEarlier.strftime("%m/%d/%Y" + ", 09:30:00"))
+
+            tenDaysNewXlabels = newXlabels[trimIndex:]
+            tenDaysPricedata = pricedata[trimIndex:]
+            tenDaysActiondata = actiondata[trimIndex:]
+
+        currentPrice = pricedata[-1]
+
+        chartName = "One Day View for " + ticker
+
         return render_template("stock.html",
-                               xlabels=xlabels,
-                               price=pricedata,
-                               action=actiondata,
-                               name=ticker
+                               xlabels=lastDayNewXlabels,
+                               price=lastDayPricedata,
+                               action=lastDayActiondata,
+                               name=chartName
                                )
     else:  # ticker DNE
         pricedata, actiondata, xlabels = createTestData()
@@ -159,6 +220,7 @@ def browseStock():
                                name=ticker
                                )
 
+
 @webapp.route('/home')
 def home():
     """Home Page: Call to go back to main page "/"
@@ -170,13 +232,14 @@ def home():
 
 
 def createTestData(length=60):
-        # ==================== Test data ========================
-        pricedata = np.random.random(length)
-        pricedata = (pricedata * 10).tolist()
-        actiondata = np.random.random(length).tolist()
-        xlabels = np.arange(length).tolist()
-        # ==================== End Test ====================
-        return pricedata, actiondata, xlabels
+    # ==================== Test data ========================
+    pricedata = np.random.random(length)
+    pricedata = (pricedata * 10).tolist()
+    actiondata = np.random.random(length).tolist()
+    xlabels = np.arange(length).tolist()
+    # ==================== End Test ====================
+    return pricedata, actiondata, xlabels
+
 
 def makeAPI_Call(api_url: str, method: str, _timeout: int, _data={}):
     """Helper function to call an API.

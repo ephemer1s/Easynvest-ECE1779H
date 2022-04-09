@@ -53,14 +53,58 @@ class StockData(object):
 
         lastWeekday = datetime.datetime.today() - datetime.timedelta(days=(0, 0, 0, 0,
                                                                            0, 1, 2)[datetime.datetime.today().weekday()])
-        lastWeekdayStr = lastWeekday.strftime('%m-%d-%y')
+        lastWeekdayStr = lastWeekday.strftime('%Y-%m-%d')
 
         ts = self.td.time_series(
             symbol=ticker,
             interval="1min",
-            outputsize=1000,
+            outputsize=5000,
             timezone="Exchange",
             date=lastWeekdayStr,
+            order='ASC'
+        )
+        # Returns pandas.DataFrame
+        try:
+            df = ts.as_pandas()
+            validBool = True
+        except:
+            df = ""
+            validBool = False
+
+        return df, validBool
+
+    def allQuote(self, ticker):
+        """
+        Args:
+            ticker (string): Ticker of stock
+
+        Returns:
+            df: Panda Dataframe of daily quote
+        """
+
+        validBool = False
+
+        # ts = self.td.time_series(
+        #     symbol=ticker,
+        #     interval="1min",
+        #     outputsize=1000,
+        #     timezone="Exchange",
+        #     date="today",
+        #     order='ASC'
+        # )
+
+        # Returns pandas.DataFrame
+
+        lastWeekday = datetime.datetime.today() - datetime.timedelta(days=(0, 0, 0, 0,
+                                                                           0, 1, 2)[datetime.datetime.today().weekday()])
+        lastWeekdayStr = lastWeekday.strftime('%Y-%m-%d')
+
+        ts = self.td.time_series(
+            symbol=ticker,
+            interval="1min",
+            outputsize=5000,
+            timezone="Exchange",
+            end_date=lastWeekdayStr+" 23:59:59",
             order='ASC'
         )
         # Returns pandas.DataFrame
