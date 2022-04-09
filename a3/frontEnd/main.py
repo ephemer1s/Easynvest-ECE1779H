@@ -14,6 +14,7 @@ import json
 import numpy
 import pandas
 import io
+import os
 
 
 # local import
@@ -76,7 +77,8 @@ def portfolioParse():
     csvCredential = request.files['csvCredential']
     clientIP = request.environ.get('HTTP_X_REAL_IP', request.remote_addr)
 
-    if csvCredential.filename == '':  # If file not given, quit
+    # If file not given, quit
+    if csvCredential.filename == '': 
         response = webapp.response_class(
             response=json.dumps("Credential file not selected"),
             status=400,
@@ -85,14 +87,16 @@ def portfolioParse():
         print(response)
         return response
 
-    stream = io.StringIO(csvCredential.stream.read().decode("UTF8"), newline=None)
-    strCredential = csv.reader(stream)
-    print(strCredential)
+    # Save credential file in S3 as cache
+    if csvCredential:
+        print(type(csvCredential))
+        # Check if filename already exists in S3
+        split_tup = os.path.splitext(csvCredential.filename)
+        currentFileName = "credential_" + clientIP + split_tup[1]
 
-    # Need to convert csv to something else like dict or dataframe
-
-    # dictsCredential = [{k: v for k, v in row.items()} for row in csv.DictReader(strCredential, skipinitialspace=True)]
-    # print(dictsCredential)
+        Config.s3.upload_public_inner_file(
+            csvCredential, _object_name=currentFileName)
+        print("Credential updated to S3 successfully")
 
     return redirect("/portfolioEditor/" + str(clientIP))
 
@@ -127,7 +131,19 @@ def portfolioEditor(clientIP):
     Returns: 'Portfolio Editor Page' html
     """
     # Under Construction
+    filename = "credential_" + clientIP + ".csv"
+    csvCredential = Config.s3.get_file_in_base64(filename)
+    print("Credential downloaded from S3 successfully")
+
+    # Parse and read csv
+    stream = io.StringIO(csvCredential.stream.read().decode("UTF8"), newline=None)
+    strCredential = csv.reader(stream)
+    for row in strCredential:
+        print(row)
+
+    # dictsCredential = [{k: v for k, v in row.items()} for row in csv.DictReader(strCredential, skipinitialspace=True)]
     # print(dictsCredential)
+
     return render_template("portfolioEditor.html")
 
 
