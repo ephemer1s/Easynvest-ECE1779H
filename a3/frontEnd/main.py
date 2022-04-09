@@ -35,6 +35,7 @@ def index():
     nasdaqCurrentPrice = 182
     nasdaqCurrentInterest = -0.18
     return render_template("mainpage.html", nasdaqCurrentPrice = nasdaqCurrentPrice, nasdaqCurrentInterest = nasdaqCurrentInterest)
+    
 
 @webapp.route('/portfolio')
 def portfolio():
