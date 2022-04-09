@@ -51,8 +51,8 @@ class StockData(object):
 
         # Returns pandas.DataFrame
 
-        lastWeekday = datetime.datetime.today() - datetime.timedelta(days=(3, 1, 1, 1,
-                                                                           1, 1, 2)[datetime.datetime.today().weekday()])
+        lastWeekday = datetime.datetime.today() - datetime.timedelta(days=(0, 0, 0, 0,
+                                                                           0, 1, 2)[datetime.datetime.today().weekday()])
         lastWeekdayStr = lastWeekday.strftime('%m-%d-%y')
 
         ts = self.td.time_series(
