@@ -11,10 +11,11 @@ from dateutil.relativedelta import relativedelta
 import requests
 import csv
 import json
-import numpy
-import pandas
+import numpy as np
+import pandas as pd
 import io
 import os
+import base64
 
 
 # local import
@@ -132,11 +133,11 @@ def portfolioEditor(clientIP):
     """
     # Under Construction
     filename = "credential_" + clientIP + ".csv"
-    csvCredential = Config.s3.get_file_in_base64(filename)
+    file = base64.b64decode(Config.s3.get_file_in_base64(filename)).decode('utf-8')
     print("Credential downloaded from S3 successfully")
 
     # Parse and read csv
-    stream = io.StringIO(csvCredential.stream.read().decode("UTF8"), newline=None)
+    stream = io.StringIO(file)
     strCredential = csv.reader(stream)
     for row in strCredential:
         print(row)
