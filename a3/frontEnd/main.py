@@ -139,14 +139,16 @@ def portfolioEditor(clientIP):
 
     # Parse and read csv
     stream = io.StringIO(file)
-    strCredential = csv.reader(stream)
-    for row in strCredential:
+    readerCredential = csv.DictReader(stream, skipinitialspace=True)
+    # dfCredential = pd.read_csv(strCredential) 
+    dictCredential = [{k: v for k, v in row.items()} for row in readerCredential]
+    for row in dictCredential:
         print(row)
 
     # dictsCredential = [{k: v for k, v in row.items()} for row in csv.DictReader(strCredential, skipinitialspace=True)]
     # print(dictsCredential)
 
-    return render_template("portfolioEditor.html")
+    return render_template("portfolioEditor.html", dictCredential = dictCredential, clientIP = clientIP)
 
 
 @webapp.route('/stock/<ticker>')
