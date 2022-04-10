@@ -347,7 +347,7 @@
               '<td><input type="text" class="form-control" name="amount" id="amount"></td>' +
               '<td><input type="text" class="form-control" name="price" id="price"></td>' +
               '<td><input type="text" class="form-control" name="data" id="data"></td>' +
-              '<td><input type="text" class="form-control" name="comment" id="comment" value="Comment Here"></td>' +
+              '<td><input type="text" class="form-control" name="comment" id="comment" value="<Comment Here>"></td>' +
               '<td>' + actions + '</td>' +
             '</tr>';
             $("table").append(row);		
@@ -414,7 +414,7 @@
           }
           var csv_string = csv.join('\n');
           // Download it
-          var filename = 'portfolio_' + '{{ clientIP }}' + '_' + new Date().toLocaleDateString() + '.csv';
+          var filename = 'portfolio_' + new Date().toLocaleDateString() + '.csv';
           var link = document.createElement('a');
           link.style.display = 'none';
           link.setAttribute('target', '_blank');
