@@ -10,16 +10,12 @@ from twelvedata.exceptions import BadRequestError
 import pandas
 import http.client
 import requests
+import datetime
 
-# AlphaVantage API_key = RSZQ3NC9FB0HLZ1U
-# Rapid_API key = ea92b8480emshfbaf69ffd47e81ep1e77d1jsn4d6bc9940fd7
-
-# 12 API Key: 7a0f20e13dd14cc89645d8c47c02e181
-
-
-class Config_StockAPI():
-
-    API_KEY = "7a0f20e13dd14cc89645d8c47c02e181"  # Change this to our own API KEY!
+try:
+    from credential import Config_StockAPI
+except:
+    from tools.credential import Config_StockAPI
 
 
 class StockData(object):
@@ -44,15 +40,73 @@ class StockData(object):
 
         validBool = False
 
+        # ts = self.td.time_series(
+        #     symbol=ticker,
+        #     interval="1min",
+        #     outputsize=1000,
+        #     timezone="Exchange",
+        #     date="today",
+        #     order='ASC'
+        # )
+
+        # Returns pandas.DataFrame
+
+        lastWeekday = datetime.datetime.today() - datetime.timedelta(days=(0, 0, 0, 0,
+                                                                           0, 1, 2)[datetime.datetime.today().weekday()])
+        lastWeekdayStr = lastWeekday.strftime('%Y-%m-%d')
+
         ts = self.td.time_series(
             symbol=ticker,
             interval="1min",
-            outputsize=1000,
+            outputsize=5000,
             timezone="Exchange",
-            date="today",
+            date=lastWeekdayStr,
             order='ASC'
         )
+        # Returns pandas.DataFrame
+        try:
+            df = ts.as_pandas()
+            validBool = True
+        except:
+            df = ""
+            validBool = False
 
+        return df, validBool
+
+    def allQuote(self, ticker):
+        """
+        Args:
+            ticker (string): Ticker of stock
+
+        Returns:
+            df: Panda Dataframe of daily quote
+        """
+
+        validBool = False
+
+        # ts = self.td.time_series(
+        #     symbol=ticker,
+        #     interval="1min",
+        #     outputsize=1000,
+        #     timezone="Exchange",
+        #     date="today",
+        #     order='ASC'
+        # )
+
+        # Returns pandas.DataFrame
+
+        lastWeekday = datetime.datetime.today() - datetime.timedelta(days=(0, 0, 0, 0,
+                                                                           0, 1, 2)[datetime.datetime.today().weekday()])
+        lastWeekdayStr = lastWeekday.strftime('%Y-%m-%d')
+
+        ts = self.td.time_series(
+            symbol=ticker,
+            interval="1min",
+            outputsize=5000,
+            timezone="Exchange",
+            end_date=lastWeekdayStr+" 23:59:59",
+            order='ASC'
+        )
         # Returns pandas.DataFrame
         try:
             df = ts.as_pandas()
@@ -125,7 +179,7 @@ if __name__ == '__main__':
     r, url, _ = stockAPI.getLogo("V")
     df, _ = stockAPI.dailyQuote("V")
     # liveQuote, _ = stockAPI.liveQuote("V")
-    liveQuotes, _ = stockAPI.liveQuotes("V", "MGA", "AAPL")
+    liveQuotes, _ = stockAPI.liveQuotes(["V", "MGA", "AAPL"])
     print(_)
     print(liveQuotes)
     print(df.to_string(), url)
