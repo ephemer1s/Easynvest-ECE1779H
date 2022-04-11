@@ -24,3 +24,5 @@ a2/logs/
 a3/tools/credential.py
 a3/package-lock.json
 a3/package.json
+*.zip
+lambda-deploy/
