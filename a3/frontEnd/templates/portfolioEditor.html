@@ -159,9 +159,31 @@
     <!-- Portfolio Info Section -->
     <section class="u-clearfix u-white u-section-2" id="sec-e33e">
       <div class="u-clearfix u-sheet u-sheet-1">
-        <!-- Under Construction: Portfolio Info -->
-        <p><b>Under Construction: Portfolio Info </b></p>
+        <br>
+        <!-- Portfolio Info Table -->
+        <table class="table table-bordered">
+          <thead>
+            <tr>
+                <th>Ticker</th>
+                <th>Amount</th>
+                <th>Buy In Price</th>
+                <th>Current Price</th>
+                <th>Gain</th>
+            </tr>
+          </thead>
 
+          <tbody>
+            {% for stock in portfolioGain %}
+              <tr>
+                  <td>{{ stock['Ticker'] }}</td>
+                  <td>{{ stock['Amount'] }}</td>
+                  <td>{{ stock['BuyInPrice'] }}</td>
+                  <td>{{ stock['CurrentPrice'] }}</td>
+                  <td>{{ stock['Gain'] }} %</td>
+              </tr>
+              {% endfor %}   
+          </tbody>
+        </table>
 
       </div>
     </section>
