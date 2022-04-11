@@ -54,7 +54,7 @@ def wrap(body):
 
 
 # @webapp.route('/home')
-def home():
+def home(event, context):
     """Home Page: Call to go back to main page "/"
 
     Returns:
@@ -64,7 +64,7 @@ def home():
 
 
 # @webapp.route('/portfolio')
-def portfolio():
+def portfolio(event, context):
     """
     Portfolio Page
     Returns: 'Portfolio Page' html
@@ -73,21 +73,22 @@ def portfolio():
 
 
 # @webapp.route('/stockRedirect', methods=['GET', 'POST'])
-def stockRedirect():
+def stockRedirect(event, context):
     """
     Get input client stock ticker fron ticker search bar and redirect to /stock/<ticker>
     """
-    # TODO edit this
-    stockTicker = request.form.get('stockTicker', "")
+    # TODO debug, should this be working?
+    # stockTicker = request.form.get('stockTicker', "")
+    stockTicker = event['stockTicker']
 
     if not stockTicker:  # If ticker is empty, raise error
-        # TODO edit this
+        # TODO debug, should this be working?
         # response = webapp.response_class(
         #     response=json.dumps("Ticker should not be empty."),
         #     status=400,
         #     mimetype='application/json'
         # )
-        # TODO debug, should this be working?
+        
         response = {
             "statusCode": 400,
             "headers": {'Content-Type': 'application/json'},
@@ -98,12 +99,13 @@ def stockRedirect():
 
     # Under Construction
     # Add ticker not found later
-    # TODO edit this
-    return redirect("/stock/" + str(stockTicker))
+    # TODO debug, should this be working?
+    # return redirect("/stock/" + str(stockTicker))
+    return stock(stockTicker)
 
 
 # @webapp.route('/portfolioParse')
-def portfolioParse():
+def portfolioParse(event, context):
     """
     Get uploaded csv credential from client and parse it for edit
     """
@@ -114,7 +116,7 @@ def portfolioParse():
 
 
 # @webapp.route('/portfolioEditor')
-def portfolioEditor():
+def portfolioEditor(event, context):
     """
     Get uploaded csv credential from client and display for edit
     Returns: 'Portfolio Editor Page' html
@@ -125,6 +127,7 @@ def portfolioEditor():
 
 
 # @webapp.route('/stock/<ticker>')
+# this is not a handler!
 def stock(ticker):
     """
     Stock Page
@@ -227,13 +230,14 @@ def stock(ticker):
 
 
 # @webapp.route('/stock', methods=['POST'])
-def browseStock():
+def browseStock(event, context):
     """
     Stock Page
     Same as @webapp.route('/stock/<ticker>'), but different method
     """
-    # TODO edit this
-    ticker = request.form.get('key')
+    # TODO debug, should this be working?
+    # ticker = request.form.get('key')
+    ticker = event['key']
     length = 390
     df, valid = Config.stockAPI.dailyQuote(ticker)
 
@@ -266,9 +270,6 @@ def browseStock():
                                action=actiondata,
                                name=ticker
                                ))
-
-
-
 
 
 def makeAPI_Call(api_url: str, method: str, _timeout: int, _data={}):
