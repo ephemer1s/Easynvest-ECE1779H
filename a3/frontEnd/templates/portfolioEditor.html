@@ -143,8 +143,7 @@
       </div>
     </header>
 
-
-    <!-- Portfolio Editor Subtitle -->
+    <!-- Portfolio Info Subtitle -->
     <section class="u-clearfix u-grey-5 u-section-1" id="sec-eff3">
       <div class="u-clearfix u-sheet u-valign-middle u-sheet-1">
         <lt-highlighter style="display: none; z-index: 1 !important;">
@@ -157,11 +156,33 @@
     </section>
 
 
+    <!-- Portfolio Info Section -->
+    <section class="u-clearfix u-white u-section-2" id="sec-e33e">
+      <div class="u-clearfix u-sheet u-sheet-1">
+        <!-- Under Construction: Portfolio Info -->
+        <p><b>Under Construction: Portfolio Info </b></p>
+
+
+      </div>
+    </section>
+
+
+    <!-- Portfolio Editor Subtitle -->
+    <section class="u-clearfix u-grey-5 u-section-1" id="sec-eff3">
+      <div class="u-clearfix u-sheet u-valign-middle u-sheet-1">
+        <lt-highlighter style="display: none; z-index: 1 !important;">
+          <lt-div spellcheck="false" class="lt-highlighter__wrapper" style="width: 144px; height: 39px; transform: none !important; transform-origin: 72.0885px 19.7969px !important; zoom: 1 !important; margin-top: 21px; margin-left: 0px;">
+            <lt-div class="lt-highlighter__scroll-element" style="top: 0px; left: 0px; width: 144px; height: 40px;"></lt-div>
+          </lt-div>
+        </lt-highlighter>
+        <h4 class="u-custom-font u-font-georgia u-text u-text-default u-text-palette-1-dark-2 u-text-1">Portfolio Editor</h4>
+      </div>
+    </section>
+
+
     <!-- Portfolio Editor Section -->
     <section class="u-clearfix u-white u-section-2" id="sec-e33e">
       <div class="u-clearfix u-sheet u-sheet-1">
-        <!-- Under Construction: Portfolio Editor -->
-        <p><b>Under Construction: Portfolio Editor </b></p>
 
         <!-- Table Editor -->
         <div class="container-lg">
@@ -290,8 +311,7 @@
           }
         </style>
         <!-- Table Editor -->
-        <!-- Update href url link later -->
-        <a href="#" onclick="download_table_as_csv('tableEditor');">Download</a>
+        <button onclick="download_table_as_csv('tableEditor');" class="searchButton" style="vertical-align:middle;float:right;"><span>Save and Download</span></button>
       </div>
     </section>
 
@@ -342,11 +362,11 @@
             $(this).attr("disabled", "disabled");
             var index = $("table tbody tr:last-child").index();
             var row = '<tr>' +
-              '<td><input type="text" class="form-control" name="action" id="action"></td>' +
+              '<td><input type="text" class="form-control" name="action" id="action" list="actionlist"><datalist id="actionlist"><option>Buy</option><option>Sell</option></datalist></td>' +
               '<td><input type="text" class="form-control" name="ticker" id="ticker"></td>' +
               '<td><input type="text" class="form-control" name="amount" id="amount"></td>' +
               '<td><input type="text" class="form-control" name="price" id="price"></td>' +
-              '<td><input type="text" class="form-control" name="data" id="data"></td>' +
+              '<td><input type="text" class="form-control" name="date" id="date" data-date-format="yyyy-mm-dd"></td>' +
               '<td><input type="text" class="form-control" name="comment" id="comment" value="<Comment Here>"></td>' +
               '<td>' + actions + '</td>' +
             '</tr>';
@@ -405,7 +425,7 @@
               for (var j = 0; j < cols.length - 1; j++) {
                   // Clean innertext to remove multiple spaces and jumpline (break csv)
                   var data = cols[j].innerText.replace(/(\r\n|\n|\r)/gm, '').replace(/(\s\s)/gm, ' ')
-                  // Escape double-quote with double-double-quote (see https://stackoverflow.com/questions/17808511/properly-escape-a-double-quote-in-csv)
+                  // Escape double-quote with double-double-quote
                   data = data.replace(/"/g, '""');
                   // Push escaped string
                   row.push('"' + data + '"');
