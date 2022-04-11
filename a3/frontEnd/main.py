@@ -75,7 +75,6 @@ def portfolioParse():
     Get uploaded csv credential from client and parse it for edit
     Returns: Passing client credential to portfolioEditor page
     """
-    # Under Construction
     # Parse csv file, pass info and redirect to portfolioEditor.html
     csvCredential = request.files['csvCredential']
     clientIP = request.environ.get('HTTP_X_REAL_IP', request.remote_addr)
@@ -93,7 +92,6 @@ def portfolioParse():
     # Save credential file in S3 as cache
     if csvCredential:
         print(type(csvCredential))
-        # Check if filename already exists in S3
         split_tup = os.path.splitext(csvCredential.filename)
         currentFileName = "credential_" + clientIP + split_tup[1]
 
@@ -110,19 +108,26 @@ def portfolioScratch():
     Create an empty csv credential for new client and pass it to portfolioEditor
     Returns: Passing empty credential to portfolioEditor page
     """
-    # Under Construction
-    # Need to create an empty credential for new client
-    csvCredential = request.files['csvCredential']
     clientIP = request.environ.get('HTTP_X_REAL_IP', request.remote_addr)
 
-    if csvCredential.filename == '':  # If file not given, quit
-        response = webapp.response_class(
-            response=json.dumps("Credential file not selected"),
-            status=400,
-            mimetype='application/json'
-        )
-        print(response)
-        return response
+    # Create an empty credential for new client
+    currentDate = datetime.date(datetime.now())
+    header = {'Action':['Buy'], 'Ticker':[''], 'Amount':[''], 'Price':[''], 'Date':[currentDate], 'Comment':['<Comment Here>']}
+    dfCredential = pd.DataFrame(header)
+    print(dfCredential)
+    emptyCredential = dfCredential.to_csv(sep=',', encoding='utf-8', index=False)
+
+    # emptyCredential = [['Action','Ticker','Amount','Price','Date','Comment'],['','','','','','',]]
+    # stream = io.StringIO()
+    # csv.writer(stream).writerows(emptyCredential)
+
+    # Save credential file in S3 as cache
+    print(type(emptyCredential))
+    currentFileName = "credential_" + clientIP + ".csv"
+
+    Config.s3.upload_public_inner_file(
+        emptyCredential, _object_name=currentFileName)
+    print("Credential updated to S3 successfully")
     
     return redirect("/portfolioEditor/" + str(clientIP))
 
@@ -133,7 +138,7 @@ def portfolioEditor(clientIP):
     Get uploaded csv credential and remote ip from client and display for edit
     Returns: 'Portfolio Editor Page' html
     """
-    # Under Construction
+    # Get credential file from S3
     filename = "credential_" + clientIP + ".csv"
     file = base64.b64decode(Config.s3.get_file_in_base64(filename)).decode('utf-8')
     print("Credential downloaded from S3 successfully")
@@ -141,12 +146,9 @@ def portfolioEditor(clientIP):
     # Parse and read csv
     stream = io.StringIO(file)
     readerCredential = csv.DictReader(stream, skipinitialspace=True)
-    # dfCredential = pd.read_csv(strCredential) 
     dictCredential = [{k: v for k, v in row.items()} for row in readerCredential]
     for row in dictCredential:
         print(row)
-
-    # dictsCredential = [{k: v for k, v in row.items()} for row in csv.DictReader(strCredential, skipinitialspace=True)]
     # print(dictsCredential)
 
     return render_template("portfolioEditor.html", dictCredential = dictCredential, clientIP = clientIP)
@@ -295,9 +297,9 @@ def home():
     """Home Page: Call to go back to main page "/"
 
     Returns:
-        html of Main Page
+        redirect to main page
     """
-    return render_template("mainpage.html")
+    return redirect("/")
 
 
 def createTestData(length=60):
