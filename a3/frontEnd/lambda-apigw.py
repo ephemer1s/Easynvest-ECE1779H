@@ -77,12 +77,12 @@ def stockRedirect(event, context):
     """
     Get input client stock ticker fron ticker search bar and redirect to /stock/<ticker>
     """
-    # TODO debug, should this be working?
+    # TODO @ephemer1s handler debug, should this be working?
     # stockTicker = request.form.get('stockTicker', "")
     stockTicker = event['stockTicker']
 
     if not stockTicker:  # If ticker is empty, raise error
-        # TODO debug, should this be working?
+        # TODO @ephemer1s handler debug, should this be working?
         # response = webapp.response_class(
         #     response=json.dumps("Ticker should not be empty."),
         #     status=400,
@@ -97,9 +97,9 @@ def stockRedirect(event, context):
         print(response)
         return response
 
-    # Under Construction
+    # Under Construction @ Haozhe
     # Add ticker not found later
-    # TODO debug, should this be working?
+    # TODO @ephemer1s handler debug, should this be working?
     # return redirect("/stock/" + str(stockTicker))
     return stock(stockTicker)
 
@@ -110,7 +110,7 @@ def portfolioParse(event, context):
     Get uploaded csv credential from client and parse it for edit
     """
 
-    # Under Construction
+    # Under Construction @ Haozhe
     # Parse csv file, pass info and redirect to portfolioEditor.html
     return wrap(render_template_without_flask("portfolioEditor.html"))
 
@@ -235,7 +235,7 @@ def browseStock(event, context):
     Stock Page
     Same as @webapp.route('/stock/<ticker>'), but different method
     """
-    # TODO debug, should this be working?
+    # TODO @ephemer1s handler debug, should this be working?
     # ticker = request.form.get('key')
     ticker = event['key']
     length = 390
