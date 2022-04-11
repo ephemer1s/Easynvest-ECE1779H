@@ -1,5 +1,4 @@
 # standard libraries
-from cgi import FieldStorage
 from datetime import datetime
 import threading
 
