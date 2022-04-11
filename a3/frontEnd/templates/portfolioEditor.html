@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-<html style="font-size: 16px;">
+<html lang="en" style="font-size: 16px;">
   <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1>
     <meta charset="utf-8">
     <meta name="keywords" content="Main Page">
     <meta name="description" content="">
@@ -13,6 +13,17 @@
     <script class="u-script" type="text/javascript" src="{{url_for('static', filename='jquery.js')}}" defer=""></script>
     <meta name="generator" content="Nicepage 4.6.5, nicepage.com">
     <link id="u-theme-google-font" rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:100,100i,300,300i,400,400i,500,500i,700,700i,900,900i|Open+Sans:300,300i,400,400i,500,500i,600,600i,700,700i,800,800i">
+
+    <!-- css for bootstrap -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto|Varela+Round|Open+Sans">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <!-- js for bootstrap -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
     
     
     <script type="application/ld+json">{
@@ -132,8 +143,7 @@
       </div>
     </header>
 
-
-    <!-- Portfolio Editor Subtitle -->
+    <!-- Portfolio Info Subtitle -->
     <section class="u-clearfix u-grey-5 u-section-1" id="sec-eff3">
       <div class="u-clearfix u-sheet u-valign-middle u-sheet-1">
         <lt-highlighter style="display: none; z-index: 1 !important;">
@@ -146,11 +156,162 @@
     </section>
 
 
+    <!-- Portfolio Info Section -->
+    <section class="u-clearfix u-white u-section-2" id="sec-e33e">
+      <div class="u-clearfix u-sheet u-sheet-1">
+        <!-- Under Construction: Portfolio Info -->
+        <p><b>Under Construction: Portfolio Info </b></p>
+
+
+      </div>
+    </section>
+
+
+    <!-- Portfolio Editor Subtitle -->
+    <section class="u-clearfix u-grey-5 u-section-1" id="sec-eff3">
+      <div class="u-clearfix u-sheet u-valign-middle u-sheet-1">
+        <lt-highlighter style="display: none; z-index: 1 !important;">
+          <lt-div spellcheck="false" class="lt-highlighter__wrapper" style="width: 144px; height: 39px; transform: none !important; transform-origin: 72.0885px 19.7969px !important; zoom: 1 !important; margin-top: 21px; margin-left: 0px;">
+            <lt-div class="lt-highlighter__scroll-element" style="top: 0px; left: 0px; width: 144px; height: 40px;"></lt-div>
+          </lt-div>
+        </lt-highlighter>
+        <h4 class="u-custom-font u-font-georgia u-text u-text-default u-text-palette-1-dark-2 u-text-1">Portfolio Editor</h4>
+      </div>
+    </section>
+
+
     <!-- Portfolio Editor Section -->
     <section class="u-clearfix u-white u-section-2" id="sec-e33e">
       <div class="u-clearfix u-sheet u-sheet-1">
-          <!-- Under Construction: Portfolio Editor -->
-        <p><b>Under Construction: Portfolio Editor </b></p>
+
+        <!-- Table Editor -->
+        <div class="container-lg">
+          <div class="table-responsive">
+            <div class="table-wrapper">
+              <div class="table-title">
+                <div class="row">
+                  <div class="col-sm-8"><h2>Portfolio Editor</h2></div>
+                  <div class="col-sm-4">
+                    <button type="button" class="btn btn-info add-new"><i class="fa fa-plus"></i> Add New</button>
+                  </div>
+                </div>
+              </div>
+
+              <table class="table table-bordered" id="tableEditor">
+                <thead>
+                  <tr>
+                      <th>Action</th>
+                      <th>Ticker</th>
+                      <th>Amount</th>
+                      <th>Price</th>
+                      <th>Date</th>
+                      <th>Comment</th>
+                      <th>Edit</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {% for row in dictCredential %}
+                    <tr>
+                      {% for value in row.items() %}
+                        <td>{{ value[1] }}</td>
+                      {% endfor %}
+                      <td>
+                        <a class="add" title="Add" data-toggle="tooltip"><i class="material-icons">&#xE03B;</i></a>
+                        <a class="edit" title="Edit" data-toggle="tooltip"><i class="material-icons">&#xE254;</i></a>
+                        <a class="delete" title="Delete" data-toggle="tooltip"><i class="material-icons">&#xE872;</i></a>
+                      </td>
+                    </tr>
+                    {% endfor %}   
+                </tbody>
+
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <style>
+          .table-wrapper {
+              width: 100%;
+              margin: 30px auto;
+              background: #fff;
+              padding: 20px;	
+              box-shadow: 0 1px 1px rgba(0,0,0,.05);
+          }
+          .table-title {
+              padding-bottom: 10px;
+              margin: 0 0 10px;
+          }
+          .table-title h2 {
+              margin: 6px 0 0;
+              font-size: 22px;
+          }
+          .table-title .add-new {
+              float: right;
+              height: 30px;
+              font-weight: bold;
+              font-size: 12px;
+              text-shadow: none;
+              min-width: 100px;
+              border-radius: 50px;
+              line-height: 13px;
+          }
+          .table-title .add-new i {
+              margin-right: 4px;
+          }
+          table.table {
+              table-layout: fixed;
+          }
+          table.table tr th, table.table tr td {
+              border-color: #e9e9e9;
+          }
+          table.table th i {
+              font-size: 13px;
+              margin: 0 5px;
+              cursor: pointer;
+          }
+          table.table th:last-child {
+              width: 100px;
+          }
+          table.table td a {
+              cursor: pointer;
+              display: inline-block;
+              margin: 0 5px;
+              min-width: 24px;
+          }    
+          table.table td a.add {
+              color: #27C46B;
+          }
+          table.table td a.edit {
+              color: #FFC107;
+          }
+          table.table td a.delete {
+              color: #E34724;
+          }
+          table.table td i {
+              font-size: 19px;
+          }
+          table.table td a.add i {
+              font-size: 24px;
+              margin-right: -1px;
+              position: relative;
+              top: 3px;
+          }    
+          table.table .form-control {
+              height: 32px;
+              line-height: 32px;
+              box-shadow: none;
+              border-radius: 2px;
+          }
+          table.table .form-control.error {
+              border-color: #f50000;
+          }
+          table.table td .add {
+              display: none;
+          }
+        </style>
+        <!-- Table Editor -->
+        <button onclick="download_table_as_csv('tableEditor');" class="searchButton" style="vertical-align:middle;float:right;"><span>Save and Download</span></button>
       </div>
     </section>
 
@@ -186,6 +347,104 @@
         </lt-highlighter>
         <!-- You could put your name here :)  -->
         <p class="u-align-center u-custom-font u-font-georgia u-small-text u-text u-text-grey-60 u-text-variant u-text-1">Page created by <a class="u-active-none u-border-none u-btn u-button-link u-button-style u-hover-none u-none u-text-palette-1-base u-btn-1" href="https://github.com/haozhe0302">Haozhe</a></p>
-      </div></footer>
+      </div>
+    </footer>
+
+    <!-- Script for table editor -->
+    <script>
+      jQuery.noConflict()(function ($) {
+        $(document).ready(function(){
+          $('[data-toggle="tooltip"]').tooltip();
+          var actions = $("table td:last-child").html();
+
+          // Append table with add row form on add new button click
+          $(".add-new").click(function(){
+            $(this).attr("disabled", "disabled");
+            var index = $("table tbody tr:last-child").index();
+            var row = '<tr>' +
+              '<td><input type="text" class="form-control" name="action" id="action" list="actionlist"><datalist id="actionlist"><option>Buy</option><option>Sell</option></datalist></td>' +
+              '<td><input type="text" class="form-control" name="ticker" id="ticker"></td>' +
+              '<td><input type="text" class="form-control" name="amount" id="amount"></td>' +
+              '<td><input type="text" class="form-control" name="price" id="price"></td>' +
+              '<td><input type="text" class="form-control" name="date" id="date" data-date-format="yyyy-mm-dd"></td>' +
+              '<td><input type="text" class="form-control" name="comment" id="comment" value="<Comment Here>"></td>' +
+              '<td>' + actions + '</td>' +
+            '</tr>';
+            $("table").append(row);		
+            $("table tbody tr").eq(index + 1).find(".add, .edit").toggle();
+            $('[data-toggle="tooltip"]').tooltip();
+          });
+          
+          // Add row on add button click
+          $(document).on("click", ".add", function(){
+            var empty = false;
+            var input = $(this).parents("tr").find('input[type="text"]');
+                input.each(function(){
+              if(!$(this).val()){
+                $(this).addClass("error");
+                empty = true;
+              } else{
+                        $(this).removeClass("error");
+                    }
+            });
+            $(this).parents("tr").find(".error").first().focus();
+            if(!empty){
+              input.each(function(){
+                $(this).parent("td").html($(this).val());
+              });			
+              $(this).parents("tr").find(".add, .edit").toggle();
+              $(".add-new").removeAttr("disabled");
+            }		
+          });
+
+          // Edit row on edit button click
+          $(document).on("click", ".edit", function(){		
+              $(this).parents("tr").find("td:not(:last-child)").each(function(){
+                $(this).html('<input type="text" class="form-control" value="' + $(this).text() + '">');
+            });		
+            $(this).parents("tr").find(".add, .edit").toggle();
+            $(".add-new").attr("disabled", "disabled");
+          });
+
+          // Delete row on delete button click
+          $(document).on("click", ".delete", function(){
+                $(this).parents("tr").remove();
+            $(".add-new").removeAttr("disabled");
+          });
+        });
+      });
+
+      // Quick and simple export target #table_id into a csv
+      function download_table_as_csv(table_id, separator = ',') {
+          // Select rows from table_id
+          var rows = document.querySelectorAll('#' + table_id + ' tr');
+          // Construct csv
+          var csv = [];
+          for (var i = 0; i < rows.length; i++) {
+              var row = [], cols = rows[i].querySelectorAll('td, th');
+              for (var j = 0; j < cols.length - 1; j++) {
+                  // Clean innertext to remove multiple spaces and jumpline (break csv)
+                  var data = cols[j].innerText.replace(/(\r\n|\n|\r)/gm, '').replace(/(\s\s)/gm, ' ')
+                  // Escape double-quote with double-double-quote
+                  data = data.replace(/"/g, '""');
+                  // Push escaped string
+                  row.push('"' + data + '"');
+              }
+              csv.push(row.join(separator));
+          }
+          var csv_string = csv.join('\n');
+          // Download it
+          var filename = 'portfolio_' + new Date().toLocaleDateString() + '.csv';
+          var link = document.createElement('a');
+          link.style.display = 'none';
+          link.setAttribute('target', '_blank');
+          link.setAttribute('href', 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv_string));
+          link.setAttribute('download', filename);
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        }
+    </script>
+
   </body>
 </html>
