@@ -1,5 +1,6 @@
 # standard libraries
 from datetime import datetime
+from re import L
 import threading
 
 # third party libraries
@@ -143,15 +144,83 @@ def portfolioEditor(clientIP):
     file = base64.b64decode(Config.s3.get_file_in_base64(filename)).decode('utf-8')
     print("Credential downloaded from S3 successfully")
 
-    # Parse and read csv
+    # Parse and read csv for table editor
     stream = io.StringIO(file)
     readerCredential = csv.DictReader(stream, skipinitialspace=True)
     dictCredential = [{k: v for k, v in row.items()} for row in readerCredential]
-    for row in dictCredential:
-        print(row)
-    # print(dictsCredential)
 
-    return render_template("portfolioEditor.html", dictCredential = dictCredential, clientIP = clientIP)
+    # Group stock by ticker for portfolio info table
+    stockList = []
+    portfolioGain = []
+
+    # When user uploaded a not empty credential
+    if not dictCredential[0]['Ticker'] == '':
+        for row in dictCredential:
+            # print(row)
+            ticker = row['Ticker']
+
+            # If ticker already exists in the stock table (early record) and late record of the same ticker were found
+            if ticker in stockList:
+                if row['Action'] == 'Buy':
+                    for stock in portfolioGain:
+                        if stock['Ticker'] == ticker:
+                            stock['BuyInPrice'] = (stock['Amount'] * stock['BuyInPrice'] + int(row['Amount']) * float(row['Price']))/(stock['Amount'] + int(row['Amount']))
+                            stock['Amount'] += int(row['Amount'])
+                elif row['Action'] == 'Sell':
+                    for stock in portfolioGain:
+                        if stock['Ticker'] == ticker:
+                            # Check if stock amount after selling still >= 0 --> No negative stock amount is allowed
+                            if (stock['Amount'] - int(row['Amount'])) >= 0:
+                                stock['Amount'] -= int(row['Amount'])
+                            else:
+                                response = webapp.response_class(
+                                response=json.dumps("Credential file contains negative stock amount. Please check again."),
+                                status=400,
+                                mimetype='application/json'
+                                )
+                                print(response)
+                                return response
+            else:
+                # User could not sell a stock without buying in before
+                if row['Action'] == 'Buy' and int(row['Amount']) >= 0:
+                    stockList.append(ticker)
+                    newStock = {'Ticker':ticker,'Amount':int(row['Amount']),'BuyInPrice':round(float(row['Price']), 2),'CurrentPrice':"",'Gain':""}
+                    portfolioGain.append(newStock)
+                # If no valid ticker were found
+                else:
+                    response = webapp.response_class(
+                    response=json.dumps("Credential file contains invalid ticker or negative initial stock amount. Please check again."),
+                    status=400,
+                    mimetype='application/json'
+                    )
+                    print(response)
+                    return response
+
+        # Call stockAPI to get the current price of each ticker
+        currentPriceList, validBool = Config.stockAPI.liveQuotes(stockList)
+        print(currentPriceList, validBool)
+
+        # Check if stockAPI.liveQuotes works
+        if validBool:
+            i = 0
+            for stock in portfolioGain:
+                stock['CurrentPrice'] = round(float(currentPriceList[i]),2)
+                i += 1
+                stock['Gain'] = round(100 * (stock['CurrentPrice'] - stock['BuyInPrice']) / stock['BuyInPrice'], 2)
+            print(portfolioGain)
+        else:
+            response = webapp.response_class(
+            response=json.dumps("Access to stockAPI.liveQuotes failed."),
+            status=400,
+            mimetype='application/json'
+            )
+            print(response)
+            return response
+    # When user uploads an empty credential or chooses to start from scratch   
+    else:
+        portfolioGain = [{'Ticker':'', 'Amount':'', 'BuyInPrice':'', 'CurrentPrice':'', 'Gain':''}]
+
+    return render_template("portfolioEditor.html", portfolioGain = portfolioGain, dictCredential = dictCredential, clientIP = clientIP)
 
 
 
@@ -181,7 +250,7 @@ def stock(ticker):
         for i in xlabels:
             newXlabels.append(i.strftime("%m/%d/%Y, %H:%M:%S"))
 
-        lastDaynewXlabels = []
+        lastDayNewXlabels = []
         lastDayPricedata = []
         lastDayActiondata = []
 
