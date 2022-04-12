@@ -259,92 +259,170 @@
 
     <!-- Stock Section -->
     <section class="u-clearfix u-white u-section-2" id="sec-e33e">
-      <!-- Stock Price Chart -->
       <div class="u-clearfix u-sheet u-sheet-1">
         <!-- Under Construction -->
-        <!-- Tab need to be built -->
+        <!-- Stock Logo -->
+        {% if logoContent and logoExtension %}
+          <img
+            id="imgContent"
+            src="data:image/{{ logoExtension }};base64,{{ logoContent }}"
+            width="10%"
+          />
+        {% endif %}
+
         <div id="container">
-          <!-- Under Construction -->
-          <!-- Put chart here @Haocheng -->
-          <div>
-            <canvas id="stockChart"> </canvas>
+          <br>
+          <!-- Stock View Tab -->
+          <div class="stockViewTab">
+            <button class="tabDateSwitch" onclick="openStockIndexTab(event, 'daily')"  id="defaultOpen">Daily</button>
+            <button class="tabDateSwitch" onclick="openStockIndexTab(event, '5days')">5 Days</button>
+            <button class="tabDateSwitch" onclick="openStockIndexTab(event, '20days')">20 Days</button>
           </div>
+  
+          <div id="daily" class="tabcontent">
+            <p class="u-text u-text-default u-text-3">Daily Stock Price Chart</p><br>
+            <!-- Daily Stock Price Chart -->
+            <div>
+              <canvas id="stockChart"></canvas>
+            </div>
+          </div>
+  
+          <div id="5days" class="tabcontent">
+            <p class="u-text u-text-default u-text-3">5 Days Stock Price Chart</p><br>
+            <!-- 5 Days Stock Price Chart -->
+            <div>
+              <canvas id="stockChart"></canvas>
+            </div>
+          </div>
+  
+          <div id="20days" class="tabcontent">
+            <p class="u-text u-text-default u-text-3">20 Days Stock Price Chart</p><br>
+            <!-- 20 Days Stock Price Chart -->
+            <div>
+              <canvas id="stockChart"></canvas>
+            </div>
+          </div>
+        </div>
+  
+        <!-- CSS for Stock Index Tab -->
+        <style>
+        .stockViewTab {
+          overflow: hidden;
+        }
+  
+        .stockViewTab button {
+          background-color: #F8F9F9;
+          float: left;
+          border: 1px solid #ccc;
+          outline: none;
+          cursor: pointer;
+          padding: 14px 16px;
+          transition: 0.3s;
+          font-size: 17px;
+        }
+  
+        .stockViewTab button:hover {
+          background-color: #f4ecf7;
+        }
+  
+        .stockViewTab button.active {
+          background-color: #d6eaf8;
+        }
+  
+        .tabcontent {
+          display: none;
+          padding: 6px 12px;
+          border: 1px solid #ccc;
+        }
+        </style>
+  
+        <!-- Javascript for File Remove Tab -->
+        <script>
+          function openStockIndexTab(evt, dateOption) {
+            var i, tabcontent, tabDateSwitch;
+            tabcontent = document.getElementsByClassName("tabcontent");
+            for (i = 0; i < tabcontent.length; i++) {
+              tabcontent[i].style.display = "none";
+            }
+            tabDateSwitch = document.getElementsByClassName("tabDateSwitch");
+            for (i = 0; i < tabDateSwitch.length; i++) {
+              tabDateSwitch[i].className = tabDateSwitch[i].className.replace(" active", "");
+            }
+            document.getElementById(dateOption).style.display = "block";
+            evt.currentTarget.className += " active";
+          }
+          document.getElementById("defaultOpen").click();
+        </script>
+        <!-- Stock View Tab -->
 
-          <script>
-            const labels = {{xlabels|tojson}};
 
-            const data = {
-                labels: labels,
-                datasets: [{
-                    label: 'Price',
-                    backgroundColor: 'rgb(255, 99, 132)',
-                    borderColor: 'rgb(255, 99, 132)',
-                    data: {{price|tojson}},
-                    order: 0,
-                    yAxisID: 'Price',
-                },{
-                    label: 'Volume',
-                    backgroundColor: 'rgb(132, 99, 198)',
-                    borderColor: 'rgb(132, 99, 198)',
-                    data: {{action|tojson}},
-                    type: 'bar',
-                    order: 1,
-                    yAxisID: 'Volume',
-                }]
-            };
+        <script>
+          const labels = {{xlabels|tojson}};
 
-            const config = {
-              type: 'line',
-              data: data,
-              options: {
-                responsive: true,
-                plugins: {
-                  legend: {
-                      position: 'top',
+          const data = {
+              labels: labels,
+              datasets: [{
+                  label: 'Price',
+                  backgroundColor: 'rgb(255, 99, 132)',
+                  borderColor: 'rgb(255, 99, 132)',
+                  data: {{price|tojson}},
+                  order: 0,
+                  yAxisID: 'Price',
+              },{
+                  label: 'Volume',
+                  backgroundColor: 'rgb(132, 99, 198)',
+                  borderColor: 'rgb(132, 99, 198)',
+                  data: {{action|tojson}},
+                  type: 'bar',
+                  order: 1,
+                  yAxisID: 'Volume',
+              }]
+          };
+
+          const config = {
+            type: 'line',
+            data: data,
+            options: {
+              responsive: true,
+              plugins: {
+                legend: {
+                    position: 'top',
+                },
+                title: {
+                    display: true,
+                    text: {{name|tojson}},
+                },
+                scales: {
+                  Price: {
+                    type: 'linear',
+                    position: 'left',
                   },
-                  title: {
-                      display: true,
-                      text: {{name|tojson}},
-                  },
-                  scales: {
-                    Price: {
-                      type: 'linear',
-                      position: 'left',
-                    },
-                    Action: {
-                      type: 'linear',
-                      position: 'right',
-                    }
-                  },
+                  Action: {
+                    type: 'linear',
+                    position: 'right',
+                  }
                 },
               },
-            };
-            const myChart = new Chart(
-                document.getElementById('stockChart'),
-                config
-            );
-          </script>
-        </div>
-
-        <!-- Under Construction -->
-        <!-- Put stock chart Javascript here @Haocheng -->
-        <script></script>
-        <br />
+            },
+          };
+          const myChart = new Chart(
+          document.getElementById('stockChart'),
+            config
+          );
+        </script>
 
         <!-- Stock Current Price -->
-        <div class="nasdaqPrice">
+        <div class="stockPrice">
           <style>
-            .nasdaqPrice {
+            .stockPrice {
               float: right;
             }
           </style>
           <p class="u-text u-text-default u-text-3">
-            <b>Current Price: </b>{{stockCurrentPrice}} {{stockCurrentInterest}}
-            %
+            <b>Current Price: </b>{{stockCurrentPrice}}     {{stockCurrentInterest}} %
           </p>
         </div>
 
-        <!-- Under Construction -->
         <!-- Here should be a table -->
       </div>
     </section>

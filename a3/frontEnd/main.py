@@ -65,8 +65,6 @@ def stockRedirect():
         print(response)
         return response
 
-    # Under Construction
-    # Add ticker not found later
     return redirect("/stock/" + str(stockTicker))
 
 
@@ -300,24 +298,35 @@ def stock(ticker):
             tenDaysActiondata = actiondata[trimIndex:]
 
         currentPrice = pricedata[-1]
-
+        currentInterest = round(100 * pricedata[-1] / pricedata[-2] - 100, 2)
         chartName = "One Day View for " + ticker
 
+        # Get stock logo image
+        # logoFile, url, validBool = Config.stockAPI.getLogo(ticker)
+        # logoContent = base64.b64encode(logoFile).decode()
+        # logoExtension = os.path.splitext(imageFileNameWithExtension)[1]
+
         return render_template("stock.html",
+                               stockTicker=ticker,
                                xlabels=lastDayNewXlabels,
                                price=lastDayPricedata,
                                action=lastDayActiondata,
-                               name=chartName
+                               name=chartName,
+                               stockCurrentPrice=currentPrice,
+                               stockCurrentInterest=currentInterest
                                )
-    else:  # ticker DNE
-        pricedata, actiondata, xlabels = createTestData()
-        print("using test data")
-        return render_template("stock.html",
-                               xlabels=xlabels,
-                               price=pricedata,
-                               action=actiondata,
-                               name=ticker
-                               )
+    # If use input an invalid ticker
+    else:  
+        # test data: ticker DNE
+        # pricedata, actiondata, xlabels = createTestData()
+        # print("using test data")
+        # return render_template("stock.html",
+        #                        xlabels=xlabels,
+        #                        price=pricedata,
+        #                        action=actiondata,
+        #                        name=ticker
+        #                        )
+        return render_template("invalidTicker.html")
 
 
 @webapp.route('/stock', methods=['POST'])
