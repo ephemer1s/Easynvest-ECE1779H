@@ -6,13 +6,16 @@
     <meta name="keywords" content="Main Page">
     <meta name="description" content="">
     <meta name="page_type" content="np-template-header-footer-from-plugin">
-    <title>Portfolio Login</title>
+    <title>Invalid Ticker</title>
     <link rel="stylesheet" href="{{url_for('static', filename='css/nicepage.css')}}" media="screen">
     <link rel="stylesheet" href="{{url_for('static', filename='css/mainpage.css')}}" media="screen">
     <script class="u-script" type="text/javascript" src="{{url_for('static', filename='nicepage.js')}}" defer=""></script>
     <script class="u-script" type="text/javascript" src="{{url_for('static', filename='jquery.js')}}" defer=""></script>
     <meta name="generator" content="Nicepage 4.6.5, nicepage.com">
     <link id="u-theme-google-font" rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:100,100i,300,300i,400,400i,500,500i,700,700i,900,900i|Open+Sans:300,300i,400,400i,500,500i,600,600i,700,700i,800,800i">
+
+    <!-- Automatic Redirect -->
+    <meta http-equiv="refresh" content="5;url={{url_for('home')}}" />
     
     
     <script type="application/ld+json">{
@@ -133,7 +136,7 @@
     </header>
 
 
-    <!-- Portfolio Subtitle -->
+    <!-- Invalid Ticker Subtitle -->
     <section class="u-clearfix u-grey-5 u-section-1" id="sec-eff3">
       <div class="u-clearfix u-sheet u-valign-middle u-sheet-1">
         <lt-highlighter style="display: none; z-index: 1 !important;">
@@ -146,44 +149,30 @@
     </section>
 
 
-    <!-- Portfolio Section -->
+    <!-- Invalid Ticker Section -->
     <section class="u-clearfix u-white u-section-2" id="sec-e33e">
       <div class="u-clearfix u-sheet u-sheet-1">
-        <div class="portfolioLogin"><style>.portfolioLogin{font-family:Georgia, serif; width:60%; margin:0 auto;}</style>
-            <h1 class="loginTitle"><b>Login</b></h1>
-
-            <h4 class="loginSubTitle">Already have a portfolio? Login with your credential.</h4><br><br><br>
-            <form action="{{url_for('portfolioParse')}}" enctype='multipart/form-data' method="post">
-                <label class="loginText">Upload csv file here: </label>
-                <input type="file" name="csvCredential" accept=".csv" required/>
-                <button type="submit" class="searchButton" style="vertical-align:middle"><span>Login</span></button>
-            </form><br>
-
-            <h4 class="loginSubTitle">New to MyPortfolio?</h4><br>
-            <a class="scratchLink" href="{{url_for('portfolioScratch')}}"> Start from Scratch</a>
+        <div class="searchTicker"><style>.searchTicker{font-family:Georgia, serif; width:60%; margin:0 auto;}</style>
+            <h4 class="warningSubTitle">Input Ticker Not Found</h4><br><br>
+            <p class="warningText"> Your will be redirected to the main page in 5 second.</p><br>
+            <a class="redirectLink" href="{{url_for('home')}}"> If your browser fails to redirect automatically, please click here</a>
         </div>
 
         <style>
-            .loginTitle{
-                color: #21618C;
-                text-align: center;
-                vertical-align:middle;
-            }
-
-            .loginSubTitle{
+            .warningSubTitle{
                 color: #2874A6;
                 float: left;
                 vertical-align:middle;
             }
 
-            .loginText{
+            .warningText{
                 color: #2874A6;
                 font-size: larger;
                 float: left;
                 vertical-align:middle;
             }
 
-            .scratchLink{
+            .redirectLink{
                 color: #2874A6;
                 font-size: large;
                 float: left;
