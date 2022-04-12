@@ -161,30 +161,31 @@
       <div class="u-clearfix u-sheet u-sheet-1">
         <br>
         <!-- Portfolio Info Table -->
-        <table class="table table-bordered">
-          <thead>
-            <tr>
-                <th>Ticker</th>
-                <th>Amount</th>
-                <th>Buy In Price</th>
-                <th>Current Price</th>
-                <th>Gain</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {% for stock in portfolioGain %}
+        <div class="container-lg">
+          <table class="table table-bordered" id="portfolioInfo">
+            <thead>
               <tr>
-                  <td>{{ stock['Ticker'] }}</td>
-                  <td>{{ stock['Amount'] }}</td>
-                  <td>{{ stock['BuyInPrice'] }}</td>
-                  <td>{{ stock['CurrentPrice'] }}</td>
-                  <td>{{ stock['Gain'] }} %</td>
+                  <th>Ticker</th>
+                  <th>Amount</th>
+                  <th>Buy In Price</th>
+                  <th>Current Price</th>
+                  <th><b>Gain<b></th>
               </tr>
-              {% endfor %}   
-          </tbody>
-        </table>
+            </thead>
 
+            <tbody>
+              {% for stock in portfolioGain %}
+                <tr>
+                    <td>{{ stock['Ticker'] }}</td>
+                    <td>{{ stock['Amount'] }}</td>
+                    <td>{{ stock['BuyInPrice'] }}</td>
+                    <td>{{ stock['CurrentPrice'] }}</td>
+                    <td>{{ stock['Gain'] }} %</td>
+                </tr>
+                {% endfor %}   
+            </tbody>
+          </table>
+        </div>
       </div>
     </section>
 
@@ -212,7 +213,7 @@
             <div class="table-wrapper">
               <div class="table-title">
                 <div class="row">
-                  <div class="col-sm-8"><h2>Portfolio Editor</h2></div>
+                  <div class="col-sm-8"></div>
                   <div class="col-sm-4">
                     <button type="button" class="btn btn-info add-new"><i class="fa fa-plus"></i> Add New</button>
                   </div>
@@ -377,23 +378,22 @@
       jQuery.noConflict()(function ($) {
         $(document).ready(function(){
           $('[data-toggle="tooltip"]').tooltip();
-          var actions = $("table td:last-child").html();
 
           // Append table with add row form on add new button click
           $(".add-new").click(function(){
-            $(this).attr("disabled", "disabled");
-            var index = $("table tbody tr:last-child").index();
+            $(this).closest('.table-wrapper').attr("disabled", "disabled");
+            var index = $(this).closest('.table-wrapper').find("table tbody tr:last-child").index();
             var row = '<tr>' +
-              '<td><input type="text" class="form-control" name="action" id="action" list="actionlist"><datalist id="actionlist"><option>Buy</option><option>Sell</option></datalist></td>' +
-              '<td><input type="text" class="form-control" name="ticker" id="ticker"></td>' +
-              '<td><input type="text" class="form-control" name="amount" id="amount"></td>' +
-              '<td><input type="text" class="form-control" name="price" id="price"></td>' +
-              '<td><input type="text" class="form-control" name="date" id="date" data-date-format="yyyy-mm-dd"></td>' +
-              '<td><input type="text" class="form-control" name="comment" id="comment" value="<Comment Here>"></td>' +
-              '<td>' + actions + '</td>' +
-            '</tr>';
-            $("table").append(row);		
-            $("table tbody tr").eq(index + 1).find(".add, .edit").toggle();
+                '<td><input type="text" class="form-control" name="action" id="action" list="actionlist"><datalist id="actionlist"><option>Buy</option><option>Sell</option></datalist></td>' +
+                '<td><input type="text" class="form-control" name="ticker" id="ticker"></td>' +
+                '<td><input type="text" class="form-control" name="amount" id="amount"></td>' +
+                '<td><input type="text" class="form-control" name="price" id="price"></td>' +
+                '<td><input type="text" class="form-control" name="date" id="date" data-date-format="yyyy-mm-dd"></td>' +
+                '<td><input type="text" class="form-control" name="comment" id="comment" value="<Comment Here>"></td>' +
+                '<td><a class="add" title="Add" data-toggle="tooltip"><i class="material-icons">&#xE03B;</i></a><a class="edit" title="Edit" data-toggle="tooltip"><i class="material-icons">&#xE254;</i></a><a class="delete" title="Delete" data-toggle="tooltip"><i class="material-icons">&#xE872;</i></a></td>' +
+              '</tr>';
+            $(this).closest('.table-wrapper').find("table").append(row);		
+            $(this).closest('.table-wrapper').find("table tbody tr").eq(index + 1).find(".add, .edit").toggle();
             $('[data-toggle="tooltip"]').tooltip();
           });
           
@@ -402,31 +402,31 @@
             var empty = false;
             var input = $(this).parents("tr").find('input[type="text"]');
                 input.each(function(){
-              if(!$(this).val()){
-                $(this).addClass("error");
-                empty = true;
-              } else{
-                        $(this).removeClass("error");
-                    }
+                  if(!$(this).val()){
+                    $(this).addClass("error");
+                    empty = true;
+                  } else{
+                            $(this).removeClass("error");
+                        }
+                });
+              $(this).closest('.table-responsive').parents("tr").find(".error").first().focus();
+              if(!empty){
+                input.each(function(){
+                  $(this).parent("td").html($(this).val());
+                });			
+                $(this).parents("tr").find(".add, .edit").toggle();
+                $(".add-new").removeAttr("disabled");
+              }		
             });
-            $(this).parents("tr").find(".error").first().focus();
-            if(!empty){
-              input.each(function(){
-                $(this).parent("td").html($(this).val());
-              });			
-              $(this).parents("tr").find(".add, .edit").toggle();
-              $(".add-new").removeAttr("disabled");
-            }		
-          });
 
-          // Edit row on edit button click
+         // Edit row on edit button click
           $(document).on("click", ".edit", function(){		
-              $(this).parents("tr").find("td:not(:last-child)").each(function(){
-                $(this).html('<input type="text" class="form-control" value="' + $(this).text() + '">');
+                $(this).parents("tr").find("td:not(:last-child)").each(function(){
+              $(this).html('<input type="text" class="form-control" value="' + $(this).text() + '">');
             });		
             $(this).parents("tr").find(".add, .edit").toggle();
             $(".add-new").attr("disabled", "disabled");
-          });
+            });
 
           // Delete row on delete button click
           $(document).on("click", ".delete", function(){
