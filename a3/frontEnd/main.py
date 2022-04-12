@@ -54,7 +54,7 @@ def stockRedirect():
     Get input client stock ticker fron ticker search bar and redirect to /stock/<ticker>
     Returns: Redirect to stock view page
     """
-    stockTicker = request.form.get('stockTicker', "")
+    stockTicker = request.form.get('stockTicker')
 
     if not stockTicker:  # If ticker is empty, raise error
         response = webapp.response_class(
@@ -170,31 +170,31 @@ def portfolioEditor(clientIP):
                     for stock in portfolioGain:
                         if stock['Ticker'] == ticker:
                             # Check if stock amount after selling still >= 0 --> No negative stock amount is allowed
-                            if (stock['Amount'] - int(row['Amount'])) >= 0:
+                            # if (stock['Amount'] - int(row['Amount'])) >= 0:
                                 stock['Amount'] -= int(row['Amount'])
-                            else:
-                                response = webapp.response_class(
-                                response=json.dumps("Credential file contains negative stock amount. Please check again."),
-                                status=400,
-                                mimetype='application/json'
-                                )
-                                print(response)
-                                return response
+                            # else:
+                            #     response = webapp.response_class(
+                            #     response=json.dumps("Credential file contains negative stock amount. Please check again."),
+                            #     status=400,
+                            #     mimetype='application/json'
+                            #     )
+                            #     print(response)
+                            #     return response
             else:
                 # User could not sell a stock without buying in before
-                if row['Action'] == 'Buy' and int(row['Amount']) >= 0:
+                # if row['Action'] == 'Buy' and int(row['Amount']) >= 0:
                     stockList.append(ticker)
                     newStock = {'Ticker':ticker,'Amount':int(row['Amount']),'BuyInPrice':round(float(row['Price']), 2),'CurrentPrice':"",'Gain':""}
                     portfolioGain.append(newStock)
                 # If no valid ticker were found
-                else:
-                    response = webapp.response_class(
-                    response=json.dumps("Credential file contains invalid ticker or negative initial stock amount. Please check again."),
-                    status=400,
-                    mimetype='application/json'
-                    )
-                    print(response)
-                    return response
+                # else:
+                #     response = webapp.response_class(
+                #     response=json.dumps("Credential file contains invalid ticker. Please check again."),
+                #     status=400,
+                #     mimetype='application/json'
+                #     )
+                #     print(response)
+                #     return response
 
         # Call stockAPI to get the current price of each ticker
         currentPriceList, validBool = Config.stockAPI.liveQuotes(stockList)
