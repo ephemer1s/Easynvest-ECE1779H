@@ -24,6 +24,7 @@ import base64
 from frontEnd import webapp
 from frontEnd.config import Config
 from frontEnd.charts import Chart
+from backEnd.main import loadLogo
 
 
 @webapp.route('/')
@@ -299,18 +300,33 @@ def stock(ticker):
 
         currentPrice = pricedata[-1]
         currentInterest = round(100 * pricedata[-1] / pricedata[-2] - 100, 2)
-        chartName = "One Day View for " + ticker
+        chartName = "Stock View for " + ticker
 
         # Get stock logo image
         # logoFile, url, validBool = Config.stockAPI.getLogo(ticker)
-        # logoContent = base64.b64encode(logoFile).decode()
-        # logoExtension = os.path.splitext(imageFileNameWithExtension)[1]
+        logoBase64FormatImage, logoValidBool = loadLogo(ticker)
+        if logoValidBool:
+            logoContent = logoBase64FormatImage
+            logoExtension = ".png"
 
         return render_template("stock.html",
                                stockTicker=ticker,
-                               xlabels=lastDayNewXlabels,
-                               price=lastDayPricedata,
-                               action=lastDayActiondata,
+
+                               logoContent = logoContent,
+                               logoExtension = logoExtension,
+
+                               lastDayNewXlabels=lastDayNewXlabels,
+                               lastDayPrice=lastDayPricedata,
+                               lastDayAction=lastDayActiondata,
+
+                               fiveDaysNewXlabels=fiveDaysNewXlabels,
+                               fiveDaysPrice=fiveDaysPricedata,
+                               fiveDaysAction=fiveDaysActiondata,
+
+                               tenDaysNewXlabels=tenDaysNewXlabels,
+                               tenDaysPrice=tenDaysPricedata,
+                               tenDaysAction=tenDaysActiondata,
+
                                name=chartName,
                                stockCurrentPrice=currentPrice,
                                stockCurrentInterest=currentInterest
