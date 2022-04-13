@@ -24,6 +24,7 @@ import base64
 from frontEnd import webapp
 from frontEnd.config import Config
 from frontEnd.charts import Chart
+from backEnd.main import loadLogo
 
 
 @webapp.route('/')
@@ -32,11 +33,19 @@ def index():
     Main Page
     Returns: 'Main Page' rendered by flask
     """
-    # Under Construction
-    # Need to fill price & value before deployment
-    nasdaqCurrentPrice = 182
-    nasdaqCurrentInterest = -0.18
-    return render_template("mainpage.html", nasdaqCurrentPrice = nasdaqCurrentPrice, nasdaqCurrentInterest = nasdaqCurrentInterest)
+
+    logoContent_GSPC, logoExtension_GSPC, lastDayNewXlabels_GSPC, lastDayPricedata_GSPC, lastDayActiondata_GSPC, currentPrice_GSPC, currentGain_GSPC = stockChartLastDay("GSPC")
+
+    return render_template("mainpage.html",
+
+                            name_GSPC = "S&P 500 Index (GSPC)",
+                            logoContent_GSPC = logoContent_GSPC,
+                            logoExtension_GSPC = logoExtension_GSPC,
+                            lastDayNewXlabels_GSPC = lastDayNewXlabels_GSPC,
+                            lastDayPrice_GSPC = lastDayPricedata_GSPC,
+                            lastDayAction_GSPC = lastDayActiondata_GSPC,
+                            currentPrice_GSPC = currentPrice_GSPC,
+                            currentGain_GSPC = currentGain_GSPC)
     
 
 @webapp.route('/portfolio')
@@ -254,6 +263,11 @@ def stock(ticker):
 
         lastWeekday = datetime.today() - timedelta(days=(0, 0, 0, 0,
                                                          0, 1, 2)[datetime.today().weekday()])
+
+        while lastWeekday.strftime("%m/%d/%Y" + ", 09:30:00") not in newXlabels:
+            lastWeekday = lastWeekday - timedelta(days=(1, 1, 1, 1,
+                                                         1, 1, 2)[lastWeekday.weekday()])
+
         if lastWeekday.strftime("%m/%d/%Y" + ", 09:30:00") in newXlabels:
             # trim list so that it only displays today's data
             trimIndex = newXlabels.index(
@@ -297,23 +311,58 @@ def stock(ticker):
             tenDaysPricedata = pricedata[trimIndex:]
             tenDaysActiondata = actiondata[trimIndex:]
 
+
+        # Get current price and calculate current gain
         currentPrice = pricedata[-1]
-        currentInterest = round(100 * pricedata[-1] / pricedata[-2] - 100, 2)
-        chartName = "One Day View for " + ticker
+
+        lastCloseWeekday = datetime.today() - timedelta(days=(3, 1, 1, 1,
+                                                              1, 1, 2)[datetime.today().weekday()])
+
+        if lastCloseWeekday.strftime("%m/%d/%Y" + ", 15:59:00") in newXlabels:
+            trimIndex = newXlabels.index(
+                lastCloseWeekday.strftime("%m/%d/%Y" + ", 15:59:00"))
+
+        if pricedata[trimIndex] == currentPrice:
+            lastCloseWeekday = lastCloseWeekday - timedelta(days=(1, 1, 1, 1,
+                                                            1, 1, 1)[lastCloseWeekday.weekday()])
+            if lastCloseWeekday.strftime("%m/%d/%Y" + ", 15:59:00") in newXlabels:
+                trimIndex = newXlabels.index(
+                    lastCloseWeekday.strftime("%m/%d/%Y" + ", 15:59:00"))
+
+        yesterdayClosePrice = pricedata[trimIndex]
+                               
+        currentGain = round(100 * currentPrice / yesterdayClosePrice - 100, 2)
+        chartName = "Stock View for " + ticker
 
         # Get stock logo image
-        # logoFile, url, validBool = Config.stockAPI.getLogo(ticker)
-        # logoContent = base64.b64encode(logoFile).decode()
-        # logoExtension = os.path.splitext(imageFileNameWithExtension)[1]
+        logoContent = None
+        logoExtension = None
+        logoBase64FormatImage, logoValidBool = loadLogo(ticker)
+        if logoValidBool:
+            logoContent = logoBase64FormatImage
+            logoExtension = ".png"
 
         return render_template("stock.html",
                                stockTicker=ticker,
-                               xlabels=lastDayNewXlabels,
-                               price=lastDayPricedata,
-                               action=lastDayActiondata,
+
+                               logoContent = logoContent,
+                               logoExtension = logoExtension,
+
+                               lastDayNewXlabels=lastDayNewXlabels,
+                               lastDayPrice=lastDayPricedata,
+                               lastDayAction=lastDayActiondata,
+
+                               fiveDaysNewXlabels=fiveDaysNewXlabels,
+                               fiveDaysPrice=fiveDaysPricedata,
+                               fiveDaysAction=fiveDaysActiondata,
+
+                               tenDaysNewXlabels=tenDaysNewXlabels,
+                               tenDaysPrice=tenDaysPricedata,
+                               tenDaysAction=tenDaysActiondata,
+
                                name=chartName,
                                stockCurrentPrice=currentPrice,
-                               stockCurrentInterest=currentInterest
+                               stockCurrentGain=currentGain
                                )
     # If use input an invalid ticker
     else:  
@@ -388,6 +437,82 @@ def createTestData(length=60):
     xlabels = np.arange(length).tolist()
     # ==================== End Test ====================
     return pricedata, actiondata, xlabels
+
+
+def stockChartLastDay(ticker):
+    """ Get the necessary info for displaying last day stock chart more easily
+
+    Returns:
+        stock logo image, chart labels, last day price, last day action 
+    """
+
+    # Get stock logo image
+    logoContent = None
+    logoExtension = None
+    logoBase64FormatImage, logoValidBool = loadLogo(ticker)
+    if logoValidBool:
+        logoContent = logoBase64FormatImage
+        logoExtension = ".png"
+
+    # Get stock data for chart
+    df, valid = Config.stockAPI.allQuote(ticker)
+
+    if valid:
+        closeData = df.loc[:, "close"]
+        timeData = df.index
+        volumeData = df.loc[:, "volume"]
+
+        pricedata = closeData.to_list()
+        xlabels = timeData.to_list()
+        actiondata = volumeData.to_list()
+
+        newXlabels = []
+
+        for i in xlabels:
+            newXlabels.append(i.strftime("%m/%d/%Y, %H:%M:%S"))
+
+        lastDayNewXlabels = []
+        lastDayPricedata = []
+        lastDayActiondata = []
+
+        lastWeekday = datetime.today() - timedelta(days=(0, 0, 0, 0,
+                                                         0, 1, 2)[datetime.today().weekday()])
+
+        while lastWeekday.strftime("%m/%d/%Y" + ", 09:30:00") not in newXlabels:
+            lastWeekday = lastWeekday - timedelta(days=(1, 1, 1, 1,
+                                                         1, 1, 2)[lastWeekday.weekday()])
+
+        if lastWeekday.strftime("%m/%d/%Y" + ", 09:30:00") in newXlabels:
+            # trim list so that it only displays today's data
+            trimIndex = newXlabels.index(
+                lastWeekday.strftime("%m/%d/%Y" + ", 09:30:00"))
+
+            lastDayNewXlabels = newXlabels[trimIndex:]
+            lastDayPricedata = pricedata[trimIndex:]
+            lastDayActiondata = actiondata[trimIndex:]
+
+        # Get current price and calculate current gain
+        currentPrice = pricedata[-1]
+
+        lastCloseWeekday = datetime.today() - timedelta(days=(3, 1, 1, 1,
+                                                              1, 1, 2)[datetime.today().weekday()])
+
+        if lastCloseWeekday.strftime("%m/%d/%Y" + ", 15:59:00") in newXlabels:
+            trimIndex = newXlabels.index(
+                lastCloseWeekday.strftime("%m/%d/%Y" + ", 15:59:00"))
+
+        if pricedata[trimIndex] == currentPrice:
+            lastCloseWeekday = lastCloseWeekday - timedelta(days=(1, 1, 1, 1,
+                                                            1, 1, 1)[lastCloseWeekday.weekday()])
+            if lastCloseWeekday.strftime("%m/%d/%Y" + ", 15:59:00") in newXlabels:
+                trimIndex = newXlabels.index(
+                    lastCloseWeekday.strftime("%m/%d/%Y" + ", 15:59:00"))
+
+        yesterdayClosePrice = pricedata[trimIndex]
+                               
+        currentGain = round(100 * currentPrice / yesterdayClosePrice - 100, 2)
+        
+        return logoContent, logoExtension, lastDayNewXlabels, lastDayPricedata, lastDayActiondata, currentPrice, currentGain
 
 
 def makeAPI_Call(api_url: str, method: str, _timeout: int, _data={}):
