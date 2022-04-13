@@ -381,7 +381,7 @@
 
           // Append table with add row form on add new button click
           $(".add-new").click(function(){
-            $(this).closest('.table-wrapper').attr("disabled", "disabled");
+            $(this).attr("disabled", "disabled");
             var index = $(this).closest('.table-wrapper').find("table tbody tr:last-child").index();
             var row = '<tr>' +
                 '<td><input type="text" class="form-control" name="action" id="action" list="actionlist"><datalist id="actionlist"><option>Buy</option><option>Sell</option></datalist></td>' +
