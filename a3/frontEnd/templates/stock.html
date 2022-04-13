@@ -260,7 +260,6 @@
     <!-- Stock Section -->
     <section class="u-clearfix u-white u-section-2" id="sec-e33e">
       <div class="u-clearfix u-sheet u-sheet-1">
-        <br>
         <!-- Stock Logo -->
         {% if logoContent and logoExtension %}
           <img
@@ -521,7 +520,7 @@
           );
         </script>
 
-        <!-- Stock Current Price -->
+        <!-- Stock Current Price & Gain-->
         <div class="stockPrice">
           <style>
             .stockPrice {
@@ -529,7 +528,7 @@
             }
           </style>
           <p class="u-text u-text-default u-text-3">
-            <b>Current Price: </b>{{stockCurrentPrice}} &nbsp; {{stockCurrentInterest}} %
+            <b>Current Price: </b>{{stockCurrentPrice}} &nbsp; {{stockCurrentGain}} %
           </p>
         </div>
 

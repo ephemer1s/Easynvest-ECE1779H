@@ -13,6 +13,11 @@
   min-height: 300px;
 }
 
+/* Main Page SP 500 Section */
+.u-section-2 .u-sheet-500 {
+  min-height: 800px;
+}
+
 /* 2nd Subtitle */
 .u-section-3 .u-sheet-1 {
   min-height: 43px;
