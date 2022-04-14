@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html style="font-size: 16px">
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="utf-8" />
+    <meta name="keywords" content="Main Page" />
+    <meta name="description" content="" />
+    <meta name="page_type" content="np-template-header-footer-from-plugin" />
+    <title>Stock View</title>
+    <link
+      rel="stylesheet"
+      href="{{url_for('static', filename='css/nicepage.css')}}"
+      media="screen"
+    />
+    <link
+      rel="stylesheet"
+      href="{{url_for('static', filename='css/mainpage.css')}}"
+      media="screen"
+    />
+    <script
+      class="u-script"
+      type="text/javascript"
+      src="{{url_for('static', filename='nicepage.js')}}"
+      defer=""
+    ></script>
+    <script
+      class="u-script"
+      type="text/javascript"
+      src="{{url_for('static', filename='jquery.js')}}"
+      defer=""
+    ></script>
+    <meta name="generator" content="Nicepage 4.6.5, nicepage.com" />
+    <link
+      id="u-theme-google-font"
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css?family=Roboto:100,100i,300,300i,400,400i,500,500i,700,700i,900,900i|Open+Sans:300,300i,400,400i,500,500i,600,600i,700,700i,800,800i"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script type="application/ld+json">
+      {
+        "@context": "http://schema.org",
+        "@type": "Organization",
+        "name": ""
+      }
+    </script>
+    <meta name="theme-color" content="#478ac9" />
+    <meta property="og:title" content="managerApp" />
+    <meta property="og:type" content="website" />
+  </head>
+
+  <!-- Main Page Title -->
+  <body class="u-body u-xl-mode">
+    <header
+      class="u-clearfix u-header u-palette-1-light-3 u-sticky u-sticky-1972"
+      id="sec-5b77"
+      data-animation-name=""
+      data-animation-duration="0"
+      data-animation-delay="0"
+      data-animation-direction=""
+    >
+      <div class="u-clearfix u-sheet u-sheet-1">
+        <div class="page-title">
+          <style>
+            .page-title {
+              text-align: center;
+              white-space: nowrap;
+              overflow: hidden;
+            }
+          </style>
+          <div class="page-title-left">
+            <style>
+              .page-title-left {
+                float: left;
+                vertical-align: middle;
+                display: inline;
+              }
+            </style>
+            <h2 class="u-text u-text-default u-text-palette-1-dark-2 u-text-1">
+              Easynv<span style="font-weight: 400"></span>est
+            </h2>
+          </div>
+
+          <!-- Ticker Search Bar -->
+          <div class="searchBarDiv">
+            <form action="{{url_for('stockRedirect')}}" method="post">
+              <input
+                class="searchBar"
+                type="text"
+                name="stockTicker"
+                placeholder="  Enter Stock Ticker"
+                required
+              />
+              <button class="searchButton" style="vertical-align: middle">
+                <span>Search</span>
+              </button>
+            </form>
+          </div>
+
+          <style>
+            .searchBarDiv {
+              text-align: center;
+              vertical-align: middle;
+              display: inline-block;
+              width: 40%;
+            }
+
+            .searchBar {
+              width: 80%;
+              display: inline-block;
+              box-sizing: border-box;
+              border: 2px solid #ccc;
+              -webkit-transition: 0.5s;
+              transition: 0.5s;
+              outline: none;
+            }
+
+            .searchBar:focus {
+              border: 2px solid #797d7f;
+            }
+
+            .searchButton {
+              display: inline;
+              border-radius: 4px;
+              background-color: #85c1e9;
+              border: none;
+              color: #ffffff;
+              text-align: center;
+              font-size: 16px;
+              padding: 4px;
+              width: 20%;
+              transition: all 0.5s;
+              cursor: pointer;
+              margin: 5px;
+            }
+
+            .searchButton span {
+              cursor: pointer;
+              display: inline-block;
+              position: relative;
+              transition: 0.5s;
+            }
+
+            .searchButton span:after {
+              content: "\00bb";
+              position: absolute;
+              opacity: 0;
+              top: 0;
+              right: -5px;
+              transition: 0.5s;
+            }
+
+            .searchButton:hover span {
+              padding-right: 25px;
+            }
+
+            .searchButton:hover span:after {
+              opacity: 1;
+              right: 0;
+            }
+          </style>
+
+          <!-- Manage Portfolio Menu -->
+          <div class="page-menu-right">
+            <style>
+              .page-menu-right {
+                float: right;
+                vertical-align: middle;
+                display: inline;
+              }
+            </style>
+            <div class="u-custom-menu u-nav-container">
+              <ul
+                class="u-custom-font u-font-georgia u-nav u-spacing-30 u-unstyled u-nav-1"
+              >
+                <li class="u-nav-item">
+                  <a
+                    class="u-border-2 u-border-active-palette-1-base u-border-hover-palette-1-base u-border-no-left u-border-no-right u-border-no-top u-button-style u-nav-link u-text-active-palette-1-light-1 u-text-hover-palette-2-light-1 u-text-palette-1-dark-1"
+                    style="padding: 5px 0px"
+                    href="{{url_for('portfolio')}}"
+                    >MyPortfolio</a
+                  >
+                </li>
+                <li class="u-nav-item">
+                  <a
+                    class="u-border-2 u-border-active-palette-1-base u-border-hover-palette-1-base u-border-no-left u-border-no-right u-border-no-top u-button-style u-nav-link u-text-active-palette-1-light-1 u-text-hover-palette-2-light-1 u-text-palette-1-dark-1"
+                    style="padding: 5px 0px"
+                    href="{{url_for('home')}}"
+                    >Home</a
+                  >
+                </li>
+              </ul>
+            </div>
+
+            <div class="u-custom-menu u-nav-container-collapse">
+              <div
+                class="u-black u-container-style u-inner-container-layout u-opacity u-opacity-95 u-sidenav"
+              >
+                <div class="u-inner-container-layout u-sidenav-overflow">
+                  <div class="u-menu-close"></div>
+                  <ul
+                    class="u-align-center u-nav u-popupmenu-items u-unstyled u-nav-2"
+                  >
+                    <li class="u-nav-item">
+                      <a
+                        class="u-button-style u-nav-link"
+                        style="padding: 10px 0px"
+                        href="{{url_for('portfolio')}}"
+                        >MyPortfolio</a
+                      >
+                    </li>
+                    <li class="u-nav-item">
+                      <a
+                        class="u-button-style u-nav-link"
+                        style="padding: 10px 0px"
+                        href="{{url_for('home')}}"
+                        >Home</a
+                      >
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Stock Subtitle -->
+    <section class="u-clearfix u-grey-5 u-section-1" id="sec-eff3">
+      <div class="u-clearfix u-sheet u-valign-middle u-sheet-1">
+        <lt-highlighter style="display: none; z-index: 1 !important">
+          <lt-div
+            spellcheck="false"
+            class="lt-highlighter__wrapper"
+            style="
+              width: 144px;
+              height: 39px;
+              transform: none !important;
+              transform-origin: 72.0885px 19.7969px !important;
+              zoom: 1 !important;
+              margin-top: 21px;
+              margin-left: 0px;
+            "
+          >
+            <lt-div
+              class="lt-highlighter__scroll-element"
+              style="top: 0px; left: 0px; width: 144px; height: 40px"
+            ></lt-div>
+          </lt-div>
+        </lt-highlighter>
+        <h4
+          class="u-custom-font u-font-georgia u-text u-text-default u-text-palette-1-dark-2 u-text-1"
+        >
+          Stock View {{stockTicker}}
+        </h4>
+      </div>
+    </section>
+
+    <!-- Stock Section -->
+    <section class="u-clearfix u-white u-section-2" id="sec-e33e">
+      <div class="u-clearfix u-sheet u-sheet-1">
+        <!-- Stock Logo -->
+        {% if logoContent and logoExtension %}
+          <img
+            id="imgContent"
+            src="data:image/{{ logoExtension }};base64,{{ logoContent }}"
+            width="10%"
+          />
+        {% endif %}
+
+        <div id="container">
+          <br>
+          <!-- Stock View Tab -->
+          <div class="stockViewTab">
+            <button class="tabDateSwitch" onclick="openStockIndexTab(event, 'daily')"  id="defaultOpen">Daily</button>
+            <button class="tabDateSwitch" onclick="openStockIndexTab(event, '5days')">5 Days</button>
+            <button class="tabDateSwitch" onclick="openStockIndexTab(event, '10days')">10 Days</button>
+          </div>
+  
+          <div id="daily" class="tabcontent">
+            <!-- Daily Stock Price Chart -->
+            <div>
+              <canvas id="stockChartDaily"></canvas>
+            </div>
+          </div>
+  
+          <div id="5days" class="tabcontent">
+            <!-- 5 Days Stock Price Chart -->
+            <div>
+              <canvas id="stockChart5Days"></canvas>
+            </div>
+          </div>
+  
+          <div id="10days" class="tabcontent">
+            <!-- 10 Days Stock Price Chart -->
+            <div>
+              <canvas id="stockChart10Days"></canvas>
+            </div>
+          </div>
+        </div>
+  
+        <!-- CSS for Stock View Tab -->
+        <style>
+        .stockViewTab {
+          overflow: hidden;
+        }
+  
+        .stockViewTab button {
+          background-color: #F8F9F9;
+          float: left;
+          border: 1px solid #ccc;
+          outline: none;
+          cursor: pointer;
+          padding: 14px 16px;
+          transition: 0.3s;
+          font-size: 17px;
+        }
+  
+        .stockViewTab button:hover {
+          background-color: #f4ecf7;
+        }
+  
+        .stockViewTab button.active {
+          background-color: #d6eaf8;
+        }
+  
+        .tabcontent {
+          display: none;
+          padding: 6px 12px;
+          border: 1px solid #ccc;
+        }
+        </style>
+  
+        <!-- Javascript Stock View Tab -->
+        <script>
+          function openStockIndexTab(evt, dateOption) {
+            var i, tabcontent, tabDateSwitch;
+            tabcontent = document.getElementsByClassName("tabcontent");
+            for (i = 0; i < tabcontent.length; i++) {
+              tabcontent[i].style.display = "none";
+            }
+            tabDateSwitch = document.getElementsByClassName("tabDateSwitch");
+            for (i = 0; i < tabDateSwitch.length; i++) {
+              tabDateSwitch[i].className = tabDateSwitch[i].className.replace(" active", "");
+            }
+            document.getElementById(dateOption).style.display = "block";
+            evt.currentTarget.className += " active";
+          }
+          document.getElementById("defaultOpen").click();
+        </script>
+        <!-- Stock View Tab -->
+
+
+        <!-- Javascript for last day stock view chart -->
+        <script>
+          const labels1 = {{lastDayNewXlabels|tojson}};
+
+          const data1 = {
+              labels: labels1,
+              datasets: [{
+                  label: 'Price',
+                  backgroundColor: 'rgb(255, 99, 132)',
+                  borderColor: 'rgb(255, 99, 132)',
+                  data: {{lastDayPrice|tojson}},
+                  order: 0,
+                  yAxisID: 'Price',
+              },{
+                  label: 'Volume',
+                  backgroundColor: 'rgb(132, 99, 198)',
+                  borderColor: 'rgb(132, 99, 198)',
+                  data: {{lastDayAction|tojson}},
+                  type: 'bar',
+                  order: 1,
+                  yAxisID: 'Volume',
+              }]
+          };
+
+          const config1 = {
+            type: 'line',
+            data: data1,
+            options: {
+              responsive: true,
+              plugins: {
+                legend: {
+                  position: 'top',
+                },
+                title: {
+                  display: true,
+                  text: {{name|tojson}},
+                },
+                scales: {
+                  Price: {
+                    type: 'linear',
+                    position: 'left',
+                  },
+                  Action: {
+                    type: 'linear',
+                    position: 'right',
+                  }
+                },
+              },
+            },
+          };
+          const chart1 = new Chart(
+          document.getElementById('stockChartDaily'),
+            config1
+          );
+        </script>
+
+        <!-- Javascript for 5 days stock view chart -->
+        <script>
+          const labels2 = {{fiveDaysNewXlabels|tojson}};
+
+          const data2 = {
+              labels: labels2,
+              datasets: [{
+                  label: 'Price',
+                  backgroundColor: 'rgb(255, 99, 132)',
+                  borderColor: 'rgb(255, 99, 132)',
+                  data: {{fiveDaysPrice|tojson}},
+                  order: 0,
+                  yAxisID: 'Price',
+              },{
+                  label: 'Volume',
+                  backgroundColor: 'rgb(132, 99, 198)',
+                  borderColor: 'rgb(132, 99, 198)',
+                  data: {{fiveDaysAction|tojson}},
+                  type: 'bar',
+                  order: 1,
+                  yAxisID: 'Volume',
+              }]
+          };
+
+          const config2 = {
+            type: 'line',
+            data: data2,
+            options: {
+              responsive: true,
+              plugins: {
+                legend: {
+                  position: 'top',
+                },
+                title: {
+                  display: true,
+                  text: {{name|tojson}},
+                },
+                scales: {
+                  Price: {
+                    type: 'linear',
+                    position: 'left',
+                  },
+                  Action: {
+                    type: 'linear',
+                    position: 'right',
+                  }
+                },
+              },
+            },
+          };
+          const chart2 = new Chart(
+          document.getElementById('stockChart5Days'),
+            config2
+          );
+        </script>
+
+        <!-- Javascript for 10 days stock view chart -->
+        <script>
+          const labels3 = {{tenDaysNewXlabels|tojson}};
+
+          const data3 = {
+              labels: labels3,
+              datasets: [{
+                  label: 'Price',
+                  backgroundColor: 'rgb(255, 99, 132)',
+                  borderColor: 'rgb(255, 99, 132)',
+                  data: {{tenDaysPrice|tojson}},
+                  order: 0,
+                  yAxisID: 'Price',
+              },{
+                  label: 'Volume',
+                  backgroundColor: 'rgb(132, 99, 198)',
+                  borderColor: 'rgb(132, 99, 198)',
+                  data: {{tenDaysAction|tojson}},
+                  type: 'bar',
+                  order: 1,
+                  yAxisID: 'Volume',
+              }]
+          };
+
+          const config3 = {
+            type: 'line',
+            data: data3,
+            options: {
+              responsive: true,
+              plugins: {
+                legend: {
+                  position: 'top',
+                },
+                title: {
+                  display: true,
+                  text: {{name|tojson}},
+                },
+                scales: {
+                  Price: {
+                    type: 'linear',
+                    position: 'left',
+                  },
+                  Action: {
+                    type: 'linear',
+                    position: 'right',
+                  }
+                },
+              },
+            },
+          };
+          const chart3 = new Chart(
+          document.getElementById('stockChart10Days'),
+            config3
+          );
+        </script>
+
+        <!-- Stock Current Price & Gain-->
+        <div class="stockPrice">
+          <style>
+            .stockPrice {
+              float: right;
+            }
+          </style>
+          <p class="u-text u-text-default u-text-3">
+            <b>Current Price: </b>{{stockCurrentPrice}} &nbsp; {{stockCurrentGain}} %
+          </p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Cute Poka Bird. just for fun.  -->
+    <div class="poka">
+      <a class="poka"
+        ><img
+          src="https://cdn.hinatazaka46.com/files/14/hinata/pages/hinachri2020/assets/images/poka.gif"
+          height="120"
+          width="120"
+      /></a>
+    </div>
+    <style>
+      .poka {
+        position: fixed;
+        left: 0;
+        bottom: 0;
+        z-index: 2;
+      }
+    </style>
+
+    <!-- Footer Section  -->
+    <footer
+      class="u-align-center u-clearfix u-footer u-palette-1-light-3 u-footer"
+      id="sec-5d25"
+    >
+      <div class="u-clearfix u-sheet u-valign-middle u-sheet-1">
+        <lt-highlighter
+          style="
+            display: none;
+            z-index: 1 !important;
+            width: 1100px;
+            margin-right: auto;
+            margin-left: auto;
+          "
+        >
+          <lt-div
+            spellcheck="false"
+            class="lt-highlighter__wrapper"
+            style="
+              width: 417px;
+              height: 25px;
+              transform: none !important;
+              transform-origin: 208.5px 12.7969px !important;
+              zoom: 1 !important;
+              margin-top: 6px;
+              margin-left: 362px;
+            "
+          >
+            <lt-div
+              class="lt-highlighter__scroll-element"
+              style="top: 0px; left: 0px; width: 417px; height: 25px"
+            >
+              <canvas
+                class="lt-highlighter__canvas"
+                width="52"
+                height="19"
+                style="display: none; top: 3px; left: 222px"
+              ></canvas>
+            </lt-div>
+          </lt-div>
+        </lt-highlighter>
+        <lt-highlighter style="display: none; z-index: 1 !important">
+          <lt-div
+            spellcheck="false"
+            class="lt-highlighter__wrapper"
+            style="
+              width: 417px;
+              height: 19px;
+              transform: none !important;
+              transform-origin: 208.5px 9.59896px !important;
+              zoom: 1 !important;
+              margin-top: 18px;
+              margin-left: 362px;
+            "
+          >
+            <lt-div
+              class="lt-highlighter__scroll-element"
+              style="top: 0px; left: 0px; width: 417px; height: 19px"
+            >
+              <canvas
+                class="lt-highlighter__canvas"
+                width="42"
+                height="15"
+                style="display: none; top: 2px; left: 196px"
+              ></canvas>
+            </lt-div>
+          </lt-div>
+        </lt-highlighter>
+        <!-- You could put your name here :)  -->
+        <p
+          class="u-align-center u-custom-font u-font-georgia u-small-text u-text u-text-grey-60 u-text-variant u-text-1"
+        >
+          Page created by
+          <a
+            class="u-active-none u-border-none u-btn u-button-link u-button-style u-hover-none u-none u-text-palette-1-base u-btn-1"
+            href="https://github.com/haozhe0302"
+            >Haozhe</a
+          >
+        </p>
+      </div>
+    </footer>
+  </body>
+</html>
