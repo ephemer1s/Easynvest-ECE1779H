@@ -14,8 +14,8 @@
     <meta name="generator" content="Nicepage 4.6.5, nicepage.com">
     <link id="u-theme-google-font" rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:100,100i,300,300i,400,400i,500,500i,700,700i,900,900i|Open+Sans:300,300i,400,400i,500,500i,600,600i,700,700i,800,800i">
 
-    <!-- Automatic Redirect -->
-    <meta http-equiv="refresh" content="5;url={{url_for('home')}}" />
+    <!-- Automatic Redirect @ ephemer1s what does this mean?-->
+    <meta http-equiv="refresh" content="5;https://yo5urajsfe.execute-api.us-east-1.amazonaws.com/default/index" />
     
     
     <script type="application/ld+json">{
@@ -41,7 +41,7 @@
 
           <!-- Ticker Search Bar -->
           <div class="searchBarDiv">
-            <form action="{{ url_for('stockRedirect')}}" method="post">
+            <form action="https://yo5urajsfe.execute-api.us-east-1.amazonaws.com/default/stockRedirect" method="post">
               <input class="searchBar" type="text" name="stockTicker" placeholder="  Enter Stock Ticker" required/>
               <button type="submit" class="searchButton" style="vertical-align:middle"><span>Search</span></button>
             </form>
@@ -114,8 +114,8 @@
           <div class="page-menu-right"><style>.page-menu-right{float:right;vertical-align:middle; display: inline}</style>
             <div class="u-custom-menu u-nav-container">
                 <ul class="u-custom-font u-font-georgia u-nav u-spacing-30 u-unstyled u-nav-1">
-                    <li class="u-nav-item"><a class="u-border-2 u-border-active-palette-1-base u-border-hover-palette-1-base u-border-no-left u-border-no-right u-border-no-top u-button-style u-nav-link u-text-active-palette-1-light-1 u-text-hover-palette-2-light-1 u-text-palette-1-dark-1" style="padding: 5px 0px;" href="{{url_for('portfolio')}}">MyPortfolio</a></li>
-                    <li class="u-nav-item"><a class="u-border-2 u-border-active-palette-1-base u-border-hover-palette-1-base u-border-no-left u-border-no-right u-border-no-top u-button-style u-nav-link u-text-active-palette-1-light-1 u-text-hover-palette-2-light-1 u-text-palette-1-dark-1" style="padding: 5px 0px;" href="{{url_for('home')}}">Home</a></li>
+                    <li class="u-nav-item"><a class="u-border-2 u-border-active-palette-1-base u-border-hover-palette-1-base u-border-no-left u-border-no-right u-border-no-top u-button-style u-nav-link u-text-active-palette-1-light-1 u-text-hover-palette-2-light-1 u-text-palette-1-dark-1" style="padding: 5px 0px;" href="https://yo5urajsfe.execute-api.us-east-1.amazonaws.com/default/portfolio">MyPortfolio</a></li>
+                    <li class="u-nav-item"><a class="u-border-2 u-border-active-palette-1-base u-border-hover-palette-1-base u-border-no-left u-border-no-right u-border-no-top u-button-style u-nav-link u-text-active-palette-1-light-1 u-text-hover-palette-2-light-1 u-text-palette-1-dark-1" style="padding: 5px 0px;" href="https://yo5urajsfe.execute-api.us-east-1.amazonaws.com/default/index">Home</a></li>
                 </ul>
             </div>
 
@@ -125,7 +125,7 @@
                   <div class="u-menu-close"></div>
                   <ul class="u-align-center u-nav u-popupmenu-items u-unstyled u-nav-2">
                     <li class="u-nav-item"><a class="u-button-style u-nav-link" style="padding: 10px 0px;" href="">MyPortfolio</a></li>
-                    <li class="u-nav-item"><a class="u-button-style u-nav-link" style="padding: 10px 0px;" href="{{url_for('home')}}">Home</a></li>
+                    <li class="u-nav-item"><a class="u-button-style u-nav-link" style="padding: 10px 0px;" href="https://yo5urajsfe.execute-api.us-east-1.amazonaws.com/default/index">Home</a></li>
                   </ul>
                 </div>
               </div>
@@ -155,7 +155,7 @@
         <div class="searchTicker"><style>.searchTicker{font-family:Georgia, serif; width:60%; margin:0 auto;}</style>
             <h4 class="warningSubTitle">Input Ticker Not Found</h4><br><br>
             <p class="warningText"> Your will be redirected to the main page in 5 second.</p><br>
-            <a class="redirectLink" href="{{url_for('home')}}"> If your browser fails to redirect automatically, please click here</a>
+            <a class="redirectLink" href="https://yo5urajsfe.execute-api.us-east-1.amazonaws.com/default/index"> If your browser fails to redirect automatically, please click here</a>
         </div>
 
         <style>
