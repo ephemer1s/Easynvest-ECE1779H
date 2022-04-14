@@ -24,7 +24,7 @@ import base64
 from frontEnd import webapp
 from frontEnd.config import Config
 from frontEnd.charts import Chart
-from backEnd.main import loadLogo
+from frontEnd.backEnd import loadLogo
 
 
 @webapp.route('/')
