@@ -22,8 +22,8 @@ def render_template_without_flask(template_name, **template_vars):
     Usage is the same as flask.render_template:
     render_template('my_template.html', var1='foo', var2='bar')
     """
-    if os.path.exists('./frontEnd/templates'):
-        template_path = './frontEnd/templates'
+    if os.path.exists('./frontEnd/lamplates'):
+        template_path = './frontEnd/lamplates'
     else:
         template_path = './templates'
 
