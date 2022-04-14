@@ -71,7 +71,7 @@ def home(event, context):
     Returns:
         redirect to main page
     """
-    return index()
+    return index(event, context)
 
 
 def stockChartLastDay(ticker):
