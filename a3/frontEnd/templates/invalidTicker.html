@@ -6,14 +6,16 @@
     <meta name="keywords" content="Main Page">
     <meta name="description" content="">
     <meta name="page_type" content="np-template-header-footer-from-plugin">
-    <title>Main Page</title>
+    <title>Invalid Ticker</title>
     <link rel="stylesheet" href="{{url_for('static', filename='css/nicepage.css')}}" media="screen">
     <link rel="stylesheet" href="{{url_for('static', filename='css/mainpage.css')}}" media="screen">
     <script class="u-script" type="text/javascript" src="{{url_for('static', filename='nicepage.js')}}" defer=""></script>
     <script class="u-script" type="text/javascript" src="{{url_for('static', filename='jquery.js')}}" defer=""></script>
     <meta name="generator" content="Nicepage 4.6.5, nicepage.com">
     <link id="u-theme-google-font" rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:100,100i,300,300i,400,400i,500,500i,700,700i,900,900i|Open+Sans:300,300i,400,400i,500,500i,600,600i,700,700i,800,800i">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Automatic Redirect -->
+    <meta http-equiv="refresh" content="5;url={{url_for('home')}}" />
     
     
     <script type="application/ld+json">{
@@ -39,7 +41,7 @@
 
           <!-- Ticker Search Bar -->
           <div class="searchBarDiv">
-            <form action="{{url_for('stockRedirect')}}" method="post">
+            <form action="{{ url_for('stockRedirect')}}" method="post">
               <input class="searchBar" type="text" name="stockTicker" placeholder="  Enter Stock Ticker" required/>
               <button type="submit" class="searchButton" style="vertical-align:middle"><span>Search</span></button>
             </form>
@@ -111,10 +113,10 @@
           <!-- Manage Portfolio Menu -->
           <div class="page-menu-right"><style>.page-menu-right{float:right;vertical-align:middle; display: inline}</style>
             <div class="u-custom-menu u-nav-container">
-              <ul class="u-custom-font u-font-georgia u-nav u-spacing-30 u-unstyled u-nav-1">
-                <li class="u-nav-item"><a class="u-border-2 u-border-active-palette-1-base u-border-hover-palette-1-base u-border-no-left u-border-no-right u-border-no-top u-button-style u-nav-link u-text-active-palette-1-light-1 u-text-hover-palette-2-light-1 u-text-palette-1-dark-1" style="padding: 5px 0px;" href="{{url_for('portfolio')}}">MyPortfolio</a></li>
-                <li class="u-nav-item"><a class="u-border-2 u-border-active-palette-1-base u-border-hover-palette-1-base u-border-no-left u-border-no-right u-border-no-top u-button-style u-nav-link u-text-active-palette-1-light-1 u-text-hover-palette-2-light-1 u-text-palette-1-dark-1" style="padding: 5px 0px;" href="{{url_for('home')}}">Home</a></li>
-              </ul>
+                <ul class="u-custom-font u-font-georgia u-nav u-spacing-30 u-unstyled u-nav-1">
+                    <li class="u-nav-item"><a class="u-border-2 u-border-active-palette-1-base u-border-hover-palette-1-base u-border-no-left u-border-no-right u-border-no-top u-button-style u-nav-link u-text-active-palette-1-light-1 u-text-hover-palette-2-light-1 u-text-palette-1-dark-1" style="padding: 5px 0px;" href="{{url_for('portfolio')}}">MyPortfolio</a></li>
+                    <li class="u-nav-item"><a class="u-border-2 u-border-active-palette-1-base u-border-hover-palette-1-base u-border-no-left u-border-no-right u-border-no-top u-button-style u-nav-link u-text-active-palette-1-light-1 u-text-hover-palette-2-light-1 u-text-palette-1-dark-1" style="padding: 5px 0px;" href="{{url_for('home')}}">Home</a></li>
+                </ul>
             </div>
 
             <div class="u-custom-menu u-nav-container-collapse">
@@ -122,7 +124,7 @@
                 <div class="u-inner-container-layout u-sidenav-overflow">
                   <div class="u-menu-close"></div>
                   <ul class="u-align-center u-nav u-popupmenu-items u-unstyled u-nav-2">
-                    <li class="u-nav-item"><a class="u-button-style u-nav-link" style="padding: 10px 0px;" href="{{url_for('portfolio')}}">MyPortfolio</a></li>
+                    <li class="u-nav-item"><a class="u-button-style u-nav-link" style="padding: 10px 0px;" href="">MyPortfolio</a></li>
                     <li class="u-nav-item"><a class="u-button-style u-nav-link" style="padding: 10px 0px;" href="{{url_for('home')}}">Home</a></li>
                   </ul>
                 </div>
@@ -134,7 +136,7 @@
     </header>
 
 
-    <!-- S&P 500 Index Subtitle -->
+    <!-- Invalid Ticker Subtitle -->
     <section class="u-clearfix u-grey-5 u-section-1" id="sec-eff3">
       <div class="u-clearfix u-sheet u-valign-middle u-sheet-1">
         <lt-highlighter style="display: none; z-index: 1 !important;">
@@ -142,102 +144,43 @@
             <lt-div class="lt-highlighter__scroll-element" style="top: 0px; left: 0px; width: 144px; height: 40px;"></lt-div>
           </lt-div>
         </lt-highlighter>
-        <h4 class="u-custom-font u-font-georgia u-text u-text-default u-text-palette-1-dark-2 u-text-1">Standard & Poor's 500 Index</h4>
+        <h4 class="u-custom-font u-font-georgia u-text u-text-default u-text-palette-1-dark-2 u-text-1">MyPortfolio</h4>
       </div>
     </section>
 
 
-    <!-- S&P 500 Index Section -->
+    <!-- Invalid Ticker Section -->
     <section class="u-clearfix u-white u-section-2" id="sec-e33e">
-      
-      <div class="u-clearfix u-sheet u-sheet-500">
-        <!-- S&P 500 Info -->
-        <div id="container">
-          <!-- GSPC Stock Logo -->
-          <div class="stockLogo">
-            {% if logoContent_GSPC and logoExtension_GSPC %}
-              <img
-                id="imgContent"
-                src="data:image/{{ logoExtension_GSPC }};base64,{{ logoContent_GSPC }}"
-                style="display: block; margin-left: auto; margin-right: auto; width: 10%;" 
-              />
-            {% endif %}
-          </div>
-
-          <!-- GSPC Stock Chart -->
-          <div>
-            <canvas id="stockChartGSPC"></canvas>
-          </div>
+      <div class="u-clearfix u-sheet u-sheet-1">
+        <div class="searchTicker"><style>.searchTicker{font-family:Georgia, serif; width:60%; margin:0 auto;}</style>
+            <h4 class="warningSubTitle">Input Ticker Not Found</h4><br><br>
+            <p class="warningText"> Your will be redirected to the main page in 5 second.</p><br>
+            <a class="redirectLink" href="{{url_for('home')}}"> If your browser fails to redirect automatically, please click here</a>
         </div>
 
-        <script>
-          const labels1 = {{lastDayNewXlabels_GSPC|tojson}};
-
-          const data1 = {
-              labels: labels1,
-              datasets: [{
-                  label: 'Price',
-                  backgroundColor: 'rgb(255, 99, 132)',
-                  borderColor: 'rgb(255, 99, 132)',
-                  data: {{lastDayPrice_GSPC|tojson}},
-                  order: 0,
-                  yAxisID: 'Price',
-              },{
-                  label: 'Volume',
-                  backgroundColor: 'rgb(132, 99, 198)',
-                  borderColor: 'rgb(132, 99, 198)',
-                  data: {{lastDayAction_GSPC|tojson}},
-                  type: 'bar',
-                  order: 1,
-                  yAxisID: 'Volume',
-              }]
-          };
-
-          const config1 = {
-            type: 'line',
-            data: data1,
-            options: {
-              responsive: true,
-              plugins: {
-                legend: {
-                  position: 'top',
-                },
-                title: {
-                  display: true,
-                  text: {{name_GSPC|tojson}},
-                },
-                scales: {
-                  Price: {
-                    type: 'linear',
-                    position: 'left',
-                  },
-                  Action: {
-                    type: 'linear',
-                    position: 'right',
-                  }
-                },
-              },
-            },
-          };
-          const chart1 = new Chart(
-          document.getElementById('stockChartGSPC'),
-            config1
-          );
-        </script>
-        <!-- GSPC Stock Chart Box-->
-
-        <!-- Stock Current Price & Gain-->
-        <div class="stockPrice">
-          <style>
-            .stockPrice {
-              float: right;
+        <style>
+            .warningSubTitle{
+                color: #2874A6;
+                float: left;
+                vertical-align:middle;
             }
-          </style>
-          <p class="u-text u-text-default u-text-3">
-            <b>Current Price: </b>{{currentPrice_GSPC}} &nbsp; {{currentGain_GSPC}} %
-          </p>
-        </div>
 
+            .warningText{
+                color: #2874A6;
+                font-size: larger;
+                float: left;
+                vertical-align:middle;
+            }
+
+            .redirectLink{
+                color: #2874A6;
+                font-size: large;
+                float: left;
+                vertical-align:middle;
+                text-decoration: underline;
+            }
+
+        </style>
       </div>
     </section>
 

@@ -10,7 +10,12 @@
 
 /* 1st Section */
 .u-section-2 .u-sheet-1 {
-  min-height: 400px;
+  min-height: 100px;
+}
+
+/* Main Page SP 500 Section */
+.u-section-2 .u-sheet-500 {
+  min-height: 800px;
 }
 
 /* 2nd Subtitle */
