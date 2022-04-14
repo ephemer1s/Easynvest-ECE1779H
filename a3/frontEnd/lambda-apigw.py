@@ -2,13 +2,18 @@
 # used for render templates without flask application
 # author: ephemer1s
 
+import base64
+import csv
+import io
 import json
 import os
 from datetime import datetime, timedelta
 import jinja2
 import numpy as np
+import pandas as pd
 # from flask import *  # ephemer1s: if there is no web app, you should not import flask.
 import requests
+from frontEnd.backEnd import loadLogo
 from frontEnd.config import Config
 
 
@@ -39,6 +44,7 @@ def wrap(body):
         "body": body
     }
 
+
 # @webapp.route('/home')
 def index(event, context):
     """Home Page: Call to go back to main page "/"
@@ -57,6 +63,91 @@ def index(event, context):
                             lastDayAction_GSPC = lastDayActiondata_GSPC,
                             currentPrice_GSPC = currentPrice_GSPC,
                             currentGain_GSPC = currentGain_GSPC))
+
+
+def home(event, context):
+    """Home Page: Call to go back to main page "/"
+
+    Returns:
+        redirect to main page
+    """
+    return index()
+
+
+def stockChartLastDay(ticker):
+    """ Get the necessary info for displaying last day stock chart more easily
+
+    Returns:
+        stock logo image, chart labels, last day price, last day action 
+    """
+
+    # Get stock logo image
+    logoContent = None
+    logoExtension = None
+    logoBase64FormatImage, logoValidBool = loadLogo(ticker)
+    if logoValidBool:
+        logoContent = logoBase64FormatImage
+        logoExtension = ".png"
+
+    # Get stock data for chart
+    df, valid = Config.stockAPI.allQuote(ticker)
+
+    if valid:
+        closeData = df.loc[:, "close"]
+        timeData = df.index
+        volumeData = df.loc[:, "volume"]
+
+        pricedata = closeData.to_list()
+        xlabels = timeData.to_list()
+        actiondata = volumeData.to_list()
+
+        newXlabels = []
+
+        for i in xlabels:
+            newXlabels.append(i.strftime("%m/%d/%Y, %H:%M:%S"))
+
+        lastDayNewXlabels = []
+        lastDayPricedata = []
+        lastDayActiondata = []
+
+        lastWeekday = datetime.today() - timedelta(days=(0, 0, 0, 0,
+                                                         0, 1, 2)[datetime.today().weekday()])
+
+        while lastWeekday.strftime("%m/%d/%Y" + ", 09:30:00") not in newXlabels:
+            lastWeekday = lastWeekday - timedelta(days=(1, 1, 1, 1,
+                                                         1, 1, 2)[lastWeekday.weekday()])
+
+        if lastWeekday.strftime("%m/%d/%Y" + ", 09:30:00") in newXlabels:
+            # trim list so that it only displays today's data
+            trimIndex = newXlabels.index(
+                lastWeekday.strftime("%m/%d/%Y" + ", 09:30:00"))
+
+            lastDayNewXlabels = newXlabels[trimIndex:]
+            lastDayPricedata = pricedata[trimIndex:]
+            lastDayActiondata = actiondata[trimIndex:]
+
+        # Get current price and calculate current gain
+        currentPrice = pricedata[-1]
+
+        lastCloseWeekday = datetime.today() - timedelta(days=(3, 1, 1, 1,
+                                                              1, 1, 2)[datetime.today().weekday()])
+
+        if lastCloseWeekday.strftime("%m/%d/%Y" + ", 15:59:00") in newXlabels:
+            trimIndex = newXlabels.index(
+                lastCloseWeekday.strftime("%m/%d/%Y" + ", 15:59:00"))
+
+        if pricedata[trimIndex] == currentPrice:
+            lastCloseWeekday = lastCloseWeekday - timedelta(days=(1, 1, 1, 1,
+                                                            1, 1, 1)[lastCloseWeekday.weekday()])
+            if lastCloseWeekday.strftime("%m/%d/%Y" + ", 15:59:00") in newXlabels:
+                trimIndex = newXlabels.index(
+                    lastCloseWeekday.strftime("%m/%d/%Y" + ", 15:59:00"))
+
+        yesterdayClosePrice = pricedata[trimIndex]
+                               
+        currentGain = round(100 * currentPrice / yesterdayClosePrice - 100, 2)
+        
+        return logoContent, logoExtension, lastDayNewXlabels, lastDayPricedata, lastDayActiondata, currentPrice, currentGain
 
 
 # @webapp.route('/portfolio')
@@ -98,7 +189,6 @@ def stockRedirect(event, context):
     # TODO @ephemer1s handler debug, should this be working?
     # return redirect("/stock/" + str(stockTicker))
     return stock(stockTicker)
-
 
 
 # @webapp.route('/stock/<ticker>')
@@ -248,6 +338,7 @@ def stock(ticker):
         #                        )
         return wrap(render_template_without_flask("invalidTicker.html"))
 
+
 # @webapp.route('/portfolioParse', methods=['GET', 'POST'])
 def portfolioParse(event, context):
     """
@@ -256,17 +347,22 @@ def portfolioParse(event, context):
     """
     # Parse csv file, pass info and redirect to portfolioEditor.html
     #TODO @ ephemer1s
-    csvCredential = request.files['csvCredential']
-    clientIP = request.environ.get('HTTP_X_REAL_IP', request.remote_addr)
-
+    # csvCredential = request.files['csvCredential']
+    # clientIP = request.environ.get('HTTP_X_REAL_IP', request.remote_addr)
+    csvCredential = event['csvCredential']
+    clientIP = event['requestContext']['identity']['sourceIp']
     # If file not given, quit
     if csvCredential.filename == '': 
-        #TODO @ ephemer1s
-        response = webapp.response_class(
-            response=json.dumps("Credential file not selected"),
-            status=400,
-            mimetype='application/json'
-        )
+        # response = webapp.response_class(
+        #     response=json.dumps("Credential file not selected"),
+        #     status=400,
+        #     mimetype='application/json'
+        # )
+        response = {
+            "statusCode": 400,
+            "headers": {'Content-Type': 'application/json'},
+            "body": 'Credential file not selected'
+        }
         print(response)
         return response
 
@@ -279,8 +375,8 @@ def portfolioParse(event, context):
         Config.s3.upload_public_inner_file(
             csvCredential, _object_name=currentFileName)
         print("Credential updated to S3 successfully")
-    #TODO @ ephemer1s
-    return redirect("/portfolioEditor/" + str(clientIP))
+    # return redirect("/portfolioEditor/" + str(clientIP))
+    return portfolioEditor(str(clientIP))
 
 
 # @webapp.route('/portfolioScratch', methods=['GET', 'POST'])
@@ -290,8 +386,8 @@ def portfolioScratch(event, context):
     Returns: Passing empty credential to portfolioEditor page
     """
     #TODO @ ephemer1s
-    clientIP = request.environ.get('HTTP_X_REAL_IP', request.remote_addr)
-
+    # clientIP = request.environ.get('HTTP_X_REAL_IP', request.remote_addr)
+    clientIP = event['requestContext']['identity']['sourceIp']
     # Create an empty credential for new client
     currentDate = datetime.date(datetime.now())
     header = {'Action':['Buy'], 'Ticker':[''], 'Amount':[''], 'Price':[''], 'Date':[currentDate], 'Comment':['<Comment Here>']}
@@ -310,11 +406,12 @@ def portfolioScratch(event, context):
     Config.s3.upload_public_inner_file(
         emptyCredential, _object_name=currentFileName)
     print("Credential updated to S3 successfully")
-    #TODO @ ephemer1s
-    return redirect("/portfolioEditor/" + str(clientIP))
+    # return redirect("/portfolioEditor/" + str(clientIP))
+    return portfolioEditor(str(clientIP))
 
 
-@webapp.route('/portfolioEditor/<clientIP>', methods=['GET', 'POST'])
+# @webapp.route('/portfolioEditor/<clientIP>', methods=['GET', 'POST'])
+# this is not a handler!
 def portfolioEditor(clientIP):
     """
     Get uploaded csv credential and remote ip from client and display for edit
@@ -364,9 +461,9 @@ def portfolioEditor(clientIP):
             else:
                 # User could not sell a stock without buying in before
                 # if row['Action'] == 'Buy' and int(row['Amount']) >= 0:
-                    stockList.append(ticker)
-                    newStock = {'Ticker':ticker,'Amount':int(row['Amount']),'BuyInPrice':round(float(row['Price']), 2),'CurrentPrice':"",'Gain':""}
-                    portfolioGain.append(newStock)
+                stockList.append(ticker)
+                newStock = {'Ticker':ticker,'Amount':int(row['Amount']),'BuyInPrice':round(float(row['Price']), 2),'CurrentPrice':"",'Gain':""}
+                portfolioGain.append(newStock)
                 # If no valid ticker were found
                 # else:
                 #     response = webapp.response_class(
@@ -390,13 +487,19 @@ def portfolioEditor(clientIP):
                 stock['Gain'] = round(100 * (stock['CurrentPrice'] - stock['BuyInPrice']) / stock['BuyInPrice'], 2)
             print(portfolioGain)
         else:
-            response = webapp.response_class(
-            response=json.dumps("Access to stockAPI.liveQuotes failed."),
-            status=400,
-            mimetype='application/json'
-            )
+            # response = webapp.response_class(
+            # response=json.dumps("Access to stockAPI.liveQuotes failed."),
+            # status=400,
+            # mimetype='application/json'
+            # )
+            response = {
+                "statusCode": 400,
+                "headers": {'Content-Type': 'application/json'},
+                "body": 'Ticker should not be empty.'
+            }
             print(response)
             return response
+            
     # When user uploads an empty credential or chooses to start from scratch   
     else:
         portfolioGain = [{'Ticker':'', 'Amount':'', 'BuyInPrice':'', 'CurrentPrice':'', 'Gain':''}]
@@ -414,7 +517,6 @@ def browseStock(event, context):
     Stock Page
     Same as @webapp.route('/stock/<ticker>'), but different method
     """
-    # TODO @ephemer1s handler debug, should this be working?
     # ticker = request.form.get('key')
     ticker = event['key']
     length = 390
@@ -436,104 +538,21 @@ def browseStock(event, context):
                                name=ticker
                                ))
     else:  # ticker DNE
-        # ==================== Test data ========================
-        length = 60
-        pricedata = np.random.random(length)
-        pricedata = (pricedata * 10).tolist()
-        actiondata = np.random.random(length).tolist()
-        xlabels = np.arange(length).tolist()
-        # ==================== End Test ====================
-        return wrap(render_template_without_flask("stock.html",
-                               xlabels=xlabels,
-                               price=pricedata,
-                               action=actiondata,
-                               name=ticker
-                               ))
+        # # ==================== Test data ========================
+        # length = 60
+        # pricedata = np.random.random(length)
+        # pricedata = (pricedata * 10).tolist()
+        # actiondata = np.random.random(length).tolist()
+        # xlabels = np.arange(length).tolist()
+        # # ==================== End Test ====================
+        return wrap(render_template_without_flask("invalidTicker.html"))
+        # return wrap(render_template_without_flask("stock.html",
+        #                        xlabels=xlabels,
+        #                        price=pricedata,
+        #                        action=actiondata,
+        #                        name=ticker
+        #                        ))
 
-def home(event, context):
-    """Home Page: Call to go back to main page "/"
-
-    Returns:
-        redirect to main page
-    """
-    return index()
-
-
-
-def stockChartLastDay(ticker):
-    """ Get the necessary info for displaying last day stock chart more easily
-
-    Returns:
-        stock logo image, chart labels, last day price, last day action 
-    """
-
-    # Get stock logo image
-    logoContent = None
-    logoExtension = None
-    logoBase64FormatImage, logoValidBool = loadLogo(ticker)
-    if logoValidBool:
-        logoContent = logoBase64FormatImage
-        logoExtension = ".png"
-
-    # Get stock data for chart
-    df, valid = Config.stockAPI.allQuote(ticker)
-
-    if valid:
-        closeData = df.loc[:, "close"]
-        timeData = df.index
-        volumeData = df.loc[:, "volume"]
-
-        pricedata = closeData.to_list()
-        xlabels = timeData.to_list()
-        actiondata = volumeData.to_list()
-
-        newXlabels = []
-
-        for i in xlabels:
-            newXlabels.append(i.strftime("%m/%d/%Y, %H:%M:%S"))
-
-        lastDayNewXlabels = []
-        lastDayPricedata = []
-        lastDayActiondata = []
-
-        lastWeekday = datetime.today() - timedelta(days=(0, 0, 0, 0,
-                                                         0, 1, 2)[datetime.today().weekday()])
-
-        while lastWeekday.strftime("%m/%d/%Y" + ", 09:30:00") not in newXlabels:
-            lastWeekday = lastWeekday - timedelta(days=(1, 1, 1, 1,
-                                                         1, 1, 2)[lastWeekday.weekday()])
-
-        if lastWeekday.strftime("%m/%d/%Y" + ", 09:30:00") in newXlabels:
-            # trim list so that it only displays today's data
-            trimIndex = newXlabels.index(
-                lastWeekday.strftime("%m/%d/%Y" + ", 09:30:00"))
-
-            lastDayNewXlabels = newXlabels[trimIndex:]
-            lastDayPricedata = pricedata[trimIndex:]
-            lastDayActiondata = actiondata[trimIndex:]
-
-        # Get current price and calculate current gain
-        currentPrice = pricedata[-1]
-
-        lastCloseWeekday = datetime.today() - timedelta(days=(3, 1, 1, 1,
-                                                              1, 1, 2)[datetime.today().weekday()])
-
-        if lastCloseWeekday.strftime("%m/%d/%Y" + ", 15:59:00") in newXlabels:
-            trimIndex = newXlabels.index(
-                lastCloseWeekday.strftime("%m/%d/%Y" + ", 15:59:00"))
-
-        if pricedata[trimIndex] == currentPrice:
-            lastCloseWeekday = lastCloseWeekday - timedelta(days=(1, 1, 1, 1,
-                                                            1, 1, 1)[lastCloseWeekday.weekday()])
-            if lastCloseWeekday.strftime("%m/%d/%Y" + ", 15:59:00") in newXlabels:
-                trimIndex = newXlabels.index(
-                    lastCloseWeekday.strftime("%m/%d/%Y" + ", 15:59:00"))
-
-        yesterdayClosePrice = pricedata[trimIndex]
-                               
-        currentGain = round(100 * currentPrice / yesterdayClosePrice - 100, 2)
-        
-        return logoContent, logoExtension, lastDayNewXlabels, lastDayPricedata, lastDayActiondata, currentPrice, currentGain
 
 
 def makeAPI_Call(api_url: str, method: str, _timeout: int, _data={}):
