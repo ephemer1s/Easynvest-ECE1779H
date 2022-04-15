@@ -28,3 +28,4 @@ a3/package.json
 lambda-deploy/
 lambda-deploy-test/
 mylambdalayer/
+*.whl
