@@ -164,22 +164,13 @@ def stockRedirect(event, context):
     """
     Get input client stock ticker fron ticker search bar and redirect to /stock/<ticker>
     """
-    # TODO @ephemer1s handler debug, should this be working?
-    # stockTicker = request.form.get('stockTicker', "")
-    if 'stockTicker' in event:
-        print(event)
-        stockTicker = event['stockTicker']
-    elif not isinstance(event['body'], str) and 'stockTicker' in event['body']:
-        print(event['body'])
-        stockTicker = event['body']['stockTicker']
-    else:
-        print(event['body'])
-        body_raw = str(event['body'])
-        tmp = body_raw.split('form-data; name=\"stockTicker\"\r\n\r\n')[1]
-        stockTicker = tmp.split('\r\n-')[0]
-
-    # return redirect("/stock/" + str(stockTicker))
-    return stock(stockTicker)
+    print(event['body'])
+    body_raw = str(event['body'])
+    tmp = body_raw.split('form-data; name=\"stockTicker\"\r\n\r\n')[1]
+    stockTicker = tmp.split('\r\n-')[0]
+    print('stockTicker ID : {}'.format(stockTicker))
+    html_rendered = stock(stockTicker)
+    return html_rendered
 
 
 
@@ -510,7 +501,10 @@ def browseStock(event, context):
     Same as @webapp.route('/stock/<ticker>'), but different method
     """
     # ticker = request.form.get('key')
-    ticker = event['key']
+    print(event['body'])
+    body_raw = str(event['body'])
+    tmp = body_raw.split('form-data; name=\"key\"\r\n\r\n')[1]
+    ticker = tmp.split('\r\n-')[0]
     length = 390
     df, valid = Config.stockAPI.dailyQuote(ticker)
 
