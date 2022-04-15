@@ -166,29 +166,21 @@ def stockRedirect(event, context):
     """
     # TODO @ephemer1s handler debug, should this be working?
     # stockTicker = request.form.get('stockTicker', "")
-    stockTicker = event['stockTicker']
+    if 'stockTicker' in event:
+        print(event)
+        stockTicker = event['stockTicker']
+    elif not isinstance(event['body'], str) and 'stockTicker' in event['body']:
+        print(event['body'])
+        stockTicker = event['body']['stockTicker']
+    else:
+        print(event['body'])
+        body_raw = str(event['body'])
+        tmp = body_raw.split('form-data; name=\"stockTicker\"\r\n\r\n')[1]
+        stockTicker = tmp.split('\r\n-')[0]
 
-    if not stockTicker:  # If ticker is empty, raise error
-        # TODO @ephemer1s handler debug, should this be working?
-        # response = webapp.response_class(
-        #     response=json.dumps("Ticker should not be empty."),
-        #     status=400,
-        #     mimetype='application/json'
-        # )
-        
-        response = {
-            "statusCode": 400,
-            "headers": {'Content-Type': 'application/json'},
-            "body": 'Ticker should not be empty.'
-        }
-        print(response)
-        return response
-
-    # Under Construction @ Haozhe
-    # Add ticker not found later
-    # TODO @ephemer1s handler debug, should this be working?
     # return redirect("/stock/" + str(stockTicker))
     return stock(stockTicker)
+
 
 
 # @webapp.route('/stock/<ticker>')
