@@ -1,7 +1,3 @@
-import json
-import time
-import datetime
-from dateutil.tz import tzutc
 import boto3
 from tools.credential import ConfigAWS
 
