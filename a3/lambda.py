@@ -165,11 +165,15 @@ def stockRedirect(event, context):
     Get input client stock ticker fron ticker search bar and redirect to /stock/<ticker>
     """
     print(event['body'])
-    body_raw = str(event['body'])
-    tmp = body_raw.split('form-data; name=\"stockTicker\"\r\n\r\n')[1]
-    stockTicker = tmp.split('\r\n-')[0]
-    print('stockTicker ID : {}'.format(stockTicker))
-    html_rendered = stock(stockTicker)
+    # print(type(event['body']))
+    # body_raw = str(event['body'])
+    # tmp = body_raw.split('form-data; name=\"stockTicker\"\r\n\r\n')[1]
+    # stockTicker = tmp.split('\r\n-')[0]
+    ticker = event['body'].split('=')[1]
+    if ticker[-1] == '\n':
+        ticker = ticker[:-1]
+    print('stockTicker ID : {}'.format(ticker))
+    html_rendered = stock(ticker)
     return html_rendered
 
 
@@ -329,37 +333,40 @@ def portfolioParse(event, context):
     Returns: Passing client credential to portfolioEditor page
     """
     # Parse csv file, pass info and redirect to portfolioEditor.html
-    #TODO @ ephemer1s
     # csvCredential = request.files['csvCredential']
     # clientIP = request.environ.get('HTTP_X_REAL_IP', request.remote_addr)
-    csvCredential = event['csvCredential']
+
     clientIP = event['requestContext']['identity']['sourceIp']
     # If file not given, quit
-    if csvCredential.filename == '': 
-        # response = webapp.response_class(
-        #     response=json.dumps("Credential file not selected"),
-        #     status=400,
-        #     mimetype='application/json'
-        # )
-        response = {
-            "statusCode": 400,
-            "headers": {'Content-Type': 'application/json'},
-            "body": 'Credential file not selected'
-        }
-        print(response)
-        return response
+    # try:
+    # csvCredential = event['csvCredential']
+    print(event)
+    tmp = event['body'].split('\"Action\",\"Ticker\",\"Amount\",\"Price\",\"Date\",\"Comment\"\n')[1].split('\r\n--')[0].replace('"','')
+    print(tmp)
+    tmp = '"Action","Ticker","Amount","Price","Date","Comment"\n' + tmp
+    filename=event['body'].split('filename=\"')[1].split('\"\r\n')[0]
+    print(filename)
+    csvCredential = tmp.encode()
+    # except:
+    #     csvCredential = None
+    #     response = {
+    #         "statusCode": 400,
+    #         "headers": {'Content-Type': 'application/json'},
+    #         "body": 'Credential file not selected'
+    #     }
+    #     print(response)
+    #     return response
 
     # Save credential file in S3 as cache
-    if csvCredential:
-        print(type(csvCredential))
-        split_tup = os.path.splitext(csvCredential.filename)
+    if csvCredential is not None:
+        # print(type(csvCredential))
+        split_tup = os.path.splitext(filename)
         currentFileName = "credential_" + clientIP + split_tup[1]
-
-        Config.s3.upload_public_inner_file(
-            csvCredential, _object_name=currentFileName)
-        print("Credential updated to S3 successfully")
+        Config.s3.upload_public_inner_file(io.BytesIO(csvCredential), _object_name=currentFileName)
+        # os.remove(filename)
     # return redirect("/portfolioEditor/" + str(clientIP))
     return portfolioEditor(str(clientIP))
+
 
 
 # @webapp.route('/portfolioScratch', methods=['GET', 'POST'])
